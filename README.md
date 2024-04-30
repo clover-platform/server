@@ -1,4 +1,6 @@
-# Clover Server Monorepo repository
+# Clover Server 
+
+Server 项目，Monorepo repository
 
 ## 项目
 - `server-gateway` 网关
