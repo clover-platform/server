@@ -1,5 +1,11 @@
 spring:
   application:
-    name: demo-bot
-server:
-  port: 8080
+    name: clover-main
+  cloud:
+    nacos:
+      config:
+        server-addr: https://nacos.zkit.org
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
+        file-extension: yaml
+        refresh-enabled: true
