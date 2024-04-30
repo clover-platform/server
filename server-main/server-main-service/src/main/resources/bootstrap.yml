@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: demo-bot
+server:
+  port: 8080
