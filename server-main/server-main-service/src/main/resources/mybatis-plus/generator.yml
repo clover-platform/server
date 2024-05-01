@@ -1,21 +1,24 @@
 # 基础包名
-basePackage: org.zkit.tg.bot.demo
+basePackage: plus.xyc.server.main
 mapperPackage: src/main/resources/mapper
 # 数据源
 datasource:
-  url: jdbc:mysql://zkit.org:7706/demo_bot
-  username: bot
-  password: 284885069
+  url: jdbc:mysql://zkit.org:7706/clover_main
 # 激活的模块
 actives:
-  - user
-  - bot
+  - account
+  - project
+  - team
 # 模块配置
 modules:
-  - name: user
+  - name: account
     tables:
-      - user
-  - name: bot
+      - account
+  - name: project
     tables:
-      - bot
-      - bot_command
+      - project
+      - project_member
+  - name: team
+    tables:
+      - team
+      - team_member
