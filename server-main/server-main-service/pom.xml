@@ -17,5 +17,10 @@
             <artifactId>telegrambots</artifactId>
             <version>6.9.7.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.zkit.support</groupId>
+            <artifactId>boot</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>
