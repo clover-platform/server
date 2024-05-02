@@ -1,6 +1,7 @@
 package plus.xyc.server.main.account.service.impl;
 
 import org.springframework.cache.annotation.Cacheable;
+import org.zkit.support.boot.exception.ResultException;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
@@ -18,9 +19,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
-    @Override
     @Cacheable(value = "account", key = "#username")
     public Account findByUsername(String username) {
-        return getBaseMapper().findOneByUsername(username);
+        Account account = getBaseMapper().findOneByUsername(username);
+        if(account == null){
+            ResultException ex = new ResultException(1, "test error");
+            ex.setData(username);
+            throw ex;
+        }
+        return account;
     }
+
 }
