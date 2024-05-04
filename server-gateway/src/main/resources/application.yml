@@ -1,0 +1,15 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: clover-server-main
+          uri: lb://clover-server-main
+          predicates:
+            - Path=/api/main/**
+        - id: easy-server-account
+          uri: lb://easy-server-account
+          predicates:
+            - Path=/api/account/**
+      discovery:
+        locator:
+          enabled: false
