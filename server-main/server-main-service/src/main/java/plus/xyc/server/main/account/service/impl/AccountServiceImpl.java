@@ -2,6 +2,7 @@ package plus.xyc.server.main.account.service.impl;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.boot.exception.ResultException;
+import org.zkit.support.boot.utils.MessageUtils;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
@@ -23,7 +24,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public Account findByUsername(String username) {
         Account account = getBaseMapper().findOneByUsername(username);
         if(account == null){
-            ResultException ex = new ResultException(1, "test error");
+            ResultException ex = new ResultException(1, MessageUtils.get("error"));
             ex.setData(username);
             throw ex;
         }
