@@ -1,13 +1,13 @@
 package plus.xyc.server.main.account.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RestController;
-import plus.xyc.server.main.account.entity.dto.Account;
-import plus.xyc.server.main.account.service.AccountService;
+import org.zkit.support.server.account.api.entity.AccountResponse;
+import org.zkit.support.server.account.api.rest.AuthAccountApi;
 
 /**
  * <p>
@@ -18,18 +18,21 @@ import plus.xyc.server.main.account.service.AccountService;
  * @since 2024-05-02
  */
 @RestController
-@RequestMapping("/api/account")
+@RequestMapping("/api/main/account")
+@Slf4j
 public class AccountController {
 
-    private AccountService accountService;
+    private AuthAccountApi authAccountApi;
 
-    @GetMapping("/get")
-    public Account findByUsername(@Param("username") String username) {
-        return accountService.findByUsername(username);
+    @GetMapping("/test")
+    public AccountResponse test(@Param("username") String username) {
+        AccountResponse response = authAccountApi.findByUsername(username);
+        log.info("AccountController test {}", response);
+        return response;
     }
 
     @Autowired
-    public void setAccountService(AccountService accountService) {
-        this.accountService = accountService;
+    public void setAuthAccountApi(AuthAccountApi authAccountApi) {
+        this.authAccountApi = authAccountApi;
     }
 }
