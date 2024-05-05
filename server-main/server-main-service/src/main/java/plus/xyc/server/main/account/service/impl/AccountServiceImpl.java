@@ -1,7 +1,8 @@
 package plus.xyc.server.main.account.service.impl;
 
-import org.springframework.cache.annotation.Cacheable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.zkit.support.boot.exception.ResultException;
+import org.zkit.support.boot.service.EmailCodeService;
 import org.zkit.support.boot.utils.MessageUtils;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.mapper.AccountMapper;
@@ -20,15 +21,21 @@ import org.springframework.stereotype.Service;
 @Service
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
-    @Cacheable(value = "account", key = "#username")
-    public Account findByUsername(String username) {
-        Account account = getBaseMapper().findOneByUsername(username);
-        if(account == null){
-            ResultException ex = new ResultException(1, MessageUtils.get("error"));
-            ex.setData(username);
-            throw ex;
+    private EmailCodeService emailCodeService;
+
+    public void sendRegisterEmail(String email) {
+        if(!this.hasEmail(email)) {
+            throw new ResultException(1, MessageUtils.get("mail.fail"));
         }
-        return account;
+        emailCodeService.send(email, "register");
     }
 
+    private boolean hasEmail(String email) {
+        return this.baseMapper.countByEmail(email) == 0;
+    }
+
+    @Autowired
+    public void setEmailCodeService(EmailCodeService emailCodeService) {
+        this.emailCodeService = emailCodeService;
+    }
 }

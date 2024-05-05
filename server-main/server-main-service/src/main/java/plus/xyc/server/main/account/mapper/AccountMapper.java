@@ -14,6 +14,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface AccountMapper extends BaseMapper<Account> {
 
-    Account findOneByUsername(@Param("username") String username);
+    int countByEmail(@Param("email") String email);
 
 }
