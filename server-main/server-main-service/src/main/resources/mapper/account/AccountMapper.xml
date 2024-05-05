@@ -26,4 +26,12 @@
         username = #{username,jdbcType=VARCHAR}
     </select>
 
+    <select id="countByEmail" resultType="int">
+        select count(*)
+        from account
+        where email = #{email,jdbcType=VARCHAR}
+        and deleted = false
+        and enable = true
+    </select>
+
 </mapper>

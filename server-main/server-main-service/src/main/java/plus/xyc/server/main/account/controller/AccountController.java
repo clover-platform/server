@@ -1,13 +1,13 @@
 package plus.xyc.server.main.account.controller;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.AccountResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
+import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
+import plus.xyc.server.main.account.service.AccountService;
 
 /**
  * <p>
@@ -22,13 +22,24 @@ import org.zkit.support.server.account.api.rest.AuthAccountApi;
 @Slf4j
 public class AccountController {
 
+    private AccountService accountService;
     private AuthAccountApi authAccountApi;
 
     @GetMapping("/test")
-    public AccountResponse test(@Param("username") String username) {
+    public AccountResponse test(@RequestParam("username") String username) {
         AccountResponse response = authAccountApi.findByUsername(username);
         log.info("AccountController test {}", response);
         return response;
+    }
+
+    @PostMapping("/register/email/send")
+    public void sendRegisterEmail(@RequestBody SendRegisterEmailRequest request) {
+        this.accountService.sendRegisterEmail(request.getEmail());
+    }
+
+    @Autowired
+    public void setAccountService(AccountService accountService) {
+        this.accountService = accountService;
     }
 
     @Autowired
