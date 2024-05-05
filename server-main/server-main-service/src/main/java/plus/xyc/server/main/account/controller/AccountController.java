@@ -1,11 +1,12 @@
 package plus.xyc.server.main.account.controller;
 
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.zkit.support.cloud.starter.auth.annotation.PublicRequest;
 import org.zkit.support.server.account.api.entity.AccountResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
+import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
 import plus.xyc.server.main.account.service.AccountService;
 
@@ -25,6 +26,7 @@ public class AccountController {
     private AccountService accountService;
     private AuthAccountApi authAccountApi;
 
+    @PublicRequest
     @GetMapping("/test")
     public AccountResponse test(@RequestParam("username") String username) {
         AccountResponse response = authAccountApi.findByUsername(username);
@@ -32,9 +34,16 @@ public class AccountController {
         return response;
     }
 
+    @PublicRequest
     @PostMapping("/register/email/send")
     public void sendRegisterEmail(@RequestBody SendRegisterEmailRequest request) {
         this.accountService.sendRegisterEmail(request.getEmail());
+    }
+
+    @PublicRequest
+    @PostMapping("/register/email/check")
+    public void checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
+        this.accountService.checkRegisterEmail(request);
     }
 
     @Autowired
