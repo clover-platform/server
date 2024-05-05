@@ -11,15 +11,6 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>Api Module</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.zkit.support</groupId>
-            <artifactId>boot</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>
