@@ -1,6 +1,7 @@
 package plus.xyc.server.main.account.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.zkit.support.cloud.starter.exception.ResultException;
 import org.zkit.support.cloud.starter.service.EmailCodeService;
@@ -44,13 +45,19 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Account account = new Account();
         account.setEmail(request.getEmail());
         account.setUsername(request.getUsername());
-        account = this.add(account);
+        AccountService self = (AccountService) AopContext.currentProxy();
+        account = self.add(account);
     }
 
     @Override
-    @DistributedLock(value = "account")
+    @DistributedLock(value = "account", key = "#account.username")
     public Account add(Account account) {
         log.info("account {}", account);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
         return null;
     }
 
