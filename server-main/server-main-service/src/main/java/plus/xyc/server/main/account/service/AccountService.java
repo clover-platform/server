@@ -1,5 +1,6 @@
 package plus.xyc.server.main.account.service;
 
+import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import plus.xyc.server.main.account.entity.dto.Account;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
@@ -15,7 +16,7 @@ import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 public interface AccountService extends IService<Account> {
 
     void sendRegisterEmail(String email);
-    void checkRegisterEmail(CheckRegisterEmailRequest request);
+    TokenResponse checkRegisterEmail(CheckRegisterEmailRequest request);
     Account add(Account account);
 
 }

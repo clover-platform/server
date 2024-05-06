@@ -4,7 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.cloud.starter.auth.annotation.PublicRequest;
-import org.zkit.support.server.account.api.entity.AccountResponse;
+import org.zkit.support.server.account.api.entity.response.AccountResponse;
+import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
@@ -42,8 +43,8 @@ public class AccountController {
 
     @PublicRequest
     @PostMapping("/register/email/check")
-    public void checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
-        this.accountService.checkRegisterEmail(request);
+    public TokenResponse checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
+        return this.accountService.checkRegisterEmail(request);
     }
 
     @Autowired
