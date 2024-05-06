@@ -34,4 +34,10 @@
         and enable = true
     </select>
 
+    <select id="countByUsername" resultType="int">
+        select count(*)
+        from account
+        where username = #{username,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

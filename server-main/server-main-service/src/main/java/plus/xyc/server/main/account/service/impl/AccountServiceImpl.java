@@ -1,12 +1,20 @@
 package plus.xyc.server.main.account.service.impl;
 
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.zkit.support.cloud.starter.code.MailCode;
 import org.zkit.support.cloud.starter.exception.ResultException;
 import org.zkit.support.cloud.starter.service.EmailCodeService;
 import org.zkit.support.cloud.starter.utils.MessageUtils;
 import org.zkit.support.redisson.starter.DistributedLock;
+import org.zkit.support.server.account.api.entity.request.AccountAddRequest;
+import org.zkit.support.server.account.api.entity.request.CreateTokenRequest;
+import org.zkit.support.server.account.api.entity.response.AccountResponse;
+import org.zkit.support.server.account.api.entity.response.TokenResponse;
+import org.zkit.support.server.account.api.rest.AuthAccountApi;
+import plus.xyc.server.main.account.entity.code.AccountCode;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.mapper.AccountMapper;
@@ -27,42 +35,63 @@ import org.springframework.stereotype.Service;
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
     private EmailCodeService emailCodeService;
+    @Resource
+    private AuthAccountApi authAccountApi;
 
     public void sendRegisterEmail(String email) {
-        if(!this.hasEmail(email)) {
-            throw new ResultException(1, MessageUtils.get("mail.fail"));
+        if(this.hasEmail(email)) {
+            throw new ResultException(MailCode.FAIL.code, MessageUtils.get(MailCode.FAIL.key));
         }
         emailCodeService.send(email, "register");
     }
 
     @Override
-    public void checkRegisterEmail(CheckRegisterEmailRequest request) {
+    @DistributedLock(value = "account")
+    public TokenResponse checkRegisterEmail(CheckRegisterEmailRequest request) {
         // 验证码是否正确
         boolean checked = emailCodeService.check(request.getEmail(), request.getCode(), "register");
         if(!checked) {
-            throw new ResultException(1, MessageUtils.get("public.code.fail"));
+            throw new ResultException(AccountCode.REGISTER_CODE.code, MessageUtils.get(AccountCode.REGISTER_CODE.key));
         }
         Account account = new Account();
         account.setEmail(request.getEmail());
         account.setUsername(request.getUsername());
-        AccountService self = (AccountService) AopContext.currentProxy();
-        account = self.add(account);
+        account = this.add(account);
+        CreateTokenRequest createTokenRequest = new CreateTokenRequest();
+        createTokenRequest.setId(account.getId());
+        createTokenRequest.setExpiresIn(5 * 60 * 1000L);
+        return authAccountApi.createToken(createTokenRequest);
     }
 
     @Override
-    @DistributedLock(value = "account", key = "#account.username")
+    @DistributedLock(value = "account")
     public Account add(Account account) {
-        log.info("account {}", account);
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            log.error(e.getMessage());
+        boolean has = this.hasUsername(account.getUsername());
+        if(has) {
+            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
         }
-        return null;
+        has = this.hasEmail(account.getEmail());
+        if(has) {
+            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+        }
+        AccountResponse response = authAccountApi.findByUsername(account.getUsername());
+        if(response == null) {
+            AccountAddRequest request = new AccountAddRequest();
+            request.setUsername(account.getUsername());
+            response = authAccountApi.add(request);
+            account.setId(response.getId());
+        }
+        this.save(account);
+        return account;
     }
 
+    private boolean hasUsername(String username) {
+        return this.baseMapper.countByUsername(username) > 0;
+    }
+
+
     private boolean hasEmail(String email) {
-        return this.baseMapper.countByEmail(email) == 0;
+        return this.baseMapper.countByEmail(email) > 0;
     }
 
     @Autowired

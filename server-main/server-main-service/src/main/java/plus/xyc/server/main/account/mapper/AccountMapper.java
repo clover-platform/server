@@ -16,4 +16,6 @@ public interface AccountMapper extends BaseMapper<Account> {
 
     int countByEmail(@Param("email") String email);
 
+    int countByUsername(@Param("username") String username);
+
 }
