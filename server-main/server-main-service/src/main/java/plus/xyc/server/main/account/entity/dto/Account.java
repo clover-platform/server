@@ -2,6 +2,8 @@ package plus.xyc.server.main.account.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+
+import java.io.Serial;
 import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,6 +20,7 @@ import lombok.Setter;
 @Setter
 public class Account implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -44,12 +47,12 @@ public class Account implements Serializable {
     /**
      * 是否已删除
      */
-    private Byte deleted;
+    private Boolean deleted;
 
     /**
      * 是否启用
      */
-    private Byte enable;
+    private Boolean enable;
 
     /**
      * 当前团队id
@@ -60,4 +63,9 @@ public class Account implements Serializable {
      * 当前项目id
      */
     private Integer currentProjectId;
+
+    /**
+     * 是否已激活
+     */
+    private Boolean active;
 }

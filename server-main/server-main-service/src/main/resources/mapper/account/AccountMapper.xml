@@ -10,13 +10,14 @@
         <result column="avatar" property="avatar" />
         <result column="deleted" property="deleted" />
         <result column="enable" property="enable" />
-        <result column="currentTeamId" property="currentTeamId" />
-        <result column="currentProjectId" property="currentProjectId" />
+        <result column="current_team_id" property="currentTeamId" />
+        <result column="current_project_id" property="currentProjectId" />
+        <result column="active" property="active" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, email, username, avatar, deleted, enable, currentTeamId, currentProjectId
+        id, email, username, avatar, deleted, enable, current_team_id, current_project_id, active
     </sql>
     <select id="findOneByUsername" resultMap="BaseResultMap">
         select
@@ -24,20 +25,23 @@
         from account
         where
         username = #{username,jdbcType=VARCHAR}
+        and deleted = false
     </select>
 
     <select id="countByEmail" resultType="int">
         select count(*)
         from account
         where email = #{email,jdbcType=VARCHAR}
+        and active = true
         and deleted = false
-        and enable = true
     </select>
 
     <select id="countByUsername" resultType="int">
         select count(*)
         from account
         where username = #{username,jdbcType=VARCHAR}
+          and active = true
+          and deleted = false
     </select>
 
 </mapper>

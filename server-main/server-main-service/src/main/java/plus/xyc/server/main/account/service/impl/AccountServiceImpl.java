@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.zkit.support.cloud.starter.code.MailCode;
+import org.zkit.support.cloud.starter.entity.Result;
 import org.zkit.support.cloud.starter.exception.ResultException;
 import org.zkit.support.cloud.starter.service.EmailCodeService;
 import org.zkit.support.cloud.starter.utils.MessageUtils;
@@ -39,9 +40,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AuthAccountApi authAccountApi;
 
     public void sendRegisterEmail(String email) {
-        if(this.hasEmail(email)) {
-            throw new ResultException(MailCode.FAIL.code, MessageUtils.get(MailCode.FAIL.key));
-        }
         emailCodeService.send(email, "register");
     }
 
@@ -60,7 +58,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         CreateTokenRequest createTokenRequest = new CreateTokenRequest();
         createTokenRequest.setId(account.getId());
         createTokenRequest.setExpiresIn(5 * 60 * 1000L);
-        return authAccountApi.createToken(createTokenRequest);
+        Result<TokenResponse> result = authAccountApi.createToken(createTokenRequest);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
+        }
+        return result.getData();
     }
 
     @Override
@@ -74,14 +76,16 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(has) {
             throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
         }
-        AccountResponse response = authAccountApi.findByUsername(account.getUsername());
-        if(response == null) {
-            AccountAddRequest request = new AccountAddRequest();
-            request.setUsername(account.getUsername());
-            response = authAccountApi.add(request);
-            account.setId(response.getId());
+
+        AccountAddRequest request = new AccountAddRequest();
+        request.setUsername(account.getUsername());
+        Result<AccountResponse> result = authAccountApi.addOrGet(request);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
         }
-        this.save(account);
+        AccountResponse response = result.getData();
+        account.setId(response.getId());
+        this.saveOrUpdate(account);
         return account;
     }
 
