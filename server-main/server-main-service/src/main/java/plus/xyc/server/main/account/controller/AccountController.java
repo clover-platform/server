@@ -3,8 +3,10 @@ package plus.xyc.server.main.account.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.zkit.support.cloud.starter.auth.annotation.CurrentUser;
 import org.zkit.support.cloud.starter.auth.annotation.PublicRequest;
 import org.zkit.support.cloud.starter.entity.Result;
+import org.zkit.support.cloud.starter.entity.SessionUser;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
@@ -51,10 +53,10 @@ public class AccountController {
         return this.accountService.checkRegisterEmail(request);
     }
 
-    @PublicRequest
     @GetMapping("/otp/secret")
-    public OTPResponse otpSecret() {
-        Result<OTPResponse> response = authAccountApi.otpSecret(1L);
+    public OTPResponse otpSecret(@CurrentUser() SessionUser user) {
+        log.info("AccountController otpSecret {}", user);
+        Result<OTPResponse> response = authAccountApi.otpSecret(user.getId());
         return response.getData();
     }
 
