@@ -7,6 +7,7 @@ import org.zkit.support.cloud.starter.auth.annotation.CurrentUser;
 import org.zkit.support.cloud.starter.auth.annotation.PublicRequest;
 import org.zkit.support.cloud.starter.entity.Result;
 import org.zkit.support.cloud.starter.entity.SessionUser;
+import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
@@ -58,6 +59,15 @@ public class AccountController {
         log.info("AccountController otpSecret {}", user);
         Result<OTPResponse> response = authAccountApi.otpSecret(user.getId());
         return response.getData();
+    }
+
+    @PostMapping("/register/set/password")
+    public TokenResponse setPassword(
+            @CurrentUser() SessionUser user,
+            @RequestBody SetPasswordRequest request
+    ) {
+        request.setId(user.getId());
+        return this.accountService.setPassword(request);
     }
 
     @Autowired
