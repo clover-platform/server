@@ -2,9 +2,7 @@ package plus.xyc.server.main.account.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.zkit.support.cloud.starter.code.MailCode;
 import org.zkit.support.cloud.starter.entity.Result;
 import org.zkit.support.cloud.starter.exception.ResultException;
 import org.zkit.support.cloud.starter.service.EmailCodeService;
@@ -12,6 +10,7 @@ import org.zkit.support.cloud.starter.utils.MessageUtils;
 import org.zkit.support.redisson.starter.DistributedLock;
 import org.zkit.support.server.account.api.entity.request.AccountAddRequest;
 import org.zkit.support.server.account.api.entity.request.CreateTokenRequest;
+import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
@@ -87,6 +86,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         account.setId(response.getId());
         this.saveOrUpdate(account);
         return account;
+    }
+
+    @Override
+    public TokenResponse setPassword(SetPasswordRequest request) {
+        Result<TokenResponse> result = authAccountApi.setPassword(request);
+        log.info("{}",request);
+        return result.getData();
     }
 
     private boolean hasUsername(String username) {
