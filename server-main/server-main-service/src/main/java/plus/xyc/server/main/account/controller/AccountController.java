@@ -61,7 +61,7 @@ public class AccountController {
         return response.getData();
     }
 
-    @PostMapping("/register/set/password")
+    @PostMapping("/register/password/set")
     public TokenResponse setPassword(
             @CurrentUser() SessionUser user,
             @RequestBody SetPasswordRequest request

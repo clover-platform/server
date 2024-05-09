@@ -91,7 +91,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     public TokenResponse setPassword(SetPasswordRequest request) {
         Result<TokenResponse> result = authAccountApi.setPassword(request);
-        log.info("{}",request);
+        log.info("{}",result);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
+        }
         return result.getData();
     }
 
