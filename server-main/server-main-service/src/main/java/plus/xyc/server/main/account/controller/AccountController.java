@@ -4,16 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.zkit.support.cloud.starter.auth.annotation.CurrentUser;
-import org.zkit.support.cloud.starter.auth.annotation.PublicRequest;
-import org.zkit.support.cloud.starter.entity.Result;
-import org.zkit.support.cloud.starter.entity.SessionUser;
+import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
+import org.zkit.support.starter.boot.auth.annotation.PublicRequest;
+import org.zkit.support.starter.boot.entity.Result;
+import org.zkit.support.starter.boot.entity.SessionUser;
 import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
-import org.zkit.support.throttler.starter.annotation.Throttler;
+import org.zkit.support.starter.throttler.annotation.Throttler;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.TestCheckRequest;
@@ -28,7 +28,7 @@ import plus.xyc.server.main.account.service.AccountService;
  * @since 2024-05-02
  */
 @RestController
-@RequestMapping("/api/main/account")
+@RequestMapping("/account")
 @Slf4j
 @Validated
 public class AccountController {

@@ -6,10 +6,30 @@ spring:
           uri: lb://clover-server-main
           predicates:
             - Path=/api/main/**
+          filters:
+            - RewritePath=/api/main/(?<path>.*),/$\{path}
         - id: easy-server-account
           uri: lb://easy-server-account
           predicates:
             - Path=/api/account/**
+          filters:
+            - RewritePath=/api/account/(?<path>.*),/$\{path}
+        - id: openapi
+          uri: http://localhost:${server.port}
+          predicates:
+            - Path=/v3/api-docs/**
+          filters:
+            - RewritePath=/v3/api-docs/(?<path>.*),/$\{path}/v3/api-docs
       discovery:
         locator:
           enabled: false
+springdoc:
+  webjars:
+    prefix:
+  swagger-ui:
+    use-root-path: true
+    urls:
+      - name: account
+        url: /v3/api-docs/api/account
+      - name: main
+        url: /v3/api-docs/api/main
