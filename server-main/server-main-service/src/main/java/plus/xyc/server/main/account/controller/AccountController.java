@@ -2,6 +2,7 @@ package plus.xyc.server.main.account.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.cloud.starter.auth.annotation.CurrentUser;
 import org.zkit.support.cloud.starter.auth.annotation.PublicRequest;
@@ -15,6 +16,7 @@ import org.zkit.support.server.account.api.rest.AuthAccountApi;
 import org.zkit.support.throttler.starter.annotation.Throttler;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
+import plus.xyc.server.main.account.entity.request.TestCheckRequest;
 import plus.xyc.server.main.account.service.AccountService;
 
 /**
@@ -28,6 +30,7 @@ import plus.xyc.server.main.account.service.AccountService;
 @RestController
 @RequestMapping("/api/main/account")
 @Slf4j
+@Validated
 public class AccountController {
 
     private AccountService accountService;
@@ -39,6 +42,13 @@ public class AccountController {
         Result<AccountResponse> response = authAccountApi.findByUsername(username);
         log.info("AccountController test {}", response);
         return response.getData();
+    }
+
+    @PublicRequest
+    @GetMapping("/test/check")
+    public AccountResponse testCheck(@RequestBody @Validated TestCheckRequest request) {
+        log.info("AccountController testCheck {}", request);
+        return null;
     }
 
     @PublicRequest
