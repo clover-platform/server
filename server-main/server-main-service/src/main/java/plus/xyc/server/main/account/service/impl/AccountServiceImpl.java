@@ -1,8 +1,10 @@
 package plus.xyc.server.main.account.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.zkit.support.cloud.starter.entity.Result;
 import org.zkit.support.cloud.starter.exception.ResultException;
 import org.zkit.support.cloud.starter.service.EmailCodeService;
@@ -89,11 +91,18 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
+    @CacheEvict(value = "account", key = "#result.username")
+    @DistributedLock(value = "account", key = "#request.id")
     public TokenResponse setPassword(SetPasswordRequest request) {
         Result<TokenResponse> result = authAccountApi.setPassword(request);
-        log.info("{}",result);
-        if(!result.isSuccess()) {
-            throw ResultException.internal();
+        if(result.isSuccess()) {
+            // 更新用户信息
+            UpdateWrapper<Account> update = new UpdateWrapper<>();
+            update.eq("id",request.getId());
+            update.set("active", 1);
+            this.update(update);
+        }else{
+            throw new ResultException(result.getCode(),result.getMessage());
         }
         return result.getData();
     }
