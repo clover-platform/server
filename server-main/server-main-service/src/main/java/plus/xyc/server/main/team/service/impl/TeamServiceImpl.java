@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 
 /**
  * <p>
- *  服务实现类
+ * 团队 服务实现类
  * </p>
  *
  * @author generator
- * @since 2024-05-02
+ * @since 2024-05-11
  */
 @Service
 public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements TeamService {
