@@ -3,42 +3,35 @@ package plus.xyc.server.main.team.entity.dto;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serial;
+import lombok.Data;
 
 /**
  * <p>
- * 
+ * 团队
  * </p>
  *
  * @author generator
- * @since 2024-05-02
+ * @since 2024-05-11
  */
-@Getter
-@Setter
+@Data
+@Schema(name = "Team", description = "团队")
 public class Team implements Serializable {
-
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 主键
-     */
+    @Schema(description = "主键")
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
-    /**
-     * 团队名称
-     */
+    @Schema(description = "团队名称")
     private String name;
 
-    /**
-     * 创建人
-     */
-    private Integer ownerId;
+    @Schema(description = "创建人")
+    private Long ownerId;
 
-    /**
-     * 创建时间
-     */
-    private LocalDateTime createTime;
+    @Schema(description = "创建时间")
+    private Date createTime;
 }

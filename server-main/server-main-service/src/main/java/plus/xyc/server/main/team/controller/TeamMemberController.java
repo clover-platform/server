@@ -1,17 +1,17 @@
 package plus.xyc.server.main.team.controller;
 
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- *  前端控制器
+ * 团队成员 前端控制器
  * </p>
  *
  * @author generator
- * @since 2024-05-02
+ * @since 2024-05-11
  */
-@Controller
+@RestController
 @RequestMapping("/team/teamMember")
 public class TeamMemberController {
 

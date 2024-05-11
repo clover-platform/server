@@ -2,70 +2,50 @@ package plus.xyc.server.main.account.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-
-import java.io.Serial;
 import java.io.Serializable;
-import lombok.Getter;
-import lombok.Setter;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serial;
+import lombok.Data;
 
 /**
  * <p>
- *
+ * 用户信息
  * </p>
  *
  * @author generator
- * @since 2024-05-02
+ * @since 2024-05-11
  */
-@Getter
-@Setter
+@Data
+@Schema(name = "Account", description = "用户信息")
 public class Account implements Serializable {
-
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 主键
-     */
+    @Schema(description = "主键")
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    /**
-     * 邮箱
-     */
+    @Schema(description = "邮箱")
     private String email;
 
-    /**
-     * 用户名
-     */
+    @Schema(description = "用户名")
     private String username;
 
-    /**
-     * 头像
-     */
+    @Schema(description = "头像")
     private String avatar;
 
-    /**
-     * 是否已删除
-     */
+    @Schema(description = "是否已删除")
     private Boolean deleted;
 
-    /**
-     * 是否启用
-     */
+    @Schema(description = "是否启用")
     private Boolean enable;
 
-    /**
-     * 当前团队id
-     */
-    private Integer currentTeamId;
+    @Schema(description = "当前团队id")
+    private Long currentTeamId;
 
-    /**
-     * 当前项目id
-     */
-    private Integer currentProjectId;
+    @Schema(description = "当前项目id")
+    private Long currentProjectId;
 
-    /**
-     * 是否已激活
-     */
+    @Schema(description = "是否已激活")
     private Boolean active;
 }

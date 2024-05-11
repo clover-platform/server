@@ -4,48 +4,39 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.Date;
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.io.Serial;
+import lombok.Data;
 
 /**
  * <p>
- * 
+ * 项目成员
  * </p>
  *
  * @author generator
- * @since 2024-05-02
+ * @since 2024-05-11
  */
-@Getter
-@Setter
+@Data
 @TableName("project_member")
+@Schema(name = "ProjectMember", description = "项目成员")
 public class ProjectMember implements Serializable {
-
+    @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 主键
-     */
+    @Schema(description = "主键")
     @TableId(value = "id", type = IdType.AUTO)
-    private Integer id;
+    private Long id;
 
-    /**
-     * 团队ID
-     */
-    private Integer projectId;
+    @Schema(description = "团队ID")
+    private Long projectId;
 
-    /**
-     * 成员ID
-     */
-    private Integer accountId;
+    @Schema(description = "成员ID")
+    private Long accountId;
 
-    /**
-     * 加入时间
-     */
-    private LocalDateTime joinTime;
+    @Schema(description = "加入时间")
+    private Date joinTime;
 
-    /**
-     * 类型 0:普通成员 1:管理员 2:创建者
-     */
+    @Schema(description = "类型 0:普通成员 1:管理员 2:创建者")
     private Integer type;
 }

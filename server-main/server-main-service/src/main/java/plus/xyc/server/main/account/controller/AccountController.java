@@ -2,7 +2,6 @@ package plus.xyc.server.main.account.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,7 @@ import plus.xyc.server.main.account.service.AccountService;
 
 /**
  * <p>
- *  前端控制器
+ * 用户前端控制器
  * </p>
  *
  * @author generator
