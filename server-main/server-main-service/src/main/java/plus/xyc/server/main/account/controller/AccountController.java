@@ -1,5 +1,9 @@
 package plus.xyc.server.main.account.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +35,7 @@ import plus.xyc.server.main.account.service.AccountService;
 @RequestMapping("/account")
 @Slf4j
 @Validated
+@Tag(name = "account", description = "用户账户")
 public class AccountController {
 
     private AccountService accountService;
@@ -38,14 +43,16 @@ public class AccountController {
 
     @PublicRequest
     @GetMapping("/test")
-    public AccountResponse test(@RequestParam("username") String username) {
+    @Operation(summary = "测试")
+    public AccountResponse test(@RequestParam("username") @Parameter(description = "用户名") String username) {
         Result<AccountResponse> response = authAccountApi.findByUsername(username);
         log.info("AccountController test {}", response);
         return response.getData();
     }
 
     @PublicRequest
-    @GetMapping("/test/check")
+    @PostMapping("/test/check")
+    @Operation(summary = "测试表单验证")
     public AccountResponse testCheck(@RequestBody @Validated TestCheckRequest request) {
         log.info("AccountController testCheck {}", request);
         return null;
@@ -53,6 +60,7 @@ public class AccountController {
 
     @PublicRequest
     @PostMapping("/register/email/send")
+    @Operation(summary = "发送邮件验证码")
     public void sendRegisterEmail(@RequestBody SendRegisterEmailRequest request) {
         this.accountService.sendRegisterEmail(request.getEmail());
     }
@@ -60,20 +68,23 @@ public class AccountController {
     @PublicRequest
     @PostMapping("/register/email/check")
     @Throttler(value = "register", limit = 5)
+    @Operation(summary = "校验邮件")
     public TokenResponse checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
         return this.accountService.checkRegisterEmail(request);
     }
 
     @GetMapping("/otp/secret")
-    public OTPResponse otpSecret(@CurrentUser() SessionUser user) {
+    @Operation(summary = "获取秘钥")
+    public OTPResponse otpSecret(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
         log.info("AccountController otpSecret {}", user);
         Result<OTPResponse> response = authAccountApi.otpSecret(user.getId());
         return response.getData();
     }
 
     @PostMapping("/register/password/set")
+    @Operation(summary = "注册设置密码")
     public TokenResponse setPassword(
-            @CurrentUser() SessionUser user,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user,
             @RequestBody SetPasswordRequest request
     ) {
         request.setId(user.getId());
