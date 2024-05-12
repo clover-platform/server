@@ -6,14 +6,21 @@
     <resultMap id="BaseResultMap" type="plus.xyc.server.main.project.entity.dto.Project">
         <id column="id" property="id" />
         <result column="name" property="name" />
-        <result column="ownerId" property="ownerId" />
-        <result column="createTime" property="createTime" />
-        <result column="teamId" property="teamId" />
+        <result column="owner_id" property="ownerId" />
+        <result column="create_time" property="createTime" />
+        <result column="team_id" property="teamId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, ownerId, createTime, teamId
+        id, name, owner_id, create_time, team_id
     </sql>
+
+    <select id="findMy" resultMap="BaseResultMap">
+        select p.*
+        from project as p
+        left join project_member as pm on p.id = pm.project_id
+        where pm.account_id = #{userId}
+    </select>
 
 </mapper>

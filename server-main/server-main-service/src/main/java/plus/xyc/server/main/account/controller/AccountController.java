@@ -3,10 +3,12 @@ package plus.xyc.server.main.account.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
 import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
 import org.zkit.support.starter.boot.auth.annotation.PublicRequest;
 import org.zkit.support.starter.boot.entity.Result;
@@ -17,9 +19,12 @@ import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
 import org.zkit.support.starter.throttler.annotation.Throttler;
+import plus.xyc.server.main.account.entity.dto.Account;
+import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.TestCheckRequest;
+import plus.xyc.server.main.account.entity.response.AccountProfileResponse;
 import plus.xyc.server.main.account.service.AccountService;
 
 /**
@@ -39,6 +44,8 @@ public class AccountController {
 
     private AccountService accountService;
     private AuthAccountApi authAccountApi;
+    @Resource
+    private AccountMapStruct accountMapStruct;
 
     @PublicRequest
     @GetMapping("/test")
@@ -88,6 +95,31 @@ public class AccountController {
     ) {
         request.setId(user.getId());
         return this.accountService.setPassword(request);
+    }
+
+    @GetMapping("/profile")
+    @Operation(summary = "当前用户信息")
+    public AccountProfileResponse profile(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
+        Account account = accountService.findById(user.getId());
+        AccountProfileResponse response = accountMapStruct.toAccountProfileResponse(account);
+        response.setAuthorities(user.getAuthorities());
+        return response;
+    }
+
+    @PublicRequest
+    @PostMapping("/login")
+    @Operation(summary = "登录")
+    public TokenResponse login(@RequestBody @Validated AccountLoginRequest request) {
+        return accountService.login(request);
+    }
+
+    @PostMapping("/logout")
+    @Operation(summary = "退出")
+    public void logout(
+            @CurrentUser() @Parameter(hidden = true) SessionUser user,
+            @RequestHeader("Authorization") String token
+    ) {
+        accountService.logout(token.replaceAll("Bearer ", ""), user.getId());
     }
 
     @Autowired

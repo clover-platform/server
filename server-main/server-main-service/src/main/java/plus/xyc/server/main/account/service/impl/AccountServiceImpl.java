@@ -1,14 +1,18 @@
 package plus.xyc.server.main.account.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.service.EmailCodeService;
 import org.zkit.support.starter.boot.utils.MessageUtils;
+import org.zkit.support.starter.boot.utils.StringUtils;
 import org.zkit.support.starter.redisson.DistributedLock;
 import org.zkit.support.server.account.api.entity.request.AccountAddRequest;
 import org.zkit.support.server.account.api.entity.request.CreateTokenRequest;
@@ -16,9 +20,10 @@ import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountApi;
-import plus.xyc.server.main.account.entity.code.AccountCode;
+import plus.xyc.server.main.account.entity.enums.AccountCode;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
+import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -39,6 +44,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private EmailCodeService emailCodeService;
     @Resource
     private AuthAccountApi authAccountApi;
+
+    @Override
+    @Cacheable(value = "account", key = "#id")
+    public Account findById(Long id) {
+        return getById(id);
+    }
 
     public void sendRegisterEmail(String email) {
         emailCodeService.send(email, "register");
@@ -77,7 +88,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(has) {
             throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
         }
-
         AccountAddRequest request = new AccountAddRequest();
         request.setUsername(account.getUsername());
         Result<AccountResponse> result = authAccountApi.addOrGet(request);
@@ -91,7 +101,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @CacheEvict(value = "account", key = "#result.username")
+    @CacheEvict(value = "account", key = "#request.id")
     @DistributedLock(value = "account", key = "#request.id")
     public TokenResponse setPassword(SetPasswordRequest request) {
         Result<TokenResponse> result = authAccountApi.setPassword(request);
@@ -114,6 +124,47 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     private boolean hasEmail(String email) {
         return this.baseMapper.countByEmail(email) > 0;
+    }
+
+    @Override
+    public TokenResponse login(AccountLoginRequest request) {
+        Account account = null;
+        String username = request.getUsername();
+        if(StringUtils.isEmail(username)) {
+            account = baseMapper.findOneByEmail(username);
+            username = account.getUsername();
+        }
+        account = null;
+        QueryWrapper<Account> query = new QueryWrapper<>();
+        query.eq("username", username)
+                .eq("enable", true);
+        account = this.getOne(query);
+        if(account == null) {
+            throw new ResultException(AccountCode.LOGIN_NOT_EXIST.code, MessageUtils.get(AccountCode.LOGIN_NOT_EXIST.key));
+        }
+        Result<TokenResponse> result = authAccountApi.login(request);
+        if(!result.isSuccess()) {
+            log.info("{}",result);
+            throw ResultException.internal();
+        }
+        return result.getData();
+    }
+
+    @Override
+    @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#request.accountId")
+    @DistributedLock(value = "account", key = "#request.accountId")
+    public void setCurrent(SetCurrentRequest request) {
+        UpdateWrapper<Account> update = new UpdateWrapper<>();
+        update.eq("id", request.getAccountId());
+        update.set("current_team_id", request.getTeamId());
+        update.set("current_project_id", request.getProjectId());
+        this.update(update);
+    }
+
+    @Override
+    @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#accountId")
+    public void logout(String token, Long accountId) {
+        authAccountApi.logout(token);
     }
 
     @Autowired

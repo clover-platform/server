@@ -9,10 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 
-@SpringBootApplication(scanBasePackages = {"org.zkit.support", "plus.xyc.server"})
+@SpringBootApplication
 @MapperScan("plus.xyc.server.main.*.mapper")
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = {"org.zkit.support"})
 @EnableCaching(mode = AdviceMode.ASPECTJ)
 @EnableAspectJAutoProxy(exposeProxy=true)
 public class Application {

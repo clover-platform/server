@@ -5,15 +5,15 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="plus.xyc.server.main.project.entity.dto.ProjectMember">
         <id column="id" property="id" />
-        <result column="projectId" property="projectId" />
-        <result column="accountId" property="accountId" />
-        <result column="joinTime" property="joinTime" />
+        <result column="project_id" property="projectId" />
+        <result column="account_id" property="accountId" />
+        <result column="join_time" property="joinTime" />
         <result column="type" property="type" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, projectId, accountId, joinTime, type
+        id, project_id, account_id, join_time, type
     </sql>
 
 </mapper>
