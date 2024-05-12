@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <groupId>plus.xyc</groupId>
+        <artifactId>server</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>server-i18n</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Clover Server - I18n</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.zkit.support</groupId>
+            <artifactId>openapi-starter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zkit.support</groupId>
+            <artifactId>mybatis-starter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zkit.support</groupId>
+            <artifactId>redisson-starter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+    <modules>
+        <module>server-i18n-service</module>
+        <module>server-i18n-api</module>
+    </modules>
+</project>

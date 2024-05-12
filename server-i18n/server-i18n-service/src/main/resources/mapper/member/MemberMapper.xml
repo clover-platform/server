@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.i18n.member.mapper.MemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.member.entity.dto.Member">
+        <id column="id" property="id" />
+        <result column="module_id" property="moduleId" />
+        <result column="account_id" property="accountId" />
+        <result column="join_time" property="joinTime" />
+        <result column="roles" property="roles" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, module_id, account_id, join_time, roles
+    </sql>
+
+</mapper>

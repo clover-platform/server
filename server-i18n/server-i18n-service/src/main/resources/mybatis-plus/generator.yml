@@ -1,0 +1,43 @@
+# 基础包名
+basePackage: plus.xyc.server.i18n
+mapperPackage: src/main/resources/mapper
+# 数据源
+datasource:
+  url: jdbc:mysql://zkit.org:7706/clover_i18n
+# 激活的模块
+actives:
+  - activity
+  - branch
+  - bundle
+  - entry
+  - language
+  - member
+  - module
+# 模块配置
+modules:
+  - name: activity
+    tables:
+      - activity
+  - name: branch
+    tables:
+      - branch
+  - name: bundle
+    tables:
+      - bundle
+  - name: entry
+    tables:
+      - entry
+      - entry_comment
+      - entry_result
+  - name: language
+    tables:
+      - language
+      - language_name
+  - name: member
+    tables:
+      - member
+      - member_invite
+  - name: module
+    tables:
+      - module
+      - module_target_language
