@@ -10,6 +10,12 @@ spring:
             - Path=/api/main/**
           filters:
             - RewritePath=/api/main/(?<path>.*),/$\{path}
+        - id: clover-server-i18n
+          uri: lb://clover-server-i18n
+          predicates:
+            - Path=/api/i18n/**
+          filters:
+            - RewritePath=/api/i18n/(?<path>.*),/$\{path}
         - id: easy-server-account
           uri: lb://easy-server-account
           predicates:
@@ -35,3 +41,5 @@ springdoc:
         url: /v3/docs/api/account
       - name: main
         url: /v3/docs/api/main
+      - name: i18n
+        url: /v3/docs/api/i18n

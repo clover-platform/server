@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.i18n.activity.mapper.ActivityMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.activity.entity.dto.Activity">
+        <id column="id" property="id" />
+        <result column="module_id" property="moduleId" />
+        <result column="user_id" property="userId" />
+        <result column="create_time" property="createTime" />
+        <result column="type" property="type" />
+        <result column="sub_type" property="subType" />
+        <result column="operate" property="operate" />
+        <result column="detail" property="detail" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, module_id, user_id, create_time, type, sub_type, operate, detail
+    </sql>
+
+</mapper>

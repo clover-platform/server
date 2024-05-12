@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: clover-server-i18n
+  cloud:
+    nacos:
+      config:
+        server-addr: https://nacos.zkit.org
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
+        file-extension: yaml
+        refresh-enabled: true
+      discovery:
+        server-addr: https://nacos.zkit.org
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
