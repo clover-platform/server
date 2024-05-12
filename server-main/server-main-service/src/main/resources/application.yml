@@ -1,3 +1,11 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
 mybatis-plus:
   configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+logging:
+  level:
+    org.mybatis.spring: debug
+    plus.xyc.server: debug
+    org.zkit.support.server: debug

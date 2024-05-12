@@ -44,4 +44,12 @@
           and deleted = false
     </select>
 
+    <select id="findOneByEmail" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account
+        where
+        email = #{email,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

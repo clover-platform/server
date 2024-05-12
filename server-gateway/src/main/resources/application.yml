@@ -1,4 +1,6 @@
 spring:
+  main:
+    allow-bean-definition-overriding: true
   cloud:
     gateway:
       routes:
@@ -17,9 +19,9 @@ spring:
         - id: openapi
           uri: http://localhost:${server.port}
           predicates:
-            - Path=/v3/api-docs/**
+            - Path=/v3/docs/**
           filters:
-            - RewritePath=/v3/api-docs/(?<path>.*),/$\{path}/v3/api-docs
+            - RewritePath=/v3/docs/(?<path>.*),/$\{path}/v3/api-docs
       discovery:
         locator:
           enabled: false
@@ -30,6 +32,6 @@ springdoc:
     use-root-path: true
     urls:
       - name: account
-        url: /v3/api-docs/api/account
+        url: /v3/docs/api/account
       - name: main
-        url: /v3/api-docs/api/main
+        url: /v3/docs/api/main
