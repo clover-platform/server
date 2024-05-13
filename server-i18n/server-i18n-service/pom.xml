@@ -13,8 +13,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.zkit.support</groupId>
-            <artifactId>server-account-api</artifactId>
+            <groupId>plus.xyc</groupId>
+            <artifactId>server-main-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

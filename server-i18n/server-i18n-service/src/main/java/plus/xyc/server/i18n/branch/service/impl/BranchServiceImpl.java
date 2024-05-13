@@ -17,4 +17,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> implements BranchService {
 
+    @Override
+    public void createDefault(Long moduleId) {
+        Branch branch = new Branch();
+        branch.setModuleId(moduleId);
+        branch.setName("main");
+        branch.setIsDefault(true);
+        save(branch);
+    }
 }

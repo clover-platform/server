@@ -25,7 +25,7 @@
         SELECT m.*
         FROM module as m
         LEFT JOIN member as mb on mb.module_id = m.id
-        LEFT JOIN member_role as mr on mr.account_id = mb.account_id
+        LEFT JOIN member_role as mr on mr.member_id = mb.id
         <where>
             mb.account_id = #{query.userId}
             AND m.deleted = false
@@ -70,4 +70,10 @@
         GROUP BY m.id
     </select>
 
+    <select id="countByIdentifier" resultType="int">
+        select count(*)
+        from module
+        where identifier = #{identifier,jdbcType=VARCHAR}
+          AND deleted = false
+    </select>
 </mapper>

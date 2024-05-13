@@ -2,11 +2,22 @@ package plus.xyc.server.i18n.module.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
+import org.zkit.support.starter.redisson.DistributedLock;
+import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
+import plus.xyc.server.i18n.activity.service.ActivityService;
+import plus.xyc.server.i18n.branch.service.BranchService;
+import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.member.service.MemberService;
 import plus.xyc.server.i18n.module.entity.dto.Module;
+import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.mapstruct.ModuleMapStruct;
+import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.entity.response.SizeResponse;
@@ -14,7 +25,9 @@ import plus.xyc.server.i18n.module.mapper.ModuleMapper;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -31,6 +44,14 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     @Resource
     private ModuleMapStruct moduleMapStruct;
+    @Resource
+    private ModuleTargetLanguageService moduleTargetLanguageService;
+    @Resource
+    private MemberService memberService;
+    @Resource
+    private BranchService branchService;
+    @Resource
+    private ActivityService activityService;
 
     @Override
     public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
@@ -61,5 +82,41 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         if(moduleIds.isEmpty())
             return List.of();
         return baseMapper.targetSizes(moduleIds);
+    }
+
+    @Override
+    @DistributedLock(value = "i18n:module:create")
+    @Transactional
+    public void create(CreateModuleRequest request) {
+        int size = baseMapper.countByIdentifier(request.getIdentifier());
+        if(size > 0)
+            throw new ResultException(I18nCode.MODULE_IDENTIFIER_EXIST.code, MessageUtils.get(I18nCode.MODULE_IDENTIFIER_EXIST.key));
+        // 保存项目信息
+        Module module = new Module();
+        module.setIdentifier(request.getIdentifier());
+        module.setName(request.getName());
+        module.setOwner(request.getOwner());
+        module.setDescription(request.getDescription());
+        module.setSource(request.getSource());
+        module.setProjectId(request.getProjectId());
+        save(module);
+
+        // 保存目标语言
+        List<ModuleTargetLanguage> targets = Arrays.stream(request.getTargets()).map(target -> {
+            ModuleTargetLanguage targetLanguage = new ModuleTargetLanguage();
+            targetLanguage.setModuleId(module.getId());
+            targetLanguage.setCode(target);
+            return targetLanguage;
+        }).toList();
+        moduleTargetLanguageService.saveBatch(targets);
+
+        // 添加项目成员
+        memberService.addModuleOwner(module.getId(), module.getOwner());
+
+        // 创建默认分支
+        branchService.createDefault(module.getId());
+
+        // 记录日志
+        activityService.module(module.getId(), ActivityOperate.ADD.code, module);
     }
 }
