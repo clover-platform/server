@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
+import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.service.EmailCodeService;
@@ -19,7 +20,6 @@ import org.zkit.support.server.account.api.entity.request.CreateTokenRequest;
 import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
-import org.zkit.support.server.account.api.rest.AuthAccountApi;
 import plus.xyc.server.main.account.entity.enums.AccountCode;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
@@ -43,7 +43,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     private EmailCodeService emailCodeService;
     @Resource
-    private AuthAccountApi authAccountApi;
+    private AuthAccountRestApi authAccountRestApi;
 
     @Override
     @Cacheable(value = "account", key = "#id")
@@ -70,7 +70,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         CreateTokenRequest createTokenRequest = new CreateTokenRequest();
         createTokenRequest.setId(account.getId());
         createTokenRequest.setExpiresIn(5 * 60 * 1000L);
-        Result<TokenResponse> result = authAccountApi.createToken(createTokenRequest);
+        Result<TokenResponse> result = authAccountRestApi.createToken(createTokenRequest);
         if(!result.isSuccess()) {
             throw ResultException.internal();
         }
@@ -90,7 +90,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
         AccountAddRequest request = new AccountAddRequest();
         request.setUsername(account.getUsername());
-        Result<AccountResponse> result = authAccountApi.addOrGet(request);
+        Result<AccountResponse> result = authAccountRestApi.addOrGet(request);
         if(!result.isSuccess()) {
             throw ResultException.internal();
         }
@@ -104,7 +104,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @CacheEvict(value = "account", key = "#request.id")
     @DistributedLock(value = "account", key = "#request.id")
     public TokenResponse setPassword(SetPasswordRequest request) {
-        Result<TokenResponse> result = authAccountApi.setPassword(request);
+        Result<TokenResponse> result = authAccountRestApi.setPassword(request);
         if(result.isSuccess()) {
             // 更新用户信息
             UpdateWrapper<Account> update = new UpdateWrapper<>();
@@ -142,7 +142,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(account == null) {
             throw new ResultException(AccountCode.LOGIN_NOT_EXIST.code, MessageUtils.get(AccountCode.LOGIN_NOT_EXIST.key));
         }
-        Result<TokenResponse> result = authAccountApi.login(request);
+        Result<TokenResponse> result = authAccountRestApi.login(request);
         if(!result.isSuccess()) {
             log.info("{}",result);
             throw ResultException.internal();
@@ -164,7 +164,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#accountId")
     public void logout(String token, Long accountId) {
-        authAccountApi.logout(token);
+        authAccountRestApi.logout(token);
     }
 
     @Autowired

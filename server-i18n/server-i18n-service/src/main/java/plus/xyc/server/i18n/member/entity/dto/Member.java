@@ -1,5 +1,7 @@
 package plus.xyc.server.i18n.member.entity.dto;
 
+import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -34,7 +36,4 @@ public class Member implements Serializable {
 
     @Schema(description = "加入时间")
     private Date joinTime;
-
-    @Schema(description = "类型 0:查看 1:管理员 2:创建者 3:翻译 4:校验")
-    private Object roles;
 }

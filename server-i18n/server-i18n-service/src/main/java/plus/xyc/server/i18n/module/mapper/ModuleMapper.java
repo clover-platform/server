@@ -22,5 +22,6 @@ public interface ModuleMapper extends BaseMapper<Module> {
     List<Module> query(IPage<Module> page, @Param("keyword") String keyword, @Param("query") ModuleQueryRequest query);
     List<SizeResponse> memberSizes(@Param("moduleIds") List<Long> moduleIds);
     List<SizeResponse> targetSizes(@Param("moduleIds") List<Long> moduleIds);
+    int countByIdentifier(@Param("identifier") String identifier);
 
 }

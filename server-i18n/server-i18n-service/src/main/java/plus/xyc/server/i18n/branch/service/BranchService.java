@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BranchService extends IService<Branch> {
 
+    void createDefault(Long moduleId);
+
 }

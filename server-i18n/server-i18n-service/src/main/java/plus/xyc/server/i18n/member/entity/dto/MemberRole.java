@@ -1,5 +1,7 @@
 package plus.xyc.server.i18n.member.entity.dto;
 
+import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -28,7 +30,7 @@ public class MemberRole implements Serializable {
     private Long id;
 
     @Schema(description = "用户ID")
-    private Long accountId;
+    private Long memberId;
 
     @Schema(description = "角色 0:查看 1:管理员 2:创建者 3:翻译 4:校验")
     private Integer role;

@@ -1,5 +1,7 @@
 package plus.xyc.server.i18n.bundle.entity.dto;
 
+import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -45,8 +47,10 @@ public class Bundle implements Serializable {
     private Boolean includeSource;
 
     @Schema(description = "配置")
+    @TableField(typeHandler = Fastjson2TypeHandler.class)
     private Object formatConfig;
 
     @Schema(description = "内容")
+    @TableField(typeHandler = Fastjson2TypeHandler.class)
     private Object sources;
 }

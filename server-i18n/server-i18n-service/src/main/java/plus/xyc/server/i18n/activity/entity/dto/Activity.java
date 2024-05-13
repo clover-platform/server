@@ -1,5 +1,7 @@
 package plus.xyc.server.i18n.activity.entity.dto;
 
+import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -45,5 +47,6 @@ public class Activity implements Serializable {
     private Integer operate;
 
     @Schema(description = "操作内容")
+    @TableField(typeHandler = Fastjson2TypeHandler.class)
     private Object detail;
 }
