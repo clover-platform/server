@@ -37,6 +37,7 @@ modules:
     tables:
       - member
       - member_invite
+      - member_role
   - name: module
     tables:
       - module
