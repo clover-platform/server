@@ -13,4 +13,11 @@
         id, code
     </sql>
 
+    <select id="selectByLang" resultType="plus.xyc.server.i18n.language.entity.response.LanguageResponse">
+        select l.code as code, l.id as id, ln.name as name
+        from language l
+        left join language_name ln on ln.language_id = l.id
+        where ln.code = #{lang}
+    </select>
+
 </mapper>
