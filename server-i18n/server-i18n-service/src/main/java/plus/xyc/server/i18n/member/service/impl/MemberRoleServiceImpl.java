@@ -6,6 +6,8 @@ import plus.xyc.server.i18n.member.service.MemberRoleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  *  服务实现类
@@ -17,4 +19,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class MemberRoleServiceImpl extends ServiceImpl<MemberRoleMapper, MemberRole> implements MemberRoleService {
 
+    @Override
+    public List<MemberRole> findByMemberIds(List<Long> memberId) {
+        return baseMapper.findByMemberIdIn(memberId);
+    }
 }

@@ -7,6 +7,8 @@ import lombok.Data;
 @Schema(description = "模块响应")
 public class ModuleResponse {
 
+    @Schema(description = "ID")
+    private Long id;
     @Schema(description = "模块名称")
     private String name;
     @Schema(description = "唯一标识")

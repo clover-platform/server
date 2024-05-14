@@ -12,10 +12,11 @@ import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
+import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.main.api.entity.response.AccountResponse;
-import plus.xyc.server.main.api.rest.AccountRestApi;
+import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
 /**
  * <p>
@@ -34,7 +35,7 @@ public class ModuleController {
     @Resource
     private ModuleService moduleService;
     @Resource
-    private AccountRestApi accountRestApi;
+    private MainAccountRestApi accountRestApi;
 
     @GetMapping("/list")
     @Operation(summary = "列表")
@@ -57,6 +58,12 @@ public class ModuleController {
         AccountResponse account = accountRestApi.getById(user.getId()).getData();
         request.setProjectId(account.getCurrentProjectId());
         moduleService.create(request);
+    }
+
+    @GetMapping("/{id}/dashboard")
+    @Operation(summary = "概览")
+    public ModuleDashboardResponse dashboard(@PathVariable Long id) {
+        return moduleService.dashboard(id);
     }
 
 }

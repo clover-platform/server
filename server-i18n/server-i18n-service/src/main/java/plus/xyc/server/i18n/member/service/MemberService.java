@@ -2,6 +2,9 @@ package plus.xyc.server.i18n.member.service;
 
 import plus.xyc.server.i18n.member.entity.dto.Member;
 import com.baomidou.mybatisplus.extension.service.IService;
+import plus.xyc.server.i18n.member.entity.response.MemberResponse;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,6 +16,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface MemberService extends IService<Member> {
 
-    void addModuleOwner(Long userId, Long moduleId);
+    void addModuleOwner(Long moduleId, Long accountId);
+    List<MemberResponse> findMembers(Long moduleId);
 
 }

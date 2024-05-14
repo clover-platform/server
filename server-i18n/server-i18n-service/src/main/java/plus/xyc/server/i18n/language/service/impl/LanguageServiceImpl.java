@@ -2,7 +2,6 @@ package plus.xyc.server.i18n.language.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import plus.xyc.server.i18n.configuration.AppConfiguration;
