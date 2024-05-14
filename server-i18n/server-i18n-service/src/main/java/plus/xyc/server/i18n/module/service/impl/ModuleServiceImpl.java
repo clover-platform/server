@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
@@ -13,12 +14,17 @@ import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
+import plus.xyc.server.i18n.language.entity.response.LanguageWithCountResponse;
+import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
+import plus.xyc.server.i18n.member.entity.response.MemberResponse;
 import plus.xyc.server.i18n.member.service.MemberService;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.mapstruct.ModuleMapStruct;
 import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
+import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.entity.response.SizeResponse;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
@@ -26,6 +32,9 @@ import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
+import plus.xyc.server.main.api.entity.request.AccountRequest;
+import plus.xyc.server.main.api.entity.response.AccountResponse;
+import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +61,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private BranchService branchService;
     @Resource
     private ActivityService activityService;
+    @Resource
+    private MainAccountRestApi mainAccountRestApi;
 
     @Override
     public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
@@ -118,5 +129,43 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
         // 记录日志
         activityService.module(module.getId(), ActivityOperate.ADD.code, module);
+    }
+
+    @Override
+    public ModuleDashboardResponse dashboard(Long id) {
+        Module module = getById(id);
+        List<MemberResponse> members = memberService.findMembers(id);
+        List<Integer> adminRoles = List.of(MemberRoleType.ADMIN.code, MemberRoleType.OWNER.code);
+        List<MemberResponse> admins = members.stream().filter(member -> adminRoles.stream().anyMatch(role -> member.getRoles().contains(role))).toList();
+        List<Long> adminIds = admins.stream().map(MemberResponse::getAccountId).toList();
+
+        AccountRequest request = new AccountRequest();
+        request.setIds(adminIds);
+        request.setSize(adminIds.size());
+        Result<List<AccountResponse>> adminUsersResult = mainAccountRestApi.list(request);
+
+        List<SizeResponse> targetSizes = targetSizes(List.of(module.getId()));
+        List<LanguageResponse> languages = languages(id);
+        /**
+         * const languagesWithCount: LanguageWithCount[] = [];
+         *     for(const language of languages) {
+         *       const count = await this.entryService.count({
+         *         moduleId: module.id,
+         *         language: language.code,
+         *       });
+         *       languagesWithCount.push({
+         *         ...language,
+         *         ...count,
+         *       })
+         *     }
+         */
+
+        ModuleDashboardResponse response = new ModuleDashboardResponse();
+        response.setDetail(moduleMapStruct.toModuleResponse(module));
+        return response;
+    }
+
+    public List<LanguageResponse> languages(Long id) {
+        return moduleTargetLanguageService.languages(id);
     }
 }

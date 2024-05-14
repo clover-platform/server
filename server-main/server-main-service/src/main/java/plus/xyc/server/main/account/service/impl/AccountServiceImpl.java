@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
@@ -41,6 +40,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
+    @Resource
     private EmailCodeService emailCodeService;
     @Resource
     private AuthAccountRestApi authAccountRestApi;
@@ -167,8 +167,4 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         authAccountRestApi.logout(token);
     }
 
-    @Autowired
-    public void setEmailCodeService(EmailCodeService emailCodeService) {
-        this.emailCodeService = emailCodeService;
-    }
 }

@@ -1,7 +1,10 @@
 package plus.xyc.server.i18n.module.service;
 
+import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import com.baomidou.mybatisplus.extension.service.IService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,5 +15,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2024-05-13
  */
 public interface ModuleTargetLanguageService extends IService<ModuleTargetLanguage> {
+
+    List<LanguageResponse> languages(Long id);
 
 }

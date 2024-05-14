@@ -16,4 +16,12 @@
         id, module_id, account_id, join_time, roles
     </sql>
 
+    <select id="findByModuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from member
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+    </select>
+
 </mapper>

@@ -13,5 +13,12 @@
     <sql id="Base_Column_List">
         id, module_id, code
     </sql>
+    <select id="findByModuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from module_target_language
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+    </select>
 
 </mapper>
