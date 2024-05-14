@@ -3,13 +3,12 @@ package plus.xyc.server.main.api.rest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.zkit.support.starter.boot.entity.Result;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.constant.MainApi;
 import plus.xyc.server.main.api.constant.MainApiRoute;
-import plus.xyc.server.main.api.entity.request.AccountRequest;
-import plus.xyc.server.main.api.entity.response.AccountResponse;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 import java.util.List;
 
@@ -18,8 +17,12 @@ import java.util.List;
 public interface MainAccountRestApi {
 
     @GetMapping(value = MainApiRoute.ACCOUNT_GET_BY_ID)
-    Result<AccountResponse> getById(@RequestParam("id") Long id);
+    Result<ApiAccountResponse> getById(@RequestParam("id") Long id);
     @GetMapping(value = MainApiRoute.ACCOUNT_LIST)
-    Result<List<AccountResponse>> list(@RequestBody AccountRequest request);
+    Result<PageResult<ApiAccountResponse>> list(
+            @RequestParam("ids") List<Long> ids,
+            @RequestParam(value = "size", defaultValue = "100") Integer size,
+            @RequestParam(value = "page", defaultValue = "1") Integer page
+    );
 
 }

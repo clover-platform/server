@@ -5,20 +5,21 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.member.entity.dto.MemberRole">
         <id column="id" property="id" />
-        <result column="account_id" property="memberId" />
+        <result column="member_id" property="memberId" />
         <result column="role" property="role" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, account_id, role
+        id, member_id, role
     </sql>
+
     <select id="findByMemberIdIn" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from member_role
         where
-        account_id in
+        member_id in
         <foreach collection="memberIdList" item="item" open="(" close=")" separator=",">
             #{item,jdbcType=NUMERIC}
         </foreach>

@@ -52,4 +52,14 @@
         email = #{email,jdbcType=VARCHAR}
     </select>
 
+    <select id="findByIds" resultType="plus.xyc.server.main.account.entity.dto.Account">
+        select
+        <include refid="Base_Column_List"/>
+        from account
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

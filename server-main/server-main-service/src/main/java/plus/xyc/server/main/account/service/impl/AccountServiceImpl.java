@@ -2,6 +2,7 @@ package plus.xyc.server.main.account.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,6 +14,7 @@ import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.service.EmailCodeService;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.boot.utils.StringUtils;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import org.zkit.support.server.account.api.entity.request.AccountAddRequest;
 import org.zkit.support.server.account.api.entity.request.CreateTokenRequest;
@@ -21,12 +23,16 @@ import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import plus.xyc.server.main.account.entity.enums.AccountCode;
 import plus.xyc.server.main.account.entity.dto.Account;
+import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
+
+import java.util.List;
 
 /**
  * <p>
@@ -44,6 +50,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private EmailCodeService emailCodeService;
     @Resource
     private AuthAccountRestApi authAccountRestApi;
+    @Resource
+    private AccountMapStruct accountMapStruct;
 
     @Override
     @Cacheable(value = "account", key = "#id")
@@ -167,4 +175,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         authAccountRestApi.logout(token);
     }
 
+    @Override
+    public PageResult<ApiAccountResponse> findByIds(List<Long> ids, Integer size, Integer page) {
+        if(ids.isEmpty())
+            return PageResult.of(0, List.of());
+        Page<Account> p = new Page<>(page, size);
+        List<Account> accounts = baseMapper.findByIds(p, ids);
+        return PageResult.of(p.getTotal(), accounts.stream().map(accountMapStruct::toApiAccountResponse).toList());
+    }
 }

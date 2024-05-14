@@ -3,6 +3,8 @@ package plus.xyc.server.i18n.entry.service;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import com.baomidou.mybatisplus.extension.service.IService;
 
+import java.util.List;
+
 /**
  * <p>
  * 词条 服务类
@@ -12,5 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2024-05-13
  */
 public interface EntryService extends IService<Entry> {
+
+    int wordCount(Long moduleId);
 
 }

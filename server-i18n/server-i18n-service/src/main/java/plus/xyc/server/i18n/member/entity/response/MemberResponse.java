@@ -2,7 +2,7 @@ package plus.xyc.server.i18n.member.entity.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import plus.xyc.server.main.api.entity.response.AccountResponse;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 import java.util.Date;
 import java.util.List;
@@ -22,6 +22,6 @@ public class MemberResponse {
     @Schema(description = "角色")
     private List<Integer> roles;
     @Schema(description = "用户")
-    private AccountResponse user;
+    private ApiAccountResponse user;
 
 }

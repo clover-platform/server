@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema(name = "AccountResponse", description = "用户信息")
-public class AccountResponse {
+public class ApiAccountResponse {
 
 
     @Schema(description = "ID")

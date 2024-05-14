@@ -3,10 +3,14 @@ package plus.xyc.server.main.account.service;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
 import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.account.entity.dto.Account;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
+
+import java.util.List;
 
 /**
  * <p>
@@ -26,5 +30,6 @@ public interface AccountService extends IService<Account> {
     TokenResponse login(AccountLoginRequest request);
     void setCurrent(SetCurrentRequest request);
     void logout(String token, Long accountId);
+    PageResult<ApiAccountResponse> findByIds(List<Long> ids, Integer size, Integer page);
 
 }

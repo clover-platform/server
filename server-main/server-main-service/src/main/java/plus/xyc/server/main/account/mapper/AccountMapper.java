@@ -1,8 +1,11 @@
 package plus.xyc.server.main.account.mapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.main.account.entity.dto.Account;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+
+import java.util.List;
 
 /**
  * <p>
@@ -19,5 +22,7 @@ public interface AccountMapper extends BaseMapper<Account> {
     int countByUsername(@Param("username") String username);
 
     Account findOneByEmail(@Param("email") String email);
+
+    List<Account> findByIds(IPage<Account> page, @Param("ids") List<Long> ids);
 
 }

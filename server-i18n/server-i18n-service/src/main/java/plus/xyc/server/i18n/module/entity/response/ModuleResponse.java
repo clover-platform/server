@@ -3,6 +3,8 @@ package plus.xyc.server.i18n.module.entity.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.util.Date;
+
 @Data
 @Schema(description = "模块响应")
 public class ModuleResponse {
@@ -23,5 +25,7 @@ public class ModuleResponse {
     private Integer targetSize;
     @Schema(description = "更新时间")
     private java.util.Date updateTime;
+    @Schema(description = "创建时间")
+    private Date createTime;
 
 }

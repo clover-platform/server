@@ -1,9 +1,11 @@
 package plus.xyc.server.i18n.module.service.impl;
 
 import jakarta.annotation.Resource;
+import plus.xyc.server.i18n.language.entity.mapstruct.LanguageMapStruct;
 import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.language.service.LanguageService;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
+import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,9 +26,11 @@ public class ModuleTargetLanguageServiceImpl extends ServiceImpl<ModuleTargetLan
 
     @Resource
     private LanguageService languageService;
+    @Resource
+    private LanguageMapStruct languageMapStruct;
 
     @Override
-    public List<LanguageResponse> languages(Long id) {
+    public List<ModuleLanguageResponse> languages(Long id) {
         List<LanguageResponse> all = languageService.all();
         List<ModuleTargetLanguage> targets = baseMapper.findByModuleId(id);
         return targets.stream()
@@ -35,10 +39,11 @@ public class ModuleTargetLanguageServiceImpl extends ServiceImpl<ModuleTargetLan
                             .filter(l -> l.getCode().equals(target.getCode()))
                             .findFirst()
                             .orElse(null);
-                    if (language != null) {
-                        language.setId(target.getId());
-                    }
-                    return language;
+                    ModuleLanguageResponse response = languageMapStruct.toModuleLanguageResponse(language);
+                    response.setTotalEntry(target.getTotalEntry());
+                    response.setVerifiedEntry(target.getVerifiedEntry());
+                    response.setTranslatedEntry(target.getTranslatedEntry());
+                    return response;
                 })
                 .toList();
     }
