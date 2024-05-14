@@ -16,7 +16,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-05-13
+ * @since 2024-05-14
  */
 @Data
 @TableName("module_target_language")
@@ -34,4 +34,13 @@ public class ModuleTargetLanguage implements Serializable {
 
     @Schema(description = "语言代码")
     private String code;
+
+    @Schema(description = "词条数")
+    private Long totalEntry;
+
+    @Schema(description = "已翻译词条")
+    private Long translatedEntry;
+
+    @Schema(description = "已校验词条")
+    private Long verifiedEntry;
 }

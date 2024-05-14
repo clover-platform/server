@@ -13,9 +13,8 @@ import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.service.BranchService;
+import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.enums.I18nCode;
-import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
-import plus.xyc.server.i18n.language.entity.response.LanguageWithCountResponse;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.member.entity.response.MemberResponse;
 import plus.xyc.server.i18n.member.service.MemberService;
@@ -24,16 +23,13 @@ import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.mapstruct.ModuleMapStruct;
 import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
-import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
-import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
-import plus.xyc.server.i18n.module.entity.response.SizeResponse;
+import plus.xyc.server.i18n.module.entity.response.*;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
-import plus.xyc.server.main.api.entity.request.AccountRequest;
-import plus.xyc.server.main.api.entity.response.AccountResponse;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
 import java.util.Arrays;
@@ -63,6 +59,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private ActivityService activityService;
     @Resource
     private MainAccountRestApi mainAccountRestApi;
+    @Resource
+    private EntryService entryService;
 
     @Override
     public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
@@ -139,33 +137,37 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         List<MemberResponse> admins = members.stream().filter(member -> adminRoles.stream().anyMatch(role -> member.getRoles().contains(role))).toList();
         List<Long> adminIds = admins.stream().map(MemberResponse::getAccountId).toList();
 
-        AccountRequest request = new AccountRequest();
-        request.setIds(adminIds);
-        request.setSize(adminIds.size());
-        Result<List<AccountResponse>> adminUsersResult = mainAccountRestApi.list(request);
+        Result<PageResult<ApiAccountResponse>> adminUsersResult = mainAccountRestApi.list(adminIds, adminIds.size(), 1);
+        if(!adminUsersResult.isSuccess()) {
+            throw ResultException.internal();
+        }
 
         List<SizeResponse> targetSizes = targetSizes(List.of(module.getId()));
-        List<LanguageResponse> languages = languages(id);
-        /**
-         * const languagesWithCount: LanguageWithCount[] = [];
-         *     for(const language of languages) {
-         *       const count = await this.entryService.count({
-         *         moduleId: module.id,
-         *         language: language.code,
-         *       });
-         *       languagesWithCount.push({
-         *         ...language,
-         *         ...count,
-         *       })
-         *     }
-         */
+        List<ModuleLanguageResponse> languages = languages(id);
 
         ModuleDashboardResponse response = new ModuleDashboardResponse();
         response.setDetail(moduleMapStruct.toModuleResponse(module));
+        response.setMembers(members);
+        response.setLanguages(languages);
+        ModuleCountResponse countResponse = new ModuleCountResponse();
+        countResponse.setTargetCount(targetSizes.stream().findFirst().map(SizeResponse::getSize).orElse(0));
+        countResponse.setWordCount(entryService.wordCount(id));
+        countResponse.setBranchCount(0); // TODO 分支统计
+        countResponse.setMemberCount(members.size());
+        response.setCount(countResponse);
+        response.setMembers(admins.stream().map(admin -> {
+            ApiAccountResponse user = adminUsersResult.getData().getData().stream().filter(u -> u.getId().equals(admin.getAccountId())).findFirst().orElse(null);
+            MemberResponse member = new MemberResponse();
+            member.setUser(user);
+            member.setId(admin.getId());
+            member.setAccountId(admin.getAccountId());
+            member.setRoles(admin.getRoles());
+            return member;
+        }).toList());
         return response;
     }
 
-    public List<LanguageResponse> languages(Long id) {
+    public List<ModuleLanguageResponse> languages(Long id) {
         return moduleTargetLanguageService.languages(id);
     }
 }

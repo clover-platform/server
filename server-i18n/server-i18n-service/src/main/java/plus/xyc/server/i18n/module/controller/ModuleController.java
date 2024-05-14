@@ -15,7 +15,7 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
-import plus.xyc.server.main.api.entity.response.AccountResponse;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
 /**
@@ -55,7 +55,7 @@ public class ModuleController {
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         request.setOwner(user.getId());
-        AccountResponse account = accountRestApi.getById(user.getId()).getData();
+        ApiAccountResponse account = accountRestApi.getById(user.getId()).getData();
         request.setProjectId(account.getCurrentProjectId());
         moduleService.create(request);
     }

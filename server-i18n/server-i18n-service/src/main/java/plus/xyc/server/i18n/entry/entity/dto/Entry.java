@@ -16,7 +16,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-05-13
+ * @since 2024-05-14
  */
 @Data
 @Schema(name = "Entry", description = "词条")
@@ -35,7 +35,7 @@ public class Entry implements Serializable {
     private Long branchId;
 
     @Schema(description = "键")
-    private String key;
+    private String identifier;
 
     @Schema(description = "值")
     private String value;

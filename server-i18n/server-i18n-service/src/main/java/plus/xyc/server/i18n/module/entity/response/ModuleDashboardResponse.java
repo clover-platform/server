@@ -2,7 +2,6 @@ package plus.xyc.server.i18n.module.entity.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-import plus.xyc.server.i18n.language.entity.response.LanguageWithCountResponse;
 import plus.xyc.server.i18n.member.entity.response.MemberResponse;
 
 import java.util.List;
@@ -12,7 +11,7 @@ import java.util.List;
 public class ModuleDashboardResponse {
 
     @Schema(description = "语言")
-    private List<LanguageWithCountResponse> languages;
+    private List<ModuleLanguageResponse> languages;
     @Schema(description = "详情")
     private ModuleResponse detail;
     @Schema(description = "统计")

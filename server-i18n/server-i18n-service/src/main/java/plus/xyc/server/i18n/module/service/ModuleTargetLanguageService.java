@@ -3,6 +3,7 @@ package plus.xyc.server.i18n.module.service;
 import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import com.baomidou.mybatisplus.extension.service.IService;
+import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 
 import java.util.List;
 
@@ -16,6 +17,6 @@ import java.util.List;
  */
 public interface ModuleTargetLanguageService extends IService<ModuleTargetLanguage> {
 
-    List<LanguageResponse> languages(Long id);
+    List<ModuleLanguageResponse> languages(Long id);
 
 }
