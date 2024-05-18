@@ -4,6 +4,9 @@ spring:
   application:
     name: clover-server-gateway
   cloud:
+    loadbalancer:
+      nacos:
+        enabled: true
     nacos:
       config:
         server-addr: https://nacos.zkit.org
