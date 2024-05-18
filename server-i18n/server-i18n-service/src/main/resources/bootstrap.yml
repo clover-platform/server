@@ -2,6 +2,9 @@ spring:
   application:
     name: clover-server-i18n
   cloud:
+    loadbalancer:
+      nacos:
+        enabled: true
     nacos:
       config:
         server-addr: https://nacos.zkit.org
