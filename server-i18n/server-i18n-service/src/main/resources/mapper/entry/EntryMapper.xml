@@ -30,4 +30,21 @@
         and deleted = false
     </select>
 
+    <select id="query" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry
+        where
+        deleted = false
+        <if test="query.branchId != null">
+            and branch_id = #{query.branchId,jdbcType=NUMERIC}
+        </if>
+        <if test="query.moduleId != null">
+            and module_id = #{query.moduleId,jdbcType=NUMERIC}
+        </if>
+        <if test="keyword != null">
+            and (identifier like #{keyword,jdbcType=VARCHAR} or value like #{keyword,jdbcType=VARCHAR})
+        </if>
+    </select>
+
 </mapper>

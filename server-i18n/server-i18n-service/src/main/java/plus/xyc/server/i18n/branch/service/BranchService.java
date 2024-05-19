@@ -2,6 +2,10 @@ package plus.xyc.server.i18n.branch.service;
 
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import com.baomidou.mybatisplus.extension.service.IService;
+import plus.xyc.server.i18n.branch.entity.request.AllBranchRequest;
+import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
+
+import java.util.List;
 
 /**
  * <p>
@@ -14,5 +18,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface BranchService extends IService<Branch> {
 
     void createDefault(Long moduleId);
+    List<BranchResponse> all(AllBranchRequest request);
 
 }

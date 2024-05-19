@@ -13,10 +13,13 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
+import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
+
+import java.util.List;
 
 /**
  * <p>
@@ -62,8 +65,14 @@ public class ModuleController {
 
     @GetMapping("/{id}/dashboard")
     @Operation(summary = "概览")
-    public ModuleDashboardResponse dashboard(@PathVariable Long id) {
+    public ModuleDashboardResponse dashboard(@Parameter(description = "模块ID") @PathVariable Long id) {
         return moduleService.dashboard(id);
+    }
+
+    @GetMapping("/{id}/languages")
+    @Operation(summary = "语言列表")
+    public List<ModuleLanguageResponse> languages(@Parameter(description = "模块ID") @PathVariable Long id) {
+        return moduleService.languages(id);
     }
 
 }

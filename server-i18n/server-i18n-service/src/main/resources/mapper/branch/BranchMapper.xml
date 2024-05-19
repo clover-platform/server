@@ -19,4 +19,15 @@
         id, module_id, name, is_default, create_time, update_time, deleted, type
     </sql>
 
+    <select id="all" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from branch
+        where module_id = #{request.moduleId}
+        and deleted = false
+        <if test="request.keyword != null">
+            and name like concat('%', #{request.keyword}, '%')
+        </if>
+    </select>
+
 </mapper>
