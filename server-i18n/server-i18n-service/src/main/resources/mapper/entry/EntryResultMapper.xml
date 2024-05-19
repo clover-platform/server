@@ -22,4 +22,28 @@
         id, entry_id, content, create_time, translator_id, checker_id, update_time, verified, language, deleted, verified_time
     </sql>
 
+    <select id="getLastResults" resultMap="BaseResultMap">
+        SELECT
+        entry.*
+        FROM entry_result AS entry
+        LEFT JOIN (
+            SELECT verified.entry_id, verified.language, MAX(verified.update_time) AS max_verified_update_time
+            FROM entry_result AS verified
+            WHERE verified.verified = 1
+            GROUP BY verified.entry_id, verified.language
+        ) AS verified
+        ON entry.entry_id = verified.entry_id AND entry.language = verified.language
+        WHERE entry.entry_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        AND entry.language = #{language}
+        AND entry.deleted = 0
+        AND (
+            entry.update_time = COALESCE(verified.max_verified_update_time, entry.update_time)
+            OR verified.entry_id IS NULL
+        )
+        ORDER BY entry.entry_id, entry.update_time DESC
+    </select>
+
 </mapper>

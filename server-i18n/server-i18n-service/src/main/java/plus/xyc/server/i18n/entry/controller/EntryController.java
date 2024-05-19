@@ -1,7 +1,21 @@
 package plus.xyc.server.i18n.entry.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageResult;
+import plus.xyc.server.i18n.branch.entity.request.AllBranchRequest;
+import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
+import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
+import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
+import plus.xyc.server.i18n.entry.service.EntryService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -12,7 +26,20 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/entry/entry")
+@RequestMapping("/entry")
+@Tag(name = "entry", description = "词条")
 public class EntryController {
+
+    @Resource
+    private EntryService entryService;
+
+    @GetMapping("/list")
+    @Operation(summary = "查询词条")
+    public PageResult<EntryResponse> list(
+            @ModelAttribute PageQueryRequest page,
+            @ModelAttribute EntryListRequest request
+    ) {
+        return entryService.query(page, request);
+    }
 
 }

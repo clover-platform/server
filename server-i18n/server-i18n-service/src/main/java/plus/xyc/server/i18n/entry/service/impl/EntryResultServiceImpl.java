@@ -6,6 +6,8 @@ import plus.xyc.server.i18n.entry.service.EntryResultService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 翻译结果 服务实现类
@@ -17,4 +19,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, EntryResult> implements EntryResultService {
 
+    @Override
+    public List<EntryResult> getLastResults(List<Long> ids, String language) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return baseMapper.getLastResults(ids, language);
+    }
 }
