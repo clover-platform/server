@@ -14,11 +14,17 @@
         <result column="create_user_id" property="createUserId" />
         <result column="update_user_id" property="updateUserId" />
         <result column="deleted" property="deleted" />
+        <result column="translated" property="translated" />
+        <result column="result_id" property="resultId" />
+        <result column="verified" property="verified" />
+        <result column="translation_time" property="translationTime" />
+        <result column="verification_time" property="verificationTime" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, module_id, branch_id, identifier, value, create_time, update_time, create_user_id, update_user_id, deleted
+        id, module_id, branch_id, identifier, value, create_time, update_time, create_user_id, update_user_id, deleted,
+        translated, result_id, verified, translation_time, verification_time
     </sql>
 
     <select id="findByModuleId" resultMap="BaseResultMap">
@@ -32,18 +38,64 @@
 
     <select id="query" resultMap="BaseResultMap">
         select
-        <include refid="Base_Column_List"/>
-        from entry
+        e.*
+        from entry as e
+        left join branch as b on e.branch_id = b.id
         where
-        deleted = false
+        e.deleted = false and b.deleted = false
         <if test="query.branchId != null">
-            and branch_id = #{query.branchId,jdbcType=NUMERIC}
+            and e.branch_id = #{query.branchId,jdbcType=NUMERIC}
         </if>
         <if test="query.moduleId != null">
-            and module_id = #{query.moduleId,jdbcType=NUMERIC}
+            and e.module_id = #{query.moduleId,jdbcType=NUMERIC}
         </if>
         <if test="keyword != null">
-            and (identifier like #{keyword,jdbcType=VARCHAR} or value like #{keyword,jdbcType=VARCHAR})
+            and (e.identifier like #{keyword,jdbcType=VARCHAR} or e.value like #{keyword,jdbcType=VARCHAR})
+        </if>
+    </select>
+
+    <select id="countTotal" resultType="long">
+        select
+        count(1) as total
+        from entry as e
+        left join branch as b on e.branch_id = b.id
+        where
+        e.deleted = false and b.deleted = false
+        <if test="request.branch != null">
+            and b.name = #{request.branch}
+        </if>
+        <if test="request.moduleId != null">
+            and e.module_id = #{request.moduleId,jdbcType=NUMERIC}
+        </if>
+    </select>
+
+    <select id="countTranslated" resultType="long">
+        select
+        count(1) as total
+        from entry as e
+        left join branch as b on e.branch_id = b.id
+        where
+        e.deleted = false and b.deleted = false and e.translated = true
+        <if test="request.branch != null">
+            and b.name = #{request.branch}
+        </if>
+        <if test="request.moduleId != null">
+            and e.module_id = #{request.moduleId,jdbcType=NUMERIC}
+        </if>
+    </select>
+
+    <select id="countVerified" resultType="long">
+        select
+        count(1) as total
+        from entry as e
+        left join branch as b on e.branch_id = b.id
+        where
+        e.deleted = false and b.deleted = false and e.verified = true
+        <if test="request.branch != null">
+            and b.name = #{request.branch}
+        </if>
+        <if test="request.moduleId != null">
+            and e.module_id = #{request.moduleId,jdbcType=NUMERIC}
         </if>
     </select>
 

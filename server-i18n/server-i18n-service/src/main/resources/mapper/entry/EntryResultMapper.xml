@@ -46,4 +46,13 @@
         ORDER BY entry.entry_id, entry.update_time DESC
     </select>
 
+    <select id="getResults" resultMap="BaseResultMap">
+        select * from entry_result
+        WHERE id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        AND language = #{language}
+    </select>
+
 </mapper>

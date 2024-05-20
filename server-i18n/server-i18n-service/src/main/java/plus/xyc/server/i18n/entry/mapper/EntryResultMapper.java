@@ -17,5 +17,6 @@ import java.util.List;
 public interface EntryResultMapper extends BaseMapper<EntryResult> {
 
     List<EntryResult> getLastResults(@Param("ids") List<Long> ids, @Param("language") String language);
+    List<EntryResult> getResults(@Param("ids") List<Long> ids, @Param("language") String language);
 
 }

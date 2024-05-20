@@ -16,5 +16,6 @@ import java.util.List;
 public interface EntryResultService extends IService<EntryResult> {
 
     List<EntryResult> getLastResults(List<Long> ids, String language);
+    List<EntryResult> getResults(List<Long> ids, String language);
 
 }

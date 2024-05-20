@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
 import org.zkit.support.starter.boot.entity.SessionUser;
@@ -43,8 +44,8 @@ public class ModuleController {
     @GetMapping("/list")
     @Operation(summary = "列表")
     public PageResult<ModuleResponse> list(
-            @ModelAttribute PageQueryRequest page,
-            @ModelAttribute ModuleQueryRequest query,
+            @ParameterObject @ModelAttribute PageQueryRequest page,
+            @ParameterObject @ModelAttribute ModuleQueryRequest query,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         query.setUserId(user.getId());
