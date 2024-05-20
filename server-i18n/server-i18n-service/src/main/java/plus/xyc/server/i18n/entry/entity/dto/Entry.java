@@ -16,7 +16,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-05-14
+ * @since 2024-05-20
  */
 @Data
 @Schema(name = "Entry", description = "词条")
@@ -54,4 +54,19 @@ public class Entry implements Serializable {
 
     @Schema(description = "是否已删除")
     private Boolean deleted;
+
+    @Schema(description = "是否已翻译")
+    private Boolean translated;
+
+    @Schema(description = "翻译结果ID")
+    private Long resultId;
+
+    @Schema(description = "是否已校验")
+    private Boolean verified;
+
+    @Schema(description = "翻译时间")
+    private Date translationTime;
+
+    @Schema(description = "确认的时间")
+    private Date verificationTime;
 }

@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import plus.xyc.server.i18n.branch.entity.request.AllBranchRequest;
@@ -31,7 +32,7 @@ public class BranchController {
 
     @GetMapping("/all")
     @Operation(summary = "查询所有分支")
-    public List<BranchResponse> all(@ModelAttribute AllBranchRequest request) {
+    public List<BranchResponse> all(@ParameterObject @ModelAttribute AllBranchRequest request) {
         return branchService.all(request);
     }
 

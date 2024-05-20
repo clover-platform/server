@@ -26,4 +26,12 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         }
         return baseMapper.getLastResults(ids, language);
     }
+
+    @Override
+    public List<EntryResult> getResults(List<Long> ids, String language) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return baseMapper.getResults(ids, language);
+    }
 }

@@ -8,7 +8,9 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryMapStruct;
+import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
+import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
@@ -57,16 +59,23 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public PageResult<EntryResponse> query(PageQueryRequest query, EntryListRequest request) {
         Page<Entry> page = query.toPage();
         List<Entry> all = baseMapper.query(page, query.getKeyword(), request);
-        List<Long> ids = all.stream().map(Entry::getId).toList();
-        List<EntryResult> lastResults = entryResultService.getLastResults(ids, request.getLanguage());
+        List<Long> resultIds = all.stream().map(Entry::getResultId).toList();
+        List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
         List<EntryResponse> list = all.stream().map(item -> {
-            EntryResult result = lastResults.stream().filter(entryResult -> entryResult.getEntryId().equals(item.getId())).findFirst().orElse(null);
+            EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(item.getResultId())).findFirst().orElse(null);
             EntryResponse response = entryMapStruct.toEntryResponse(item);
-            response.setTranslated(result != null);
-            response.setVerified(result != null ? result.getVerified() : null);
             response.setTranslation(result);
             return response;
         }).toList();
         return PageResult.of(page.getTotal(), list);
+    }
+
+    @Override
+    public EntryCountResponse count(EntryCountRequest request) {
+        EntryCountResponse response = new EntryCountResponse();
+        response.setTotal(baseMapper.countTotal(request));
+        response.setTranslated(baseMapper.countTranslated(request));
+        response.setVerified(baseMapper.countVerified(request));
+        return response;
     }
 }
