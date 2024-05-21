@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "查询所有分支")
-public class AllBranchRequest {
+public class BranchAllRequest {
 
     @Schema(description = "模块ID")
     private Long moduleId;

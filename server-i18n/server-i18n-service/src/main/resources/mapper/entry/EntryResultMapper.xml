@@ -69,4 +69,15 @@
         ORDER BY entry.verified DESC, entry.update_time DESC
     </select>
 
+    <select id="findByEntryIds" resultMap="BaseResultMap">
+        SELECT
+        entry.*
+        FROM entry_result AS entry
+        WHERE entry.entry_id IN
+        <foreach collection="entryIds" item="entryId" separator="," open="(" close=")">
+            #{entryId}
+        </foreach>
+        AND entry.deleted = 0
+    </select>
+
 </mapper>

@@ -26,5 +26,6 @@ public interface EntryMapper extends BaseMapper<Entry> {
     Long countTotal(@Param("request") EntryCountRequest request);
     Long countTranslated(@Param("request") EntryCountRequest request);
     Long countVerified(@Param("request") EntryCountRequest request);
+    List<Entry> findByBranchId(@Param("branchId") Long branchId);
 
 }
