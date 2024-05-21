@@ -98,4 +98,16 @@ public class EntryCommentServiceImpl extends ServiceImpl<EntryCommentMapper, Ent
     public EntryComment getLatestComment(Long entryId, Long createUserId, String language) {
         return baseMapper.getLatestComment(entryId, createUserId, language);
     }
+
+    @Override
+    @Transactional
+    public void delete(Long userId, Long id) {
+        EntryComment comment = getById(id);
+        if(!comment.getCreateUserId().equals(userId)) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+        removeById(id);
+        Entry entry = entryMapper.selectById(comment.getEntryId());
+        activityService.entity(entry.getModuleId(), ActivityEntryType.COMMENT.code, ActivityOperate.DELETE.code, comment);
+    }
 }

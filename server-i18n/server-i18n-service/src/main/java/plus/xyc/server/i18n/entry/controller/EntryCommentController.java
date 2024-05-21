@@ -48,4 +48,13 @@ public class EntryCommentController {
         entryCommentService.add(request);
     }
 
+    @DeleteMapping("/{id}")
+    @Operation(summary = "添加评论")
+    public void delete(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @Parameter(description = "评论ID") @PathVariable Long id
+    ) {
+        entryCommentService.delete(user.getId(), id);
+    }
+
 }

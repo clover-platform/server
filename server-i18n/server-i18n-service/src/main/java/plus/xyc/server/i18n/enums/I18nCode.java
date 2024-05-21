@@ -4,6 +4,8 @@ public enum I18nCode {
 
     MODULE_IDENTIFIER_EXIST(1001, "module.identifier.exist"),
 
+    ACCESS_ERROR(999, "i18n.access.error"),
+
     ENTRY_COMMENT_FAST(2001, "entry.comment.fast");
 
     public final int code;
