@@ -17,4 +17,13 @@
         id, entry_id, content, create_time, create_user_id, language
     </sql>
 
+    <select id="query" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM entry_comment
+        WHERE entry_id = #{request.entryId}
+        AND language = #{request.language}
+        ORDER BY create_time DESC
+    </select>
+
 </mapper>
