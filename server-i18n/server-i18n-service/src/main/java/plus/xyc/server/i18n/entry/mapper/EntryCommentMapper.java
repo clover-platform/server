@@ -21,5 +21,6 @@ import java.util.List;
 public interface EntryCommentMapper extends BaseMapper<EntryComment> {
 
     List<EntryComment> query(IPage<EntryComment> page, @Param("request") EntryCommentListRequest request);
+    EntryComment getLatestComment(@Param("entryId") Long entryId, @Param("userId") Long userId, @Param("language") String language);
 
 }
