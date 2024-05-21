@@ -1,8 +1,10 @@
 package plus.xyc.server.i18n.entry.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import plus.xyc.server.i18n.entry.entity.request.EntryResultListRequest;
 
 import java.util.List;
 
@@ -18,5 +20,6 @@ public interface EntryResultMapper extends BaseMapper<EntryResult> {
 
     List<EntryResult> getLastResults(@Param("ids") List<Long> ids, @Param("language") String language);
     List<EntryResult> getResults(@Param("ids") List<Long> ids, @Param("language") String language);
+    List<EntryResult> query(IPage<EntryResult> page, @Param("request") EntryResultListRequest request);
 
 }

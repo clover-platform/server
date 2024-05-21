@@ -55,4 +55,18 @@
         AND language = #{language}
     </select>
 
+    <select id="query" resultMap="BaseResultMap">
+        SELECT
+        entry.*
+        FROM entry_result AS entry
+        WHERE entry.deleted = 0
+        <if test="request.entryId != null">
+            AND entry.entry_id = #{request.entryId}
+        </if>
+        <if test="request.language != null">
+            AND entry.language = #{request.language}
+        </if>
+        ORDER BY entry.verified DESC, entry.update_time DESC
+    </select>
+
 </mapper>
