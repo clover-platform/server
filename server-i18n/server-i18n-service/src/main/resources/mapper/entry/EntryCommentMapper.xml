@@ -26,4 +26,15 @@
         ORDER BY create_time DESC
     </select>
 
+    <select id="getLatestComment" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM entry_comment
+        WHERE entry_id = #{entryId}
+        AND create_user_id = #{userId}
+        AND language = #{language}
+        ORDER BY create_time DESC
+        LIMIT 1
+    </select>
+
 </mapper>

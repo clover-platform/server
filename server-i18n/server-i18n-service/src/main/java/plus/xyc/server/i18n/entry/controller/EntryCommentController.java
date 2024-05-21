@@ -1,14 +1,15 @@
 package plus.xyc.server.i18n.entry.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
+import org.zkit.support.starter.boot.entity.SessionUser;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
+import plus.xyc.server.i18n.entry.entity.request.EntryCommentAddRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCommentListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCommentResponse;
 import plus.xyc.server.i18n.entry.service.EntryCommentService;
@@ -29,12 +30,22 @@ public class EntryCommentController {
     private EntryCommentService entryCommentService;
 
     @GetMapping("/list")
-    @Operation(summary = "查询词条")
+    @Operation(summary = "查询评论")
     public PageResult<EntryCommentResponse> list(
             @ParameterObject @ModelAttribute PageQueryRequest page,
             @ParameterObject @ModelAttribute EntryCommentListRequest request
     ) {
         return entryCommentService.query(page, request);
+    }
+
+    @PostMapping("/add")
+    @Operation(summary = "添加评论")
+    public void add(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @RequestBody EntryCommentAddRequest request
+    ) {
+        request.setCreateUserId(user.getId());
+        entryCommentService.add(request);
     }
 
 }

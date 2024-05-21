@@ -29,7 +29,7 @@ public class EntryResultController {
     private EntryResultService entryResultService;
 
     @GetMapping("/list")
-    @Operation(summary = "查询词条")
+    @Operation(summary = "查询翻译结果")
     public PageResult<EntryResultResponse> list(
             @ParameterObject @ModelAttribute PageQueryRequest page,
             @ParameterObject @ModelAttribute EntryResultListRequest request
