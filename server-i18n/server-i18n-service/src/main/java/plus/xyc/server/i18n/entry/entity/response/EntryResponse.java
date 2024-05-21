@@ -8,10 +8,10 @@ import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-@Schema(title = "词条响应")
+@Schema(description = "词条响应")
 public class EntryResponse extends Entry {
 
-    @Schema(title = "翻译结果")
+    @Schema(description = "翻译结果")
     private EntryResult translation;
 
 }

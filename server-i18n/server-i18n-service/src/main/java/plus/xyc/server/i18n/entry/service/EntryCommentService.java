@@ -21,5 +21,6 @@ public interface EntryCommentService extends IService<EntryComment> {
     PageResult<EntryCommentResponse> query(PageQueryRequest page, EntryCommentListRequest request);
     void add(EntryCommentAddRequest request);
     EntryComment getLatestComment(Long entryId, Long createUserId, String language);
+    void delete(Long userId, Long id);
 
 }
