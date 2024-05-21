@@ -1,0 +1,98 @@
+stages:
+    - build
+    - package
+
+build_gateway:
+    stage: build
+    only:
+        - main
+    tags:
+        - dev
+    artifacts:
+        paths:
+            - server-gateway/target/*.jar
+    script:
+        - mvn clean install
+        - cd server-gateway
+        - mvn package
+build_main:
+    stage: build
+    only:
+        - main
+    tags:
+        - dev
+    artifacts:
+        paths:
+            - server-main/server-main-service/target/*.jar
+    script:
+        - mvn clean install
+        - cd server-main/server-main-service
+        - mvn package
+build_i18n:
+    stage: build
+    only:
+        - main
+    tags:
+        - dev
+    artifacts:
+        paths:
+            - server-i18n/server-i18n-service/target/*.jar
+    script:
+        - mvn clean install
+        - cd server-i18n/server-i18n-service
+        - mvn package
+
+package_gateway:
+    stage: package
+    only:
+        - main
+    tags:
+        - dev
+    artifacts:
+        paths:
+            - server-gateway/target/*.jar
+    script:
+        - cd server-gateway
+        - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
+        - docker build -t $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID -f ./Dockerfile .
+        - docker tag $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID $CI_REGISTRY/clover/server/gateway:latest
+        - docker push $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID
+        - docker push $CI_REGISTRY/clover/server/gateway:latest
+        - docker rmi $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID
+        - docker rmi $CI_REGISTRY/clover/server/gateway:latest
+package_main:
+    stage: package
+    only:
+        - main
+    tags:
+        - dev
+    artifacts:
+        paths:
+            - server-main/server-main-service/target/*.jar
+    script:
+        - cd server-main/server-main-service
+        - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
+        - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID -f ./Dockerfile .
+        - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID $CI_REGISTRY/clover/server/main:latest
+        - docker push $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID
+        - docker push $CI_REGISTRY/clover/server/main:latest
+        - docker rmi $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID
+        - docker rmi $CI_REGISTRY/clover/server/main:latest
+package_i18n:
+    stage: package
+    only:
+        - main
+    tags:
+        - dev
+    artifacts:
+        paths:
+            - server-i18n/server-i18n-service/target/*.jar
+    script:
+        - cd server-i18n/server-i18n-service
+        - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
+        - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID -f ./Dockerfile .
+        - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID $CI_REGISTRY/clover/server/i18n:latest
+        - docker push $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID
+        - docker push $CI_REGISTRY/clover/server/i18n:latest
+        - docker rmi $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID
+        - docker rmi $CI_REGISTRY/clover/server/i18n:latest
