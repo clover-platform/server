@@ -8,6 +8,7 @@ import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
+import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 
 import java.util.List;
 
@@ -24,5 +25,8 @@ public interface EntryService extends IService<Entry> {
     int wordCount(Long moduleId);
     PageResult<EntryResponse> query(PageQueryRequest page, EntryListRequest request);
     EntryCountResponse count(EntryCountRequest request);
+    List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId);
+    void cloneEntriesBySourceId(Long sourceId, Long targetId);
+    void cloneEntries(List<EntryWithResultResponse> sources, Long targetId);
 
 }

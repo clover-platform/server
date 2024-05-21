@@ -21,5 +21,6 @@ public interface EntryResultMapper extends BaseMapper<EntryResult> {
     List<EntryResult> getLastResults(@Param("ids") List<Long> ids, @Param("language") String language);
     List<EntryResult> getResults(@Param("ids") List<Long> ids, @Param("language") String language);
     List<EntryResult> query(IPage<EntryResult> page, @Param("request") EntryResultListRequest request);
+    List<EntryResult> findByEntryIds(@Param("entryIds") List<Long> ids);
 
 }

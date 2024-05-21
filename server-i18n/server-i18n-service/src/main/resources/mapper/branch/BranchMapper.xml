@@ -30,4 +30,31 @@
         </if>
     </select>
 
+    <select id="list" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from branch
+        where module_id = #{request.moduleId}
+        and deleted = false
+        <if test="request.keyword != null">
+            and name like concat('%', #{request.keyword}, '%')
+        </if>
+    </select>
+
+    <select id="countByModuleIdAndName" resultType="int">
+        select count(*)
+        from branch
+        where module_id = #{moduleId,jdbcType=NUMERIC}
+          AND name = #{name,jdbcType=VARCHAR} and deleted = false
+    </select>
+
+    <select id="findDefaultByModuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from branch
+        where module_id = #{moduleId}
+        and is_default = true
+        and deleted = false
+    </select>
+
 </mapper>

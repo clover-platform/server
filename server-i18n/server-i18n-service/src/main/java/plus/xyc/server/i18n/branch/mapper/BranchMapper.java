@@ -1,9 +1,11 @@
 package plus.xyc.server.i18n.branch.mapper;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import plus.xyc.server.i18n.branch.entity.request.AllBranchRequest;
+import plus.xyc.server.i18n.branch.entity.request.BranchAllRequest;
+import plus.xyc.server.i18n.branch.entity.request.BranchListRequest;
 
 import java.util.List;
 
@@ -17,6 +19,9 @@ import java.util.List;
  */
 public interface BranchMapper extends BaseMapper<Branch> {
 
-    List<Branch> all(@Param("request") AllBranchRequest request);
+    List<Branch> all(@Param("request") BranchAllRequest request);
+    List<Branch> list(IPage<Branch> page, @Param("request") BranchListRequest request);
+    int countByModuleIdAndName(@Param("moduleId") Long moduleId, @Param("name") String name);
+    Branch findDefaultByModuleId(@Param("moduleId") Long moduleId);
 
 }

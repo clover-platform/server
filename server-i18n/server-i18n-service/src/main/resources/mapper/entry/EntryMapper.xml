@@ -99,4 +99,13 @@
         </if>
     </select>
 
+    <select id="findByBranchId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry
+        where
+        branch_id = #{branchId,jdbcType=NUMERIC}
+        and deleted = false
+    </select>
+
 </mapper>
