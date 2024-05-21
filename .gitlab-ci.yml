@@ -54,11 +54,11 @@ package_gateway:
     script:
         - cd server-gateway
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
-        - docker build -t $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID -f ./Dockerfile .
-        - docker tag $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID $CI_REGISTRY/clover/server/gateway:latest
-        - docker push $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID
+        - docker build -t $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID -f ./Dockerfile .
+        - docker tag $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/gateway:latest
+        - docker push $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID
         - docker push $CI_REGISTRY/clover/server/gateway:latest
-        - docker rmi $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_IID
+        - docker rmi $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/gateway:latest
 package_main:
     stage: package
@@ -72,11 +72,11 @@ package_main:
     script:
         - cd server-main/server-main-service
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
-        - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID -f ./Dockerfile .
-        - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID $CI_REGISTRY/clover/server/main:latest
-        - docker push $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID
+        - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID -f ./Dockerfile .
+        - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/main:latest
+        - docker push $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID
         - docker push $CI_REGISTRY/clover/server/main:latest
-        - docker rmi $CI_REGISTRY/clover/server/main:$CI_PIPELINE_IID
+        - docker rmi $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/main:latest
 package_i18n:
     stage: package
@@ -90,9 +90,9 @@ package_i18n:
     script:
         - cd server-i18n/server-i18n-service
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
-        - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID -f ./Dockerfile .
-        - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID $CI_REGISTRY/clover/server/i18n:latest
-        - docker push $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID
+        - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID -f ./Dockerfile .
+        - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/i18n:latest
+        - docker push $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID
         - docker push $CI_REGISTRY/clover/server/i18n:latest
-        - docker rmi $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_IID
+        - docker rmi $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/i18n:latest
