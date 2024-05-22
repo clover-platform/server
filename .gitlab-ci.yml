@@ -10,7 +10,6 @@ deploy_maven:
         - dev
     script:
         - mvn clean deploy -s settings.xml
-        - rm -rf ~/.m2/repository/org/zkit/*
 
 package_gateway:
     stage: package
