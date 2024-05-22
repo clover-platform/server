@@ -1,46 +1,15 @@
 stages:
-    - build
+    - deploy
     - package
 
-build_gateway:
-    stage: build
+deploy_maven:
+    stage: deploy
     only:
         - main
     tags:
         - dev
-    artifacts:
-        paths:
-            - server-gateway/target/*.jar
     script:
-        - mvn clean install
-        - cd server-gateway
-        - mvn package
-build_main:
-    stage: build
-    only:
-        - main
-    tags:
-        - dev
-    artifacts:
-        paths:
-            - server-main/server-main-service/target/*.jar
-    script:
-        - mvn clean install
-        - cd server-main/server-main-service
-        - mvn package
-build_i18n:
-    stage: build
-    only:
-        - main
-    tags:
-        - dev
-    artifacts:
-        paths:
-            - server-i18n/server-i18n-service/target/*.jar
-    script:
-        - mvn clean install
-        - cd server-i18n/server-i18n-service
-        - mvn package
+        - mvn clean deploy -s settings.xml
 
 package_gateway:
     stage: package
@@ -53,6 +22,7 @@ package_gateway:
             - server-gateway/target/*.jar
     script:
         - cd server-gateway
+        - mvn clean package
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/gateway:latest
@@ -71,6 +41,7 @@ package_main:
             - server-main/server-main-service/target/*.jar
     script:
         - cd server-main/server-main-service
+        - mvn clean package
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/main:latest
@@ -89,6 +60,7 @@ package_i18n:
             - server-i18n/server-i18n-service/target/*.jar
     script:
         - cd server-i18n/server-i18n-service
+        - mvn clean package
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/i18n:latest
