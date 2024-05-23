@@ -2,14 +2,25 @@ stages:
     - deploy
     - package
 
-deploy_maven:
+deploy_main:
     stage: deploy
     only:
         - main
     tags:
         - dev
     script:
-        - mvn clean deploy -s settings.xml
+        - cd server-main/server-main-api
+        - mvn clean deploy -s ../../settings.xml
+
+deploy_i18n:
+    stage: deploy
+    only:
+        - main
+    tags:
+        - dev
+    script:
+        - cd server-i18n/server-i18n-api
+        - mvn clean deploy -s ../../settings.xml
 
 package_gateway:
     stage: package
