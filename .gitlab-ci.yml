@@ -2,25 +2,14 @@ stages:
     - deploy
     - package
 
-deploy_main:
+deploy:
     stage: deploy
     only:
         - main
     tags:
         - dev
     script:
-        - cd server-main/server-main-api
-        - mvn clean deploy -s ../../settings.xml
-
-deploy_i18n:
-    stage: deploy
-    only:
-        - main
-    tags:
-        - dev
-    script:
-        - cd server-i18n/server-i18n-api
-        - mvn clean deploy -s ../../settings.xml
+        - mvn clean deploy -s settings.xml
 
 package_gateway:
     stage: package
@@ -41,6 +30,7 @@ package_gateway:
         - docker push $CI_REGISTRY/clover/server/gateway:latest
         - docker rmi $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/gateway:latest
+
 package_main:
     stage: package
     only:
@@ -60,6 +50,7 @@ package_main:
         - docker push $CI_REGISTRY/clover/server/main:latest
         - docker rmi $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/main:latest
+
 package_i18n:
     stage: package
     only:
