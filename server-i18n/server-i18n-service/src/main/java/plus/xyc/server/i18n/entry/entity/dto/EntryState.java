@@ -13,16 +13,16 @@ import lombok.Data;
 
 /**
  * <p>
- * 翻译结果
+ * 词条翻译状态
  * </p>
  *
  * @author generator
  * @since 2024-05-24
  */
 @Data
-@TableName("entry_result")
-@Schema(name = "EntryResult", description = "翻译结果")
-public class EntryResult implements Serializable {
+@TableName("entry_state")
+@Schema(name = "EntryState", description = "词条翻译状态")
+public class EntryState implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -33,30 +33,21 @@ public class EntryResult implements Serializable {
     @Schema(description = "词条ID")
     private Long entryId;
 
-    @Schema(description = "翻译结果")
-    private String content;
-
-    @Schema(description = "创建时间")
-    private Date createTime;
-
-    @Schema(description = "翻译人")
-    private Long translatorId;
-
-    @Schema(description = "更新人")
-    private Long checkerId;
-
-    @Schema(description = "更新时间")
-    private Date updateTime;
-
-    @Schema(description = "是否已经确认")
-    private Boolean verified;
-
     @Schema(description = "语言")
     private String language;
 
-    @Schema(description = "是否已删除")
-    private Boolean deleted;
+    @Schema(description = "是否已翻译")
+    private Boolean translated;
 
-    @Schema(description = "批准时间")
-    private Date verifiedTime;
+    @Schema(description = "翻译结果ID")
+    private Long resultId;
+
+    @Schema(description = "是否已校验")
+    private Boolean verified;
+
+    @Schema(description = "翻译时间")
+    private Date translationTime;
+
+    @Schema(description = "确认的时间")
+    private Date verificationTime;
 }

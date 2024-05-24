@@ -26,5 +26,6 @@ public interface BranchService extends IService<Branch> {
     PageResult<Branch> list(PageQueryRequest page, BranchListRequest request);
     void create(BranchCreateRequest request);
     Branch getDefault(Long moduleId);
+    List<Branch> getByNames(List<String> names);
 
 }

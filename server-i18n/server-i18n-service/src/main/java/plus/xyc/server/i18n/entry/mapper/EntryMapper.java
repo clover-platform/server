@@ -24,8 +24,7 @@ public interface EntryMapper extends BaseMapper<Entry> {
     List<Entry> findByModuleId(@Param("moduleId") Long moduleId);
     List<Entry> query(IPage<Entry> page, @Param("keyword") String keyword, @Param("query") EntryListRequest request);
     Long countTotal(@Param("request") EntryCountRequest request);
-    Long countTranslated(@Param("request") EntryCountRequest request);
-    Long countVerified(@Param("request") EntryCountRequest request);
     List<Entry> findByBranchId(@Param("branchId") Long branchId);
+    int countByModuleIdAndBranchIdAndIdentifier(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("identifier") String identifier);
 
 }

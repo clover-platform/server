@@ -1,16 +1,18 @@
 package plus.xyc.server.i18n.entry.controller;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
+import org.zkit.support.starter.boot.entity.SessionUser;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
@@ -31,6 +33,16 @@ public class EntryController {
 
     @Resource
     private EntryService entryService;
+
+    @PostMapping("/create")
+    @Operation(summary = "创建词条")
+    public void create(
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody EntryCreateRequest request
+    ) {
+        request.setUserId(user.getId());
+        entryService.create(request);
+    }
 
     @GetMapping("/list")
     @Operation(summary = "查询词条")

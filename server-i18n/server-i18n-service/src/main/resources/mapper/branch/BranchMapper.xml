@@ -57,4 +57,15 @@
         and deleted = false
     </select>
 
+    <select id="findByNameIn" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from branch
+        where
+        name in
+        <foreach collection="nameList" item="item" open="(" close=")" separator=",">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
 </mapper>

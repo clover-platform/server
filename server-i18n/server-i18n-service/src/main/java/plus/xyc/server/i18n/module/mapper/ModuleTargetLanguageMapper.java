@@ -16,5 +16,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface ModuleTargetLanguageMapper extends BaseMapper<ModuleTargetLanguage> {
 
     List<ModuleTargetLanguage> findByModuleId(@Param("moduleId") Long moduleId);
+    ModuleTargetLanguage findOneByModuleIdAndCode(@Param("moduleId") Long moduleId, @Param("code") String code);
 
 }

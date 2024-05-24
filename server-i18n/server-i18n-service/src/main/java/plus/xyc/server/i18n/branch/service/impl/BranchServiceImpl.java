@@ -97,4 +97,12 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
     public Branch getDefault(Long moduleId) {
         return baseMapper.findDefaultByModuleId(moduleId);
     }
+
+    @Override
+    public List<Branch> getByNames(List<String> names) {
+        if(names.isEmpty()) {
+            return List.of();
+        }
+        return baseMapper.findByNameIn(names);
+    }
 }
