@@ -16,5 +16,7 @@ public class ModuleLanguageResponse extends LanguageResponse {
     private Long translatedEntry;
     @Schema(description = "已校验词条")
     private Long verifiedEntry;
+    @Schema(description = "字数")
+    private Long totalEntryLength;
 
 }

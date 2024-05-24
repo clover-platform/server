@@ -7,12 +7,12 @@ spring:
         enabled: true
     nacos:
       config:
-        server-addr: https://nacos.zkit.org
+        server-addr: ${NACOS_SERVER}
         username: ${NACOS_USERNAME}
         password: ${NACOS_PASSWORD}
         file-extension: yaml
         refresh-enabled: true
       discovery:
-        server-addr: https://nacos.zkit.org
+        server-addr: ${NACOS_SERVER}
         username: ${NACOS_USERNAME}
         password: ${NACOS_PASSWORD}

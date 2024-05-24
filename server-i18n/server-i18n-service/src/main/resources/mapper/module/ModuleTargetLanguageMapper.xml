@@ -7,14 +7,11 @@
         <id column="id" property="id" />
         <result column="module_id" property="moduleId" />
         <result column="code" property="code" />
-        <result column="total_entry" property="totalEntry" />
-        <result column="translated_entry" property="translatedEntry" />
-        <result column="verified_entry" property="verifiedEntry" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, module_id, code, total_entry, translated_entry, verified_entry
+        id, module_id, code
     </sql>
 
     <select id="findByModuleId" resultMap="BaseResultMap">
@@ -23,6 +20,15 @@
         from module_target_language
         where
         module_id = #{moduleId,jdbcType=NUMERIC}
+    </select>
+
+    <select id="findOneByModuleIdAndCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from module_target_language
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+        AND code = #{code,jdbcType=VARCHAR}
     </select>
 
 </mapper>

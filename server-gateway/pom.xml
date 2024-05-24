@@ -13,6 +13,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.zkit.support</groupId>
             <artifactId>gateway-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>

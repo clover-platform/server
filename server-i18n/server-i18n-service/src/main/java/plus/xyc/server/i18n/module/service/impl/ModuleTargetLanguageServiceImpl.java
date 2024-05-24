@@ -1,6 +1,10 @@
 package plus.xyc.server.i18n.module.service.impl;
 
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
+import org.zkit.support.starter.redisson.DistributedLock;
+import plus.xyc.server.i18n.entry.entity.dto.Entry;
+import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.language.entity.mapstruct.LanguageMapStruct;
 import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.language.service.LanguageService;
@@ -28,6 +32,8 @@ public class ModuleTargetLanguageServiceImpl extends ServiceImpl<ModuleTargetLan
     private LanguageService languageService;
     @Resource
     private LanguageMapStruct languageMapStruct;
+    @Resource
+    private EntryMapper entryMapper;
 
     @Override
     public List<ModuleLanguageResponse> languages(Long id) {
@@ -39,12 +45,26 @@ public class ModuleTargetLanguageServiceImpl extends ServiceImpl<ModuleTargetLan
                             .filter(l -> l.getCode().equals(target.getCode()))
                             .findFirst()
                             .orElse(null);
-                    ModuleLanguageResponse response = languageMapStruct.toModuleLanguageResponse(language);
-                    response.setTotalEntry(target.getTotalEntry());
-                    response.setVerifiedEntry(target.getVerifiedEntry());
-                    response.setTranslatedEntry(target.getTranslatedEntry());
-                    return response;
+                    return languageMapStruct.toModuleLanguageResponse(language);
                 })
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "module:update:count", key = "#id")
+    public void updateCount(Long id) {
+        List<ModuleTargetLanguage> targets = baseMapper.findByModuleId(id);
+        targets.forEach(target -> {
+            this.updateCount(id, target.getCode());
+        });
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "module:update:count", key = "#id + ':' + #language")
+    public void updateCount(Long id, String language) {
+        ModuleTargetLanguage target = baseMapper.findOneByModuleIdAndCode(id, language);
+        List<Entry> entries = entryMapper.findByModuleId(id);
     }
 }

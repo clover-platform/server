@@ -2,15 +2,27 @@ package plus.xyc.server.i18n.entry.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.aop.framework.AopProxy;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
+import org.zkit.support.starter.redisson.DistributedLock;
+import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
+import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
+import plus.xyc.server.i18n.activity.service.ActivityService;
+import plus.xyc.server.i18n.branch.entity.dto.Branch;
+import plus.xyc.server.i18n.branch.mapper.BranchMapper;
+import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryMapStruct;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
@@ -21,6 +33,9 @@ import plus.xyc.server.i18n.entry.service.EntryResultService;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.i18n.entry.service.EntryStateService;
+import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
 import java.util.Date;
 import java.util.List;
@@ -36,6 +51,7 @@ import java.util.concurrent.TimeUnit;
  * @since 2024-05-13
  */
 @Service
+@Slf4j
 public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements EntryService {
 
     @Resource
@@ -46,6 +62,14 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private EntryMapStruct entryMapStruct;
     @Resource
     private EntryResultMapper entryResultMapper;
+    @Resource
+    private ActivityService activityService;
+    @Resource
+    private ModuleTargetLanguageService moduleTargetLanguageService;
+    @Resource
+    private EntryStateService entryStateService;
+    @Resource
+    private BranchMapper branchMapper;
 
     @Override
     public int wordCount(Long moduleId) {
@@ -67,12 +91,13 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public PageResult<EntryResponse> query(PageQueryRequest query, EntryListRequest request) {
         Page<Entry> page = query.toPage();
         List<Entry> all = baseMapper.query(page, query.getKeyword(), request);
-        List<Long> resultIds = all.stream().map(Entry::getResultId).toList();
-        List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
+        // List<Long> resultIds = all.stream().map(Entry::getResultId).toList();
+        // List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
+        // TODO
         List<EntryResponse> list = all.stream().map(item -> {
-            EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(item.getResultId())).findFirst().orElse(null);
+            // EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(item.getResultId())).findFirst().orElse(null);
             EntryResponse response = entryMapStruct.toEntryResponse(item);
-            response.setTranslation(result);
+            // response.setTranslation(result);
             return response;
         }).toList();
         return PageResult.of(page.getTotal(), list);
@@ -82,8 +107,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public EntryCountResponse count(EntryCountRequest request) {
         EntryCountResponse response = new EntryCountResponse();
         response.setTotal(baseMapper.countTotal(request));
-        response.setTranslated(baseMapper.countTranslated(request));
-        response.setVerified(baseMapper.countVerified(request));
+        response.setTranslated(entryStateService.countTranslated(request));
+        response.setVerified(entryStateService.countVerified(request));
         return response;
     }
 
@@ -136,5 +161,37 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             List<EntryResult> part = results.subList(i, Math.min(i + 100, results.size()));
             entryResultService.saveBatch(part);
         }
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:entry:create", key = "#request.moduleId")
+    public void create(EntryCreateRequest request) {
+        List<Branch> branches = branchMapper.findByNameIn(request.getBranches());
+        if(branches.size() != request.getBranches().size()) {
+            throw new ResultException(I18nCode.ENTRY_CREATE_BRANCHES.code, MessageUtils.get(I18nCode.ENTRY_CREATE_BRANCHES.key));
+        }
+        branches.forEach(branch -> {
+            int size = baseMapper.countByModuleIdAndBranchIdAndIdentifier(request.getModuleId(), branch.getId(), request.getKey());
+            if(size > 0) {
+                throw new ResultException(I18nCode.ENTRY_CREATE_KEY.code, MessageUtils.get(I18nCode.ENTRY_CREATE_KEY.key));
+            }
+            Entry entry = new Entry();
+            entry.setModuleId(request.getModuleId());
+            entry.setBranchId(branch.getId());
+            entry.setIdentifier(request.getKey());
+            entry.setValue(request.getValue());
+            entry.setCreateUserId(request.getUserId());
+            save(entry);
+
+            activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
+        });
+
+        moduleTargetLanguageService.updateCount(request.getModuleId());
+    }
+
+    @Override
+    public List<Entry> getByModuleId(Long moduleId) {
+        return baseMapper.findByModuleId(moduleId);
     }
 }

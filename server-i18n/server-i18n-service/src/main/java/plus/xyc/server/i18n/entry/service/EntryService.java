@@ -5,6 +5,7 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
@@ -28,5 +29,7 @@ public interface EntryService extends IService<Entry> {
     List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId);
     void cloneEntriesBySourceId(Long sourceId, Long targetId);
     void cloneEntries(List<EntryWithResultResponse> sources, Long targetId);
+    void create(EntryCreateRequest request);
+    List<Entry> getByModuleId(Long moduleId);
 
 }
