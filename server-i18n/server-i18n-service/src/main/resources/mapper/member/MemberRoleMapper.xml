@@ -25,4 +25,12 @@
         </foreach>
     </select>
 
+    <select id="findByModuleIdAndAccountId" resultMap="BaseResultMap">
+        select mr.*
+        from member m
+        join member_role mr on m.id = mr.member_id
+        where m.account_id = #{accountId,jdbcType=NUMERIC}
+        and m.module_id = #{moduleId,jdbcType=NUMERIC}
+    </select>
+
 </mapper>

@@ -24,13 +24,17 @@
         count(1) as total
         from entry as e
         left join branch as b on e.branch_id = b.id
+        left join entry_state as es on e.id = es.entry_id
         where
-        e.deleted = false and b.deleted = false and e.translated = true
-        <if test="request.branch != null">
+        e.deleted = false and b.deleted = false and es.translated = true
+        <if test="request.branch != null and request.branch != ''">
             and b.name = #{request.branch}
         </if>
         <if test="request.moduleId != null">
             and e.module_id = #{request.moduleId,jdbcType=NUMERIC}
+        </if>
+        <if test="request.language != null and request.language != ''">
+            and es.language = #{request.language}
         </if>
     </select>
 
@@ -39,14 +43,27 @@
         count(1) as total
         from entry as e
         left join branch as b on e.branch_id = b.id
+        left join entry_state as es on e.id = es.entry_id
         where
-        e.deleted = false and b.deleted = false and e.verified = true
-        <if test="request.branch != null">
+        e.deleted = false and b.deleted = false and es.verified = true
+        <if test="request.branch != null and request.branch != ''">
             and b.name = #{request.branch}
         </if>
         <if test="request.moduleId != null">
             and e.module_id = #{request.moduleId,jdbcType=NUMERIC}
         </if>
+        <if test="request.language != null and request.language != ''">
+            and es.language = #{request.language}
+        </if>
+    </select>
+
+    <select id="findOneByEntryIdAndLanguage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry_state
+        where
+        entry_id = #{entryId,jdbcType=NUMERIC}
+        AND language = #{language,jdbcType=VARCHAR}
     </select>
 
 </mapper>

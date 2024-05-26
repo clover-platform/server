@@ -55,7 +55,7 @@
         left join branch as b on e.branch_id = b.id
         where
         e.deleted = false and b.deleted = false
-        <if test="request.branch != null">
+        <if test="request.branch != null and request.branch != ''">
             and b.name = #{request.branch}
         </if>
         <if test="request.moduleId != null">
@@ -78,6 +78,16 @@
         where module_id = #{moduleId,jdbcType=NUMERIC}
         AND branch_id = #{branchId,jdbcType=NUMERIC}
         AND identifier = #{identifier,jdbcType=VARCHAR}
+        and deleted = false
+    </select>
+
+    <select id="findByModuleIdAndBranchId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+        AND branch_id = #{branchId,jdbcType=NUMERIC}
         and deleted = false
     </select>
 

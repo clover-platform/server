@@ -66,6 +66,24 @@
         <foreach collection="nameList" item="item" open="(" close=")" separator=",">
             #{item,jdbcType=VARCHAR}
         </foreach>
+        and deleted = false
+        and module_id = #{moduleId}
+    </select>
+
+    <select id="findByModuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from branch
+        where
+        deleted = false
+        and module_id = #{moduleId}
+    </select>
+    <select id="findOneById" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from branch
+        where
+        id = #{id,jdbcType=NUMERIC}
     </select>
 
 </mapper>

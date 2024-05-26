@@ -6,10 +6,12 @@ import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
+import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 
 import java.util.List;
 
@@ -31,5 +33,8 @@ public interface EntryService extends IService<Entry> {
     void cloneEntries(List<EntryWithResultResponse> sources, Long targetId);
     void create(EntryCreateRequest request);
     List<Entry> getByModuleId(Long moduleId);
+    void edit(EntryEditRequest request);
+    EntryWithStateResponse detail(Long id, String language);
+    void remove(Long id, Long userId);
 
 }
