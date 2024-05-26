@@ -5,6 +5,7 @@ import org.mapstruct.MappingConstants;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
+import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface EntryMapStruct {
@@ -12,5 +13,6 @@ public interface EntryMapStruct {
     EntryResponse toEntryResponse(Entry entry);
     EntryWithResultResponse toEntryWithResultResponse(Entry entry);
     Entry toEntryFromEntryWithResultResponse(EntryWithResultResponse entryWithResultResponse);
+    EntryWithStateResponse toEntryWithStateResponse(Entry entry);
 
 }

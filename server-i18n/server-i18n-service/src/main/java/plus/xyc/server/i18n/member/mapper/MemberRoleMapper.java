@@ -17,5 +17,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface MemberRoleMapper extends BaseMapper<MemberRole> {
 
     List<MemberRole> findByMemberIdIn(@Param("memberIdList") Collection<Long> memberIdList);
+    List<MemberRole> findByModuleIdAndAccountId(@Param("moduleId") Long moduleId, @Param("accountId") Long accountId);
 
 }

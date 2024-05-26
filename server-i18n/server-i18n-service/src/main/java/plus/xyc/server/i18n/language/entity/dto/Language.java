@@ -15,7 +15,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-05-24
+ * @since 2024-05-25
  */
 @Data
 @Schema(name = "Language", description = "语言")

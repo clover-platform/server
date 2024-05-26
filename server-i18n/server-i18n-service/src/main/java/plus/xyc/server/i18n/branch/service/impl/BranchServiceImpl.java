@@ -99,10 +99,10 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
     }
 
     @Override
-    public List<Branch> getByNames(List<String> names) {
+    public List<Branch> getByNames(Long moduleId, List<String> names) {
         if(names.isEmpty()) {
             return List.of();
         }
-        return baseMapper.findByNameIn(names);
+        return baseMapper.findByNameIn(moduleId, names);
     }
 }

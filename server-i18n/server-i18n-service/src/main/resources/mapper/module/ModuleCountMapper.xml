@@ -19,4 +19,28 @@
         id, module_id, code, branch_id, total_entry, translated_entry, verified_entry, total_entry_length
     </sql>
 
+    <select id="findByCountRequest" resultMap="BaseResultMap">
+        select
+        m.*
+        from module_count as m
+        left join branch as b on m.branch_id = b.id
+        where m.module_id = #{request.moduleId}
+        <if test="request.branch != null and request.branch != ''">
+            and b.name = #{request.branch}
+        </if>
+        <if test="request.language != null and request.language != ''">
+            and m.code = #{request.language}
+        </if>
+    </select>
+
+    <select id="findOneByModuleIdAndBranchIdAndCode" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from module_count
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+        AND branch_id = #{branchId,jdbcType=NUMERIC}
+        AND code = #{code,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

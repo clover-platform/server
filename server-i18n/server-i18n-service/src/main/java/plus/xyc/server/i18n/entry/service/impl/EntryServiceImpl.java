@@ -5,7 +5,6 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
-import org.springframework.aop.framework.AopProxy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -17,24 +16,30 @@ import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import plus.xyc.server.i18n.branch.mapper.BranchMapper;
-import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
+import plus.xyc.server.i18n.entry.entity.dto.EntryState;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryMapStruct;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
+import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryResultMapper;
+import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
+import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
+import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
+import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
 import java.util.Date;
@@ -67,9 +72,13 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Resource
     private ModuleTargetLanguageService moduleTargetLanguageService;
     @Resource
-    private EntryStateService entryStateService;
-    @Resource
     private BranchMapper branchMapper;
+    @Resource
+    private EntryStateMapper entryStateMapper;
+    @Resource
+    private ModuleCountMapper moduleCountMapper;
+    @Resource
+    private ModuleAccessService moduleAccessService;
 
     @Override
     public int wordCount(Long moduleId) {
@@ -106,9 +115,10 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Override
     public EntryCountResponse count(EntryCountRequest request) {
         EntryCountResponse response = new EntryCountResponse();
-        response.setTotal(baseMapper.countTotal(request));
-        response.setTranslated(entryStateService.countTranslated(request));
-        response.setVerified(entryStateService.countVerified(request));
+        ModuleCount count = moduleCountMapper.findByCountRequest(request);
+        response.setTotal(count == null ? 0 : count.getTotalEntry());
+        response.setTranslated(count == null ? 0 : count.getTranslatedEntry());
+        response.setVerified(count == null ? 0 : count.getVerifiedEntry());
         return response;
     }
 
@@ -167,7 +177,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Transactional
     @DistributedLock(value = "i18n:entry:create", key = "#request.moduleId")
     public void create(EntryCreateRequest request) {
-        List<Branch> branches = branchMapper.findByNameIn(request.getBranches());
+        List<Branch> branches = branchMapper.findByNameIn(request.getModuleId(), request.getBranches());
         if(branches.size() != request.getBranches().size()) {
             throw new ResultException(I18nCode.ENTRY_CREATE_BRANCHES.code, MessageUtils.get(I18nCode.ENTRY_CREATE_BRANCHES.key));
         }
@@ -193,5 +203,59 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Override
     public List<Entry> getByModuleId(Long moduleId) {
         return baseMapper.findByModuleId(moduleId);
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:entry", key = "#request.id")
+    public void edit(EntryEditRequest request) {
+        Entry entry = getById(request.getId());
+
+        if(request.getUserId().longValue() != entry.getCreateUserId().longValue()) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }else if(!moduleAccessService.check(entry.getModuleId(), request.getUserId(), List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code))){
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+
+        entry.setValue(request.getValue());
+        entry.setUpdateUserId(request.getUserId());
+        updateById(entry);
+
+        activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.UPDATE.code, entry);
+    }
+
+    @Override
+    public EntryWithStateResponse detail(Long id, String language) {
+        Entry entry = getById(id);
+        EntryWithStateResponse response = entryMapStruct.toEntryWithStateResponse(entry);
+        EntryState state = entryStateMapper.findOneByEntryIdAndLanguage(id, language);
+        response.setTranslated(state != null && state.getTranslated());
+        response.setVerified(state != null && state.getVerified());
+        if(state != null && response.getTranslated()) {
+            EntryResult result = entryResultService.getById(state.getEntryId());
+            response.setTranslation(result);
+        }
+        return response;
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:entry", key = "#id")
+    public void remove(Long id, Long userId) {
+        Entry entry = getById(id);
+
+        if(userId.longValue() != entry.getCreateUserId().longValue()) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }else if(!moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code))){
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+
+        entry.setDeleted(true);
+        updateById(entry);
+
+        activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.DELETE.code, entry);
+
+        // 更新数量
+        moduleTargetLanguageService.updateCount(entry.getModuleId(), entry.getBranchId());
     }
 }

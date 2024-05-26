@@ -19,6 +19,7 @@ public interface ModuleTargetLanguageService extends IService<ModuleTargetLangua
 
     List<ModuleLanguageResponse> languages(Long id);
     void updateCount(Long id);
-    void updateCount(Long id, String language);
+    void updateCount(Long id, Long branchId);
+    void updateCount(Long id, Long branchId, String language);
 
 }
