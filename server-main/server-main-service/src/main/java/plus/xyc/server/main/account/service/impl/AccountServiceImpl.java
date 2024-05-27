@@ -152,8 +152,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
         Result<TokenResponse> result = authAccountRestApi.login(request);
         if(!result.isSuccess()) {
-            log.info("{}",result);
-            throw ResultException.internal();
+            throw new ResultException(result.getCode(), result.getMessage());
         }
         return result.getData();
     }
