@@ -1,9 +1,10 @@
 stages:
-    - deploy
+    - maven
     - package
+    - deploy
 
-deploy:
-    stage: deploy
+maven-deploy:
+    stage: maven
     only:
         - main
     tags:
@@ -11,7 +12,7 @@ deploy:
     script:
         - mvn clean deploy -s settings.xml
 
-package_gateway:
+package-gateway:
     stage: package
     only:
         - main
@@ -31,7 +32,7 @@ package_gateway:
         - docker rmi $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/gateway:latest
 
-package_main:
+package-main:
     stage: package
     only:
         - main
@@ -51,7 +52,7 @@ package_main:
         - docker rmi $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/main:latest
 
-package_i18n:
+package-i18n:
     stage: package
     only:
         - main
@@ -70,3 +71,36 @@ package_i18n:
         - docker push $CI_REGISTRY/clover/server/i18n:latest
         - docker rmi $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID
         - docker rmi $CI_REGISTRY/clover/server/i18n:latest
+
+deploy-gateway:
+    stage: deploy
+    only:
+        - main
+    tags:
+        - dev
+    script:
+        - cd /opt/server/clover/server-gateway
+        - docker-compose down
+        - docker-compose up -d
+
+deploy-main:
+    stage: deploy
+    only:
+        - main
+    tags:
+        - dev
+    script:
+        - cd /opt/server/clover/server-main
+        - docker-compose down
+        - docker-compose up -d
+
+deploy-i18n:
+    stage: deploy
+    only:
+        - main
+    tags:
+        - dev
+    script:
+        - cd /opt/server/clover/server-i18n
+        - docker-compose down
+        - docker-compose up -d
