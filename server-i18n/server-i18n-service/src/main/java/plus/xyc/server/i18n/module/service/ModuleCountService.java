@@ -13,4 +13,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface ModuleCountService extends IService<ModuleCount> {
 
+    void updateCount(Long id);
+    void updateCount(Long id, Long branchId);
+    void updateCount(Long id, Long branchId, String language);
+
 }

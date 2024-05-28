@@ -1,15 +1,16 @@
 package plus.xyc.server.i18n.entry.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
+import org.zkit.support.starter.boot.entity.SessionUser;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultListRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryResultSaveRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryResultResponse;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
 
@@ -27,6 +28,16 @@ public class EntryResultController {
 
     @Resource
     private EntryResultService entryResultService;
+
+    @PostMapping("/save")
+    @Operation(summary = "保存翻译")
+    public void save(
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody EntryResultSaveRequest request
+    ) {
+        request.setUserId(user.getId());
+        entryResultService.saveResult(request);
+    }
 
     @GetMapping("/list")
     @Operation(summary = "查询翻译结果")

@@ -18,5 +18,5 @@ public interface EntryStateMapper extends BaseMapper<EntryState> {
     Long countTranslated(@Param("request") EntryCountRequest request);
     Long countVerified(@Param("request") EntryCountRequest request);
     EntryState findOneByEntryIdAndLanguage(@Param("entryId") Long entryId, @Param("language") String language);
-
+    
 }

@@ -80,4 +80,15 @@
         AND entry.deleted = 0
     </select>
 
+    <select id="findOneByEntryIdAndLanguageAndContent" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry_result
+        where
+        entry_id = #{entryId,jdbcType=NUMERIC}
+        AND language = #{language,jdbcType=VARCHAR}
+        AND content = #{content,jdbcType=VARCHAR}
+        AND deleted = false
+    </select>
+
 </mapper>
