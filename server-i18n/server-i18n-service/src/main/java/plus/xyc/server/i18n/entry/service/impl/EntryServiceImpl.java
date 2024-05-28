@@ -40,6 +40,7 @@ import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
+import plus.xyc.server.i18n.module.service.ModuleCountService;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
 import java.util.Date;
@@ -79,6 +80,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private ModuleCountMapper moduleCountMapper;
     @Resource
     private ModuleAccessService moduleAccessService;
+    @Resource
+    private ModuleCountService moduleCountService;
 
     @Override
     public int wordCount(Long moduleId) {
@@ -115,10 +118,18 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Override
     public EntryCountResponse count(EntryCountRequest request) {
         EntryCountResponse response = new EntryCountResponse();
-        ModuleCount count = moduleCountMapper.findByCountRequest(request);
-        response.setTotal(count == null ? 0 : count.getTotalEntry());
-        response.setTranslated(count == null ? 0 : count.getTranslatedEntry());
-        response.setVerified(count == null ? 0 : count.getVerifiedEntry());
+        List<ModuleCount> counts = moduleCountMapper.findByCountRequest(request);
+        long total = 0;
+        long translated = 0;
+        long verified = 0;
+        for (ModuleCount count : counts) {
+            total += count.getTotalEntry();
+            translated += count.getTranslatedEntry();
+            verified += count.getVerifiedEntry();
+        }
+        response.setTotal(total);
+        response.setTranslated(translated);
+        response.setVerified(verified);
         return response;
     }
 
@@ -197,7 +208,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
         });
 
-        moduleTargetLanguageService.updateCount(request.getModuleId());
+        moduleCountService.updateCount(request.getModuleId());
     }
 
     @Override
@@ -256,6 +267,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.DELETE.code, entry);
 
         // 更新数量
-        moduleTargetLanguageService.updateCount(entry.getModuleId(), entry.getBranchId());
+        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId());
     }
 }

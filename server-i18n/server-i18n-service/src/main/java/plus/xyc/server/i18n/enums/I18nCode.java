@@ -6,12 +6,14 @@ public enum I18nCode {
 
     MODULE_IDENTIFIER_EXIST(1001, "module.identifier.exist"),
 
-    ENTRY_CREATE_BRANCHES(4001, "entry.create.branches"),
-    ENTRY_CREATE_KEY(4002, "entry.create.key"),
+    ENTRY_CREATE_BRANCHES(2001, "entry.create.branches"),
+    ENTRY_CREATE_KEY(2002, "entry.create.key"),
 
-    ENTRY_COMMENT_FAST(2001, "entry.comment.fast"),
+    ENTRY_RESULT_EXIST(3001, "entry.result.exist"),
 
-    BRANCH_EXISTED(3001, "branch.existed");
+    ENTRY_COMMENT_FAST(4001, "entry.comment.fast"),
+
+    BRANCH_EXISTED(5001, "branch.existed");
 
     public final int code;
     public final String key;

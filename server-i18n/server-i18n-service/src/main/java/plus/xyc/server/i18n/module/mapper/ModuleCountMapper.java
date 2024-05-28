@@ -5,6 +5,8 @@ import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
+import java.util.List;
+
 /**
  * <p>
  * 模块统计 Mapper 接口
@@ -15,7 +17,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ModuleCountMapper extends BaseMapper<ModuleCount> {
 
-    ModuleCount findByCountRequest(@Param("request")EntryCountRequest request);
+    List<ModuleCount> findByCountRequest(@Param("request")EntryCountRequest request);
     ModuleCount findOneByModuleIdAndBranchIdAndCode(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("code") String code);
 
 }

@@ -17,5 +17,6 @@ public interface EntryStateService extends IService<EntryState> {
 
     Long countTranslated(EntryCountRequest request);
     Long countVerified(EntryCountRequest request);
+    void translate(Long entryId,String language, Long resultId);
 
 }

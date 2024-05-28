@@ -18,8 +18,5 @@ import java.util.List;
 public interface ModuleTargetLanguageService extends IService<ModuleTargetLanguage> {
 
     List<ModuleLanguageResponse> languages(Long id);
-    void updateCount(Long id);
-    void updateCount(Long id, Long branchId);
-    void updateCount(Long id, Long branchId, String language);
 
 }
