@@ -25,7 +25,6 @@ import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
-import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
@@ -41,7 +40,6 @@ import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
-import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
 import java.util.Date;
 import java.util.List;
@@ -71,8 +69,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Resource
     private ActivityService activityService;
     @Resource
-    private ModuleTargetLanguageService moduleTargetLanguageService;
-    @Resource
     private BranchMapper branchMapper;
     @Resource
     private EntryStateMapper entryStateMapper;
@@ -100,16 +96,25 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public PageResult<EntryResponse> query(PageQueryRequest query, EntryListRequest request) {
+    public PageResult<EntryWithStateResponse> query(PageQueryRequest query, EntryListRequest request) {
         Page<Entry> page = query.toPage();
         List<Entry> all = baseMapper.query(page, query.getKeyword(), request);
-        // List<Long> resultIds = all.stream().map(Entry::getResultId).toList();
-        // List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
-        // TODO
-        List<EntryResponse> list = all.stream().map(item -> {
-            // EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(item.getResultId())).findFirst().orElse(null);
-            EntryResponse response = entryMapStruct.toEntryResponse(item);
-            // response.setTranslation(result);
+        if(all.isEmpty()) {
+            return PageResult.of(page.getTotal(), List.of());
+        }
+        List<Long> entryIds = all.stream().map(Entry::getId).toList();
+        List<EntryState> states = entryStateMapper.findByEntryIdInAndLanguage(entryIds, request.getLanguage());
+        List<Long> resultIds = states.stream().map(EntryState::getResultId).toList();
+        List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
+        List<EntryWithStateResponse> list = all.stream().map(item -> {
+            EntryState state = states.stream().filter(entryState -> entryState.getEntryId().equals(item.getId())).findFirst().orElse(null);
+            EntryWithStateResponse response = entryMapStruct.toEntryWithStateResponse(item);
+            response.setTranslated(state != null && state.getTranslated());
+            response.setVerified(state != null && state.getVerified());
+            if(state != null && response.getTranslated()) {
+                EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(state.getResultId())).findFirst().orElse(null);
+                response.setTranslation(result);
+            }
             return response;
         }).toList();
         return PageResult.of(page.getTotal(), list);
@@ -243,7 +248,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         response.setTranslated(state != null && state.getTranslated());
         response.setVerified(state != null && state.getVerified());
         if(state != null && response.getTranslated()) {
-            EntryResult result = entryResultService.getById(state.getEntryId());
+            EntryResult result = entryResultService.getById(state.getResultId());
             response.setTranslation(result);
         }
         return response;
