@@ -91,4 +91,15 @@
         AND deleted = false
     </select>
 
+    <select id="getLastResult" resultMap="BaseResultMap">
+        SELECT
+            result.*
+        FROM entry_result AS result
+        WHERE result.deleted = false
+        AND result.entry_id = #{entryId}
+        AND result.language = #{language}
+        ORDER BY result.verified DESC, result.update_time DESC
+        limit 1
+    </select>
+
 </mapper>
