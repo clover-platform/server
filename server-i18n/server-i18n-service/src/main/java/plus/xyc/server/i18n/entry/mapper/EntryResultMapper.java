@@ -18,6 +18,7 @@ import java.util.List;
  */
 public interface EntryResultMapper extends BaseMapper<EntryResult> {
 
+    EntryResult getLastResult(@Param("entryId") Long entryId, @Param("language") String language);
     List<EntryResult> getLastResults(@Param("ids") List<Long> ids, @Param("language") String language);
     List<EntryResult> getResults(@Param("ids") List<Long> ids, @Param("language") String language);
     List<EntryResult> query(IPage<EntryResult> page, @Param("request") EntryResultListRequest request);

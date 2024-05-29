@@ -39,6 +39,15 @@ public class EntryResultController {
         entryResultService.saveResult(request);
     }
 
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除翻译")
+    public void delete(
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @Parameter(description = "翻译结果ID") @PathVariable Long id
+    ) {
+        entryResultService.delete(id, user.getId());
+    }
+
     @GetMapping("/list")
     @Operation(summary = "查询翻译结果")
     public PageResult<EntryResultResponse> list(
@@ -46,6 +55,15 @@ public class EntryResultController {
             @ParameterObject @ModelAttribute EntryResultListRequest request
     ) {
         return entryResultService.query(page, request);
+    }
+
+    @PutMapping("/{id}/approve")
+    @Operation(summary = "批准翻译")
+    public void approve(
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @Parameter(description = "翻译结果ID") @PathVariable Long id
+    ) {
+        entryResultService.approve(id, user.getId());
     }
 
 }

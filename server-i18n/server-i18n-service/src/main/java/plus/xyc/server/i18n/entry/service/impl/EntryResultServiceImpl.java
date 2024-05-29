@@ -12,11 +12,13 @@ import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
+import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryResultMapStruct;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultListRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultSaveRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryResultResponse;
+import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryResultMapper;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -51,6 +53,8 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     private ActivityService activityService;
     @Resource
     private EntryStateService entryStateService;
+    @Resource
+    private EntryMapper entryMapper;
 
     @Override
     public List<EntryResult> getLastResults(List<Long> ids, String language) {
@@ -115,5 +119,50 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         // 记录日志
         activityService.entity(request.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.ADD.code, result);
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:entry:result", key = "#id")
+    public void delete(Long id, Long userId) {
+        EntryResult result = baseMapper.selectById(id);
+        Entry entry = entryMapper.selectById(result.getEntryId());
+        if(result.getTranslatorId().longValue() != userId.longValue()) {
+            boolean checked = moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code));
+            if(!checked) {
+                throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+            }
+        }
+        result.setDeleted(true);
+        result.setUpdateTime(new Date());
+        baseMapper.updateById(result);
+
+        entryStateService.removeTranslate(result.getEntryId(), result.getLanguage(), result.getId());
+
+        // 记录日志
+        activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.DELETE.code, result);
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:entry:result", key = "#id")
+    public void approve(Long id, Long userId) {
+        EntryResult result = baseMapper.selectById(id);
+        Entry entry = entryMapper.selectById(result.getEntryId());
+        boolean checked = moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code, MemberRoleType.CHECK.code));
+        if (!checked) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+        Date now = new Date();
+        result.setCheckerId(userId);
+        result.setVerified(true);
+        result.setUpdateTime(now);
+        result.setVerifiedTime(now);
+        baseMapper.updateById(result);
+
+        entryStateService.approve(result.getEntryId(), result.getLanguage(), result.getId());
+
+        // 记录日志
+        activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.APPROVE.code, result);
     }
 }

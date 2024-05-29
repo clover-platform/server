@@ -24,5 +24,7 @@ public interface EntryResultService extends IService<EntryResult> {
     List<EntryResult> getResults(List<Long> ids, String language);
     PageResult<EntryResultResponse> query(PageQueryRequest page, EntryResultListRequest request);
     void saveResult(EntryResultSaveRequest request);
+    void delete(Long id, Long userId);
+    void approve(Long id, Long userId);
 
 }
