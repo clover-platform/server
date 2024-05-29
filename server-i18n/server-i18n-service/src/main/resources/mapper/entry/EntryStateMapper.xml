@@ -66,4 +66,16 @@
         AND language = #{language,jdbcType=VARCHAR}
     </select>
 
+    <select id="findByEntryIdInAndLanguage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry_state
+        where
+        entry_id in
+        <foreach collection="entryIds" item="entryId" open="(" close=")" separator=",">
+            #{entryId}
+        </foreach>
+        AND language = #{language,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

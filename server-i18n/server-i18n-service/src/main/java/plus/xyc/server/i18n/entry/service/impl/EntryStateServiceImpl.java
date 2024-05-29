@@ -81,9 +81,7 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
         }else{
             state.setResultId(result.getId());
             state.setTranslated(true);
-            if(result.getVerified()) {
-                state.setVerified(true);
-            }
+            state.setVerified(result.getVerified());
         }
         updateById(state);
         Entry entry = entryMapper.selectById(entryId);

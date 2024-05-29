@@ -15,7 +15,6 @@ import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
-import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.service.EntryService;
 
@@ -76,7 +75,7 @@ public class EntryController {
 
     @GetMapping("/list")
     @Operation(summary = "查询词条")
-    public PageResult<EntryResponse> list(
+    public PageResult<EntryWithStateResponse> list(
             @ParameterObject @ModelAttribute PageQueryRequest page,
             @ParameterObject @ModelAttribute EntryListRequest request
     ) {
