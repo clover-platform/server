@@ -76,4 +76,15 @@
         where identifier = #{identifier,jdbcType=VARCHAR}
           AND deleted = false
     </select>
+
+    <select id="all" resultMap="BaseResultMap">
+        SELECT m.*
+        FROM module as m
+        LEFT JOIN member as mb on mb.module_id = m.id
+        WHERE mb.account_id = #{request.userId}
+        AND m.deleted = false
+        <if test="request.keyword != null and request.keyword != ''">
+            AND m.name like concat('%', #{request.keyword}, '%')
+        </if>
+    </select>
 </mapper>

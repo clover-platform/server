@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema(description = "创建模块请求")
-public class CreateModuleRequest {
+public class ModuleCreateRequest {
 
     @Schema(description = "名称")
     private String name;

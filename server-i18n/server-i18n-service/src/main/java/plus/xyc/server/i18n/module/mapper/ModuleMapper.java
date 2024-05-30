@@ -4,7 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
+import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.entity.response.SizeResponse;
 
 import java.util.List;
@@ -23,5 +25,6 @@ public interface ModuleMapper extends BaseMapper<Module> {
     List<SizeResponse> memberSizes(@Param("moduleIds") List<Long> moduleIds);
     List<SizeResponse> targetSizes(@Param("moduleIds") List<Long> moduleIds);
     int countByIdentifier(@Param("identifier") String identifier);
+    List<ModuleResponse> all(@Param("request") ModuleAllRequest request);
 
 }

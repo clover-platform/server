@@ -19,5 +19,6 @@ public interface ModuleCountMapper extends BaseMapper<ModuleCount> {
 
     List<ModuleCount> findByCountRequest(@Param("request")EntryCountRequest request);
     ModuleCount findOneByModuleIdAndBranchIdAndCode(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("code") String code);
+    List<ModuleCount> findByModuleId(@Param("moduleId") Long moduleId);
 
 }

@@ -11,7 +11,8 @@ import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
 import org.zkit.support.starter.boot.entity.SessionUser;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
-import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
@@ -55,7 +56,7 @@ public class ModuleController {
     @PostMapping("/new")
     @Operation(summary = "创建")
     public void newModule(
-            @RequestBody CreateModuleRequest request,
+            @RequestBody ModuleCreateRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         request.setOwner(user.getId());
@@ -74,6 +75,16 @@ public class ModuleController {
     @Operation(summary = "语言列表")
     public List<ModuleLanguageResponse> languages(@Parameter(description = "模块ID") @PathVariable Long id) {
         return moduleService.languages(id);
+    }
+
+    @GetMapping("/all")
+    @Operation(summary = "我的全部模块")
+    public List<ModuleResponse> all(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @ParameterObject @ModelAttribute ModuleAllRequest request
+    ) {
+        request.setUserId(user.getId());
+        return moduleService.all(request);
     }
 
 }

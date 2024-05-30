@@ -43,8 +43,8 @@
         <if test="query.moduleId != null">
             and e.module_id = #{query.moduleId,jdbcType=NUMERIC}
         </if>
-        <if test="keyword != null">
-            and (e.identifier like #{keyword,jdbcType=VARCHAR} or e.value like #{keyword,jdbcType=VARCHAR})
+        <if test="keyword != null and keyword != ''">
+            and (e.identifier like concat('%', #{keyword,jdbcType=VARCHAR}, '%') or e.value like concat('%', #{keyword,jdbcType=VARCHAR}, '%'))
         </if>
     </select>
 

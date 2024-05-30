@@ -86,4 +86,11 @@
         id = #{id,jdbcType=NUMERIC}
     </select>
 
+    <select id="countByModuleId" resultType="int">
+        select count(*)
+        from branch
+        where module_id = #{moduleId,jdbcType=NUMERIC}
+        and deleted = false
+    </select>
+
 </mapper>

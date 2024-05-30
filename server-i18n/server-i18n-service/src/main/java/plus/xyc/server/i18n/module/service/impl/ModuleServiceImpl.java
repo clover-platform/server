@@ -12,6 +12,7 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
+import plus.xyc.server.i18n.branch.mapper.BranchMapper;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.enums.I18nCode;
@@ -21,7 +22,8 @@ import plus.xyc.server.i18n.member.service.MemberService;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.mapstruct.ModuleMapStruct;
-import plus.xyc.server.i18n.module.entity.request.CreateModuleRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.*;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
@@ -61,6 +63,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private MainAccountRestApi mainAccountRestApi;
     @Resource
     private EntryService entryService;
+    @Resource
+    private BranchMapper branchMapper;
 
     @Override
     public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
@@ -96,7 +100,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Override
     @DistributedLock(value = "i18n:module:create")
     @Transactional
-    public void create(CreateModuleRequest request) {
+    public void create(ModuleCreateRequest request) {
         int size = baseMapper.countByIdentifier(request.getIdentifier());
         if(size > 0)
             throw new ResultException(I18nCode.MODULE_IDENTIFIER_EXIST.code, MessageUtils.get(I18nCode.MODULE_IDENTIFIER_EXIST.key));
@@ -152,7 +156,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         ModuleCountResponse countResponse = new ModuleCountResponse();
         countResponse.setTargetCount(targetSizes.stream().findFirst().map(SizeResponse::getSize).orElse(0));
         countResponse.setWordCount(entryService.wordCount(id));
-        countResponse.setBranchCount(0); // TODO 分支统计
+        countResponse.setBranchCount(branchMapper.countByModuleId(id));
         countResponse.setMemberCount(members.size());
         response.setCount(countResponse);
         response.setMembers(admins.stream().map(admin -> {
@@ -169,5 +173,10 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     public List<ModuleLanguageResponse> languages(Long id) {
         return moduleTargetLanguageService.languages(id);
+    }
+
+    @Override
+    public List<ModuleResponse> all(ModuleAllRequest request) {
+        return baseMapper.all(request);
     }
 }
