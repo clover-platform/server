@@ -18,9 +18,6 @@ package-gateway:
         - main
     tags:
         - dev
-    artifacts:
-        paths:
-            - server-gateway/target/*.jar
     script:
         - cd server-gateway
         - mvn clean package
@@ -38,9 +35,6 @@ package-main:
         - main
     tags:
         - dev
-    artifacts:
-        paths:
-            - server-main/server-main-service/target/*.jar
     script:
         - cd server-main/server-main-service
         - mvn clean package
@@ -58,9 +52,6 @@ package-i18n:
         - main
     tags:
         - dev
-    artifacts:
-        paths:
-            - server-i18n/server-i18n-service/target/*.jar
     script:
         - cd server-i18n/server-i18n-service
         - mvn clean package
@@ -79,9 +70,9 @@ deploy-gateway:
     tags:
         - dev
     script:
-        - cd /opt/server/clover/server-gateway
-        - docker-compose down
-        - docker-compose up -d
+        - cd ~/server/clover/server-gateway
+        - docker compose down
+        - docker compose up -d
 
 deploy-main:
     stage: deploy
@@ -90,9 +81,9 @@ deploy-main:
     tags:
         - dev
     script:
-        - cd /opt/server/clover/server-main
-        - docker-compose down
-        - docker-compose up -d
+        - cd ~/server/clover/server-main
+        - docker compose down
+        - docker compose up -d
 
 deploy-i18n:
     stage: deploy
@@ -101,6 +92,6 @@ deploy-i18n:
     tags:
         - dev
     script:
-        - cd /opt/server/clover/server-i18n
-        - docker-compose down
-        - docker-compose up -d
+        - cd ~/server/clover/server-i18n
+        - docker compose down
+        - docker compose up -d
