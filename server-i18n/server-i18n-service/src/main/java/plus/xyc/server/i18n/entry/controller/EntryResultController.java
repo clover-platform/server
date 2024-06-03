@@ -9,10 +9,13 @@ import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.i18n.entry.entity.request.EntryAIResultRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultListRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultSaveRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryResultResponse;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -28,6 +31,12 @@ public class EntryResultController {
 
     @Resource
     private EntryResultService entryResultService;
+
+    @PostMapping("/ai")
+    @Operation(summary = "AI建议")
+    public List<String> ai(@RequestBody EntryAIResultRequest request) {
+        return entryResultService.ai(request);
+    }
 
     @PostMapping("/save")
     @Operation(summary = "保存翻译")

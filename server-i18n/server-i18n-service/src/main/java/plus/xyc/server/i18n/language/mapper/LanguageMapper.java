@@ -18,5 +18,6 @@ import java.util.List;
 public interface LanguageMapper extends BaseMapper<Language> {
 
     List<LanguageResponse> selectByLang(@Param("lang") String lang);
+    LanguageResponse selectOneByCodeAndLanguage(@Param("code") String code, @Param("language") String language);
 
 }
