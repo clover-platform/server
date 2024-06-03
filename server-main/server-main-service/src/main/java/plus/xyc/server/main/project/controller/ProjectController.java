@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.zkit.support.starter.boot.auth.annotation.CurrentUser;
-import org.zkit.support.starter.boot.entity.SessionUser;
+import org.zkit.support.starter.security.annotation.CurrentUser;
+import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.service.ProjectService;
 

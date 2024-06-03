@@ -1,7 +1,7 @@
 package plus.xyc.server.i18n.activity.service.impl;
 
-import org.zkit.support.starter.boot.auth.SessionHolder;
-import org.zkit.support.starter.boot.entity.SessionUser;
+import org.zkit.support.starter.security.SessionHolder;
+import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.activity.entity.dto.Activity;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityType;
 import plus.xyc.server.i18n.activity.mapper.ActivityMapper;
