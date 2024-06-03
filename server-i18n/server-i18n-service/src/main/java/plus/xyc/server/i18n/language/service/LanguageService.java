@@ -17,5 +17,6 @@ import java.util.List;
 public interface LanguageService extends IService<Language> {
 
     List<LanguageResponse> all();
+    LanguageResponse getByCode(String code);
 
 }

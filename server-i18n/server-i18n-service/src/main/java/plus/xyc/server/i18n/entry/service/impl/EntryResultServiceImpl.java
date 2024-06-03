@@ -3,6 +3,8 @@ package plus.xyc.server.i18n.entry.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import org.zkit.support.server.openai.api.entity.TranslatorRequest;
+import org.zkit.support.server.openai.api.rest.OpenAIRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -15,6 +17,7 @@ import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryResultMapStruct;
+import plus.xyc.server.i18n.entry.entity.request.EntryAIResultRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultListRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultSaveRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryResultResponse;
@@ -25,6 +28,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
+import plus.xyc.server.i18n.language.service.LanguageService;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
@@ -55,6 +60,10 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     private EntryStateService entryStateService;
     @Resource
     private EntryMapper entryMapper;
+    @Resource
+    private OpenAIRestApi openAIRestApi;
+    @Resource
+    private LanguageService languageService;
 
     @Override
     public List<EntryResult> getLastResults(List<Long> ids, String language) {
@@ -164,5 +173,15 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         // 记录日志
         activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.APPROVE.code, result);
+    }
+
+    @Override
+    public List<String> ai(EntryAIResultRequest request) {
+        Entry entry = entryMapper.selectById(request.getEntryId());
+        LanguageResponse response = languageService.getByCode(request.getLanguage());
+        TranslatorRequest tr = new TranslatorRequest();
+        tr.setMessage(entry.getValue());
+        tr.setTarget(response.getName());
+        return openAIRestApi.translator(tr);
     }
 }

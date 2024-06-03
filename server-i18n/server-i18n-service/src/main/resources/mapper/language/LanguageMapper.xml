@@ -20,4 +20,13 @@
         where ln.code = #{lang}
     </select>
 
+    <select
+        id="selectOneByCodeAndLanguage"
+        resultType="plus.xyc.server.i18n.language.entity.response.LanguageResponse"
+    >
+        select l.code as code, l.id as id, ln.name as name
+        from language l left join language_name ln on ln.language_id = l.id
+        where ln.code = #{language} and l.code = #{code}
+    </select>
+
 </mapper>

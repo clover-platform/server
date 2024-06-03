@@ -44,4 +44,12 @@ public class LanguageServiceImpl extends ServiceImpl<LanguageMapper, Language> i
     public List<LanguageResponse> selectByLang(String lang) {
         return baseMapper.selectByLang(lang);
     }
+
+    @Override
+    public LanguageResponse getByCode(String code) {
+        LanguageResponse response = baseMapper.selectOneByCodeAndLanguage(code, MessageUtils.getLocale());
+        if(response == null)
+            response = baseMapper.selectOneByCodeAndLanguage(code, configuration.getDataFallbackLanguage());
+        return response;
+    }
 }
