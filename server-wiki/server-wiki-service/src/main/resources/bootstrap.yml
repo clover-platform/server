@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: clover-server-wiki
+  cloud:
+    loadbalancer:
+      nacos:
+        enabled: true
+    nacos:
+      config:
+        server-addr: ${NACOS_SERVER}
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}
+        file-extension: yaml
+        refresh-enabled: true
+      discovery:
+        server-addr: ${NACOS_SERVER}
+        username: ${NACOS_USERNAME}
+        password: ${NACOS_PASSWORD}

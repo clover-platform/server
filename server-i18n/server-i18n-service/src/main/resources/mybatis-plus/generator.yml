@@ -3,7 +3,7 @@ basePackage: plus.xyc.server.i18n
 mapperPackage: src/main/resources/mapper
 # 数据源
 datasource:
-  url: jdbc:mysql://mysql:7706/clover_i18n
+  url: jdbc:mysql://mysql:7307/clover_i18n
 # 激活的模块
 actives:
   - activity

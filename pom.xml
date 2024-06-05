@@ -18,6 +18,7 @@
         <module>server-gateway</module>
         <module>server-main</module>
         <module>server-i18n</module>
+        <module>server-wiki</module>
     </modules>
 
     <dependencies>
