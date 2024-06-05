@@ -13,19 +13,21 @@ import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import plus.xyc.server.i18n.branch.entity.mapstruct.BranchMapStruct;
-import plus.xyc.server.i18n.branch.entity.request.BranchAllRequest;
-import plus.xyc.server.i18n.branch.entity.request.BranchCreateRequest;
-import plus.xyc.server.i18n.branch.entity.request.BranchListRequest;
+import plus.xyc.server.i18n.branch.entity.request.*;
+import plus.xyc.server.i18n.branch.entity.response.BranchMergeEntriesResponse;
+import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
 import plus.xyc.server.i18n.branch.mapper.BranchMapper;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.enums.I18nCode;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -74,7 +76,7 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
 
     @Override
     @Transactional
-    @DistributedLock(value = "branch:create", key = "#request.moduleId")
+    @DistributedLock(value = "i18n:branch:create", key = "#request.moduleId")
     public void create(BranchCreateRequest request) {
         int size = baseMapper.countByModuleIdAndName(request.getModuleId(), request.getName());
         if (size > 0) {
@@ -104,5 +106,68 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
             return List.of();
         }
         return baseMapper.findByNameIn(moduleId, names);
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:branch:update", key = "#request.id")
+    public void rename(BranchRenameRequest request) {
+        Branch origin = baseMapper.findOneByModuleIdAndName(request.getModuleId(), request.getName());
+        if(origin != null && !origin.getId().equals(request.getId())) {
+            throw new ResultException(I18nCode.BRANCH_EXISTED.code, MessageUtils.get(I18nCode.BRANCH_EXISTED.key));
+        }
+        this.update().set("name", request.getName()).eq("id", request.getId()).update();
+        activityService.branch(request.getModuleId(), ActivityOperate.UPDATE.code, request);
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = "i18n:branch:update", key = "#id")
+    public void delete(Long id) {
+        Branch branch = getById(id);
+        this.update().set("deleted", true).eq("id", id).update();
+        activityService.branch(branch.getModuleId(), ActivityOperate.DELETE.code, branch);
+    }
+
+    @Override
+    public BranchMergeOverviewResponse mergeOverview(Long id) {
+        BranchMergeEntriesResponse entriesResponse = getMergeEntries(id);
+        BranchMergeOverviewResponse response = new BranchMergeOverviewResponse();
+        response.setDeleted(entriesResponse.getDeleted().size());
+        response.setAdded(entriesResponse.getAdded().size());
+        response.setChanged(entriesResponse.getChanged().size());
+        return response;
+    }
+
+    @Override
+    public BranchMergeEntriesResponse getMergeEntries(Long id) {
+        Branch branch = getById(id);
+        Branch defaultBranch = getDefault(branch.getModuleId());
+        List<Entry> entries = entryService.getByBranchId(id);
+        List<Entry> defaultEntries = entryService.getByBranchId(defaultBranch.getId());
+        // branch.type 为 0 的时候，不删除，只添加和修改
+        List<Entry> deleted = defaultEntries.stream().filter(entry -> entries.stream().noneMatch(e -> e.getIdentifier().equals(entry.getIdentifier()))).toList();
+        List<Entry> added = entries.stream().filter(entry -> defaultEntries.stream().noneMatch(e -> e.getIdentifier().equals(entry.getIdentifier()))).toList();
+        List<Entry> changed = entries.stream().filter(entry -> {
+            Entry defaultEntry = defaultEntries.stream().filter(e -> e.getIdentifier().equals(entry.getIdentifier())).findFirst().orElse(null);
+            return defaultEntry != null && !defaultEntry.getValue().equals(entry.getValue());
+        }).toList();
+        // entries 里面 所有 与 defaultEntries 相同的 key 的 entry
+        List<Entry> merged = entries.stream().filter(entry -> defaultEntries.stream().anyMatch(e -> e.getIdentifier().equals(entry.getIdentifier()))).toList();
+        BranchMergeEntriesResponse response = new BranchMergeEntriesResponse();
+        response.setAdded(added);
+        response.setChanged(changed);
+        response.setDeleted(Objects.equals(branch.getType(), BRANCH_TYPE.get("clone")) ? deleted : List.of());
+        response.setMerged(merged);
+        response.setBranch(branch);
+        response.setDefaultBranch(defaultBranch);
+        return response;
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock(value = {"i18n:branch:merge", "i18n:entry:create"}, key = {"#request.id", "#request.moduleId"})
+    public void merge(BranchMergeRequest request) {
+        log.info("merge request: {}", request);
     }
 }

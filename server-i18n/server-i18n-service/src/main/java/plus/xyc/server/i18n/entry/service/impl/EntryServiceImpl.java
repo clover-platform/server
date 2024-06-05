@@ -274,4 +274,9 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         // 更新数量
         moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId());
     }
+
+    @Override
+    public List<Entry> getByBranchId(Long branchId) {
+        return baseMapper.findByBranchId(branchId);
+    }
 }

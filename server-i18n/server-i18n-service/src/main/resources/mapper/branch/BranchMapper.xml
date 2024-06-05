@@ -93,4 +93,14 @@
         and deleted = false
     </select>
 
+    <select id="findOneByModuleIdAndName" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from branch
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+        AND name = #{name,jdbcType=VARCHAR}
+        and deleted = false
+    </select>
+
 </mapper>
