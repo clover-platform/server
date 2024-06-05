@@ -28,5 +28,6 @@ public interface BranchMapper extends BaseMapper<Branch> {
     List<Branch> findByModuleId(@Param("moduleId") Long moduleId);
     Branch findOneById(@Param("id") Long id);
     int countByModuleId(@Param("moduleId") Long moduleId);
+    Branch findOneByModuleIdAndName(@Param("moduleId") Long moduleId, @Param("name") String name);
 
 }

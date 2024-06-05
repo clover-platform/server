@@ -1,6 +1,7 @@
 package plus.xyc.server.i18n.branch.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
@@ -8,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
-import plus.xyc.server.i18n.branch.entity.request.BranchAllRequest;
-import plus.xyc.server.i18n.branch.entity.request.BranchCreateRequest;
-import plus.xyc.server.i18n.branch.entity.request.BranchListRequest;
+import plus.xyc.server.i18n.branch.entity.request.*;
+import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
 import plus.xyc.server.i18n.branch.service.BranchService;
 
@@ -51,6 +51,38 @@ public class BranchController {
     @Operation(summary = "创建分支")
     public void create(@RequestBody BranchCreateRequest request) {
         branchService.create(request);
+    }
+
+    @PutMapping("/{id}/rename")
+    @Operation(summary = "重命名")
+    public void rename(
+            @Parameter(description = "分支ID") @PathVariable Long id,
+            @RequestBody BranchRenameRequest request
+    ) {
+        request.setId(id);
+        branchService.rename(request);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除")
+    public void delete(@Parameter(description = "分支ID") @PathVariable Long id) {
+        branchService.delete(id);
+    }
+
+    @GetMapping("/{id}/merge/overview")
+    @Operation(summary = "合并概览")
+    public BranchMergeOverviewResponse mergeOverview(@Parameter(description = "分支ID") @PathVariable Long id) {
+        return branchService.mergeOverview(id);
+    }
+
+    @PutMapping("/{id}/merge")
+    @Operation(summary = "合并")
+    public void merge(
+            @Parameter(description = "分支ID") @PathVariable Long id,
+            @RequestBody BranchMergeRequest request
+    ) {
+        request.setId(id);
+        branchService.merge(request);
     }
 
 }

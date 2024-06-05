@@ -35,5 +35,6 @@ public interface EntryService extends IService<Entry> {
     void edit(EntryEditRequest request);
     EntryWithStateResponse detail(Long id, String language);
     void remove(Long id, Long userId);
+    List<Entry> getByBranchId(Long branchId);
 
 }
