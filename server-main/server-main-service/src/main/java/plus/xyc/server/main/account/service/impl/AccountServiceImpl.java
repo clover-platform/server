@@ -64,7 +64,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @DistributedLock(value = "account")
+    @DistributedLock(value = "account", el = false)
     public TokenResponse checkRegisterEmail(CheckRegisterEmailRequest request) {
         // 验证码是否正确
         boolean checked = emailCodeService.check(request.getEmail(), request.getCode(), "register");
@@ -86,7 +86,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @DistributedLock(value = "account")
+    @DistributedLock(value = "account", el = false)
     public Account add(Account account) {
         boolean has = this.hasUsername(account.getUsername());
         if(has) {
@@ -110,7 +110,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     @CacheEvict(value = "account", key = "#request.id")
-    @DistributedLock(value = "account", key = "#request.id")
+    @DistributedLock(value = "'account:'+#request.id")
     public TokenResponse setPassword(SetPasswordRequest request) {
         Result<TokenResponse> result = authAccountRestApi.setPassword(request);
         if(result.isSuccess()) {
@@ -159,7 +159,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#request.accountId")
-    @DistributedLock(value = "account", key = "#request.accountId")
+    @DistributedLock(value = "'account:'+#request.accountId")
     public void setCurrent(SetCurrentRequest request) {
         UpdateWrapper<Account> update = new UpdateWrapper<>();
         update.eq("id", request.getAccountId());

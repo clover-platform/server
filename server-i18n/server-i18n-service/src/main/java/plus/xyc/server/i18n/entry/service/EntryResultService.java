@@ -28,5 +28,6 @@ public interface EntryResultService extends IService<EntryResult> {
     void delete(Long id, Long userId);
     void approve(Long id, Long userId);
     List<String> ai(EntryAIResultRequest request);
+    void removeApproval(Long id, Long userId);
 
 }

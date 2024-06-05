@@ -25,6 +25,7 @@
         from module_count as m
         left join branch as b on m.branch_id = b.id
         where m.module_id = #{request.moduleId}
+        and b.deleted = false
         <if test="request.branch != null and request.branch != ''">
             and b.name = #{request.branch}
         </if>
@@ -44,11 +45,12 @@
     </select>
 
     <select id="findByModuleId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from module_count
+        select m.*
+        from module_count as m
+        left join branch as b on m.branch_id = b.id
         where
-        module_id = #{moduleId,jdbcType=NUMERIC}
+        m.module_id = #{moduleId,jdbcType=NUMERIC}
+        and b.deleted = false
     </select>
 
 </mapper>

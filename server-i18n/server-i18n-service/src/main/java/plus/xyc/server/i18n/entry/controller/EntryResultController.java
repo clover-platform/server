@@ -75,4 +75,13 @@ public class EntryResultController {
         entryResultService.approve(id, user.getId());
     }
 
+    @PutMapping("/{id}/remove/approval")
+    @Operation(summary = "批准翻译")
+    public void removeApproval(
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @Parameter(description = "翻译结果ID") @PathVariable Long id
+    ) {
+        entryResultService.removeApproval(id, user.getId());
+    }
+
 }

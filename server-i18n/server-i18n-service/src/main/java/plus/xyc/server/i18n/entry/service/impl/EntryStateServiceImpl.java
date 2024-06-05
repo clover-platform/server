@@ -56,7 +56,7 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
     }
 
     @Override
-    @DistributedLock(value = "i18n:entry:state", key = "#entryId")
+    @DistributedLock(value = "'i18n:entry:state:'+#entryId")
     public void translate(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
         state.setResultId(resultId);
@@ -70,7 +70,7 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
     }
 
     @Override
-    @DistributedLock(value = "i18n:entry:state", key = "#entryId")
+    @DistributedLock(value = "'i18n:entry:state:'+#entryId")
     public void removeTranslate(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
         EntryResult result = entryResultMapper.getLastResult(entryId, language);
@@ -90,17 +90,23 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
     }
 
     @Override
-    @DistributedLock(value = "i18n:entry:state", key = "#entryId")
+    @DistributedLock(value = "'i18n:entry:state:'+#entryId")
     public void approve(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
-        if(state.getEntryId().equals(entryId)) {
-            state.setVerified(true);
-            state.setVerificationTime(new Date());
-            updateById(state);
-        }
+        update().set("verified", true).set("verification_time", new Date()).eq("id", state.getId()).update();
 
-        Entry entry = entryMapper.selectById(entryId);
         // 更新统计
+        Entry entry = entryMapper.selectById(entryId);
+        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId(), language);
+    }
+
+    @Override
+    public void removeApproval(Long entryId, String language, Long resultId) {
+        EntryState state = getByEntryIdAndLanguage(entryId, language);
+        update().set("verified", false).eq("id", state.getId()).update();
+
+        // 更新统计
+        Entry entry = entryMapper.selectById(entryId);
         moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId(), language);
     }
 }
