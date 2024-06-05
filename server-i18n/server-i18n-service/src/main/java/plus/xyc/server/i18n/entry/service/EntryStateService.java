@@ -20,5 +20,6 @@ public interface EntryStateService extends IService<EntryState> {
     void translate(Long entryId,String language, Long resultId);
     void removeTranslate(Long entryId,String language, Long resultId);
     void approve(Long entryId,String language, Long resultId);
+    void removeApproval(Long entryId,String language, Long resultId);
 
 }

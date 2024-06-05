@@ -107,7 +107,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry:result", key = "#request.entryId")
+    @DistributedLock("'i18n:entry:result:'+#request.entryId")
     public void saveResult(EntryResultSaveRequest request) {
         boolean checked = moduleAccessService.check(request.getModuleId(), request.getUserId(), List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code, MemberRoleType.TRANSLATOR.code));
         if (!checked) {
@@ -132,7 +132,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry:result", key = "#id")
+    @DistributedLock("'i18n:entry:result:'+#id")
     public void delete(Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
         Entry entry = entryMapper.selectById(result.getEntryId());
@@ -154,7 +154,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry:result", key = "#id")
+    @DistributedLock("'i18n:entry:result:'+#id")
     public void approve(Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
         Entry entry = entryMapper.selectById(result.getEntryId());
@@ -162,12 +162,13 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         if (!checked) {
             throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
         }
+
+        // 不等于 id 的 设置 verified = false
+        update().set("verified", false).ne("id", result.getId()).eq("entry_id", result.getEntryId()).eq("language", result.getLanguage()).update();
+
+        // 更新当前
         Date now = new Date();
-        result.setCheckerId(userId);
-        result.setVerified(true);
-        result.setUpdateTime(now);
-        result.setVerifiedTime(now);
-        baseMapper.updateById(result);
+        update().set("checker_id", userId).set("verified", true).set("update_time", now).set("verified_time", now).eq("id", result.getId()).update();
 
         entryStateService.approve(result.getEntryId(), result.getLanguage(), result.getId());
 
@@ -183,5 +184,23 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         tr.setMessage(entry.getValue());
         tr.setTarget(response.getName());
         return openAIRestApi.translator(tr);
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock("'i18n:entry:result:'+#id")
+    public void removeApproval(Long id, Long userId) {
+        EntryResult result = baseMapper.selectById(id);
+        Entry entry = entryMapper.selectById(result.getEntryId());
+        boolean checked = moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code, MemberRoleType.CHECK.code));
+        if (!checked) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+
+        update().set("verified", false).eq("id", result.getId()).update();
+
+        entryStateService.removeApproval(result.getEntryId(), result.getLanguage(), result.getId());
+
+        activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.REMOVE_APPROVAL.code, result);
     }
 }

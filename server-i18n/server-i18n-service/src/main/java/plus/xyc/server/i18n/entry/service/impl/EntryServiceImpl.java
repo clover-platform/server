@@ -34,16 +34,18 @@ import plus.xyc.server.i18n.entry.service.EntryResultService;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.enums.I18nCode;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
+import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
+import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
+import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -78,10 +80,14 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private ModuleAccessService moduleAccessService;
     @Resource
     private ModuleCountService moduleCountService;
+    @Resource
+    private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
+    @Resource
+    private EntryStateService entryStateService;
 
     @Override
     public int wordCount(Long moduleId) {
-        Integer count = redisTemplate.opsForValue().get("entry:word:count" + moduleId);
+        Integer count = redisTemplate.opsForValue().get("entry:word:count:" + moduleId);
         if(count == null) {
             return updateWordCount(moduleId);
         }
@@ -91,7 +97,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private int updateWordCount(Long moduleId) {
         List<Entry> entries = baseMapper.findByModuleId(moduleId);
         int count = entries.stream().mapToInt(entry -> entry.getValue().length()).sum();
-        redisTemplate.opsForValue().set("entry:word:count" + moduleId, count, 1, TimeUnit.DAYS);
+        redisTemplate.opsForValue().set("entry:word:count:" + moduleId, count, 1, TimeUnit.DAYS);
         return count;
     }
 
@@ -159,6 +165,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     public void cloneEntries(List<EntryWithResultResponse> sources, Long targetId) {
+        Branch target = branchMapper.selectById(targetId);
+        List<ModuleTargetLanguage> languages = moduleTargetLanguageMapper.findByModuleId(target.getModuleId());
         sources.forEach(entry -> {
             entry.setId(null);
             entry.setBranchId(targetId);
@@ -187,11 +195,38 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             List<EntryResult> part = results.subList(i, Math.min(i + 100, results.size()));
             entryResultService.saveBatch(part);
         }
+
+        // 重建 state
+        List<EntryState> states = new ArrayList<>();
+        sources.forEach(entry -> {
+            languages.forEach(language -> {
+                // language=language.getCode & 按 updateTime 降序排序，获取最后一条
+                EntryResult lastResult = entry.getResults().stream().filter(result -> result.getLanguage().equals(language.getCode())).max(Comparator.comparing(EntryResult::getUpdateTime)).orElse(null);
+
+                EntryState state = new EntryState();
+                state.setEntryId(entry.getId());
+                state.setLanguage(language.getCode());
+                state.setTranslated(lastResult != null);
+                state.setVerified(lastResult != null ? lastResult.getVerified() : false);
+                state.setTranslationTime(lastResult != null ? lastResult.getUpdateTime() : null);
+                state.setResultId(lastResult != null ? lastResult.getId() : null);
+                state.setTranslationTime(lastResult != null ? lastResult.getUpdateTime() : null);
+
+                states.add(state);
+            });
+        });
+
+        // 保存数据
+        // 每次插入100条
+        for (int i = 0; i < states.size(); i += 100) {
+            List<EntryState> part = states.subList(i, Math.min(i + 100, states.size()));
+            entryStateService.saveBatch(part);
+        }
     }
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry:create", key = "#request.moduleId")
+    @DistributedLock("'i18n:entry:create:'+#request.moduleId")
     public void create(EntryCreateRequest request) {
         List<Branch> branches = branchMapper.findByNameIn(request.getModuleId(), request.getBranches());
         if(branches.size() != request.getBranches().size()) {
@@ -223,7 +258,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry", key = "#request.id")
+    @DistributedLock("'i18n:entry:'+#request.id")
     public void edit(EntryEditRequest request) {
         Entry entry = getById(request.getId());
 
@@ -256,7 +291,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry", key = "#id")
+    @DistributedLock("'i18n:entry:'+#id")
     public void remove(Long id, Long userId) {
         Entry entry = getById(id);
 

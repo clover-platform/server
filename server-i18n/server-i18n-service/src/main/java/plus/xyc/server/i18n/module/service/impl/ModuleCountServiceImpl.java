@@ -44,7 +44,7 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
 
     @Override
     @Transactional
-    @DistributedLock(value = "module:update:count", key = "#id")
+    @DistributedLock(value = "'module:update:count:'+#id")
     public void updateCount(Long id) {
         List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
         List<Branch> branches = branchMapper.findByModuleId(id);
@@ -57,7 +57,7 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
 
     @Override
     @Transactional
-    @DistributedLock(value = "module:update:count", key = "#id + ':' + #branchId")
+    @DistributedLock(value = "'module:update:count:'+#id+':'+#branchId")
     public void updateCount(Long id, Long branchId) {
         List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
         targets.forEach(target -> {
@@ -67,7 +67,7 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
 
     @Override
     @Transactional
-    @DistributedLock(value = "module:update:count", key = "#id + ':' + #branchId + ':' + #language")
+    @DistributedLock(value = "'module:update:count:' + #id + ':' + #branchId + ':' + #language")
     public void updateCount(Long id, Long branchId, String language) {
         List<Entry> entries = entryMapper.findByModuleIdAndBranchId(id, branchId);
         Branch branch = branchMapper.findOneById(branchId);

@@ -98,7 +98,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     }
 
     @Override
-    @DistributedLock(value = "i18n:module:create")
+    @DistributedLock(value = "i18n:module:create", el = false)
     @Transactional
     public void create(ModuleCreateRequest request) {
         int size = baseMapper.countByIdentifier(request.getIdentifier());

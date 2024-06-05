@@ -71,7 +71,7 @@ public class EntryCommentServiceImpl extends ServiceImpl<EntryCommentMapper, Ent
 
     @Override
     @Transactional
-    @DistributedLock(value = "i18n:entry:comment:add")
+    @DistributedLock(value = "i18n:entry:comment:add", el = false)
     public void add(EntryCommentAddRequest request) {
         EntryComment latestComment = getLatestComment(request.getEntryId(), request.getCreateUserId(), request.getLanguage());
         if (latestComment != null) {
