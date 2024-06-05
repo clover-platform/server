@@ -16,7 +16,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-05-25
+ * @since 2024-06-05
  */
 @Data
 @TableName("module_count")

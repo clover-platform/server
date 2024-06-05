@@ -1,5 +1,7 @@
 package plus.xyc.server.main.team.entity.dto;
 
+import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
@@ -14,7 +16,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-05-13
+ * @since 2024-06-05
  */
 @Data
 @Schema(name = "Team", description = "团队")
