@@ -16,7 +16,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-06-05
+ * @since 2024-06-06
  */
 @Data
 @Schema(name = "Module", description = "项目")
@@ -54,4 +54,7 @@ public class Module implements Serializable {
 
     @Schema(description = "是否已删除")
     private Boolean deleted;
+
+    @Schema(description = "更新人")
+    private Long updateUser;
 }

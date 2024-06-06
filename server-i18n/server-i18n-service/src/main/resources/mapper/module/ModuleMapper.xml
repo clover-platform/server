@@ -14,11 +14,12 @@
         <result column="source" property="source" />
         <result column="update_time" property="updateTime" />
         <result column="deleted" property="deleted" />
+        <result column="update_user" property="updateUser" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, identifier, name, description, project_id, owner, create_time, source, update_time, deleted
+        id, identifier, name, description, project_id, owner, create_time, source, update_time, deleted, update_user
     </sql>
 
     <select id="query" resultMap="BaseResultMap">
