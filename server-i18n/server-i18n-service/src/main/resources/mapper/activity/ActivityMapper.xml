@@ -11,12 +11,20 @@
         <result column="type" property="type" />
         <result column="sub_type" property="subType" />
         <result column="operate" property="operate" />
-        <result column="detail" property="detail" />
+        <result column="detail" property="detail" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, module_id, user_id, create_time, type, sub_type, operate, detail
     </sql>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM activity
+        WHERE module_id = #{request.moduleId}
+        ORDER BY create_time DESC
+    </select>
 
 </mapper>

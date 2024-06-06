@@ -4,6 +4,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.member.entity.dto.MemberRole;
+import plus.xyc.server.i18n.member.mapper.MemberMapper;
 import plus.xyc.server.i18n.member.mapper.MemberRoleMapper;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
 
@@ -15,6 +16,8 @@ public class ModuleAccessServiceImpl implements ModuleAccessService {
 
     @Resource
     private MemberRoleMapper memberRoleMapper;
+    @Resource
+    private MemberMapper memberMapper;
 
     @Override
     public boolean check(Long moduleId, Long userId, List<Integer> needRoles) {
@@ -26,5 +29,10 @@ public class ModuleAccessServiceImpl implements ModuleAccessService {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean isMember(Long moduleId, Long userId) {
+        return memberMapper.countByModuleIdAndAccountId(moduleId, userId) > 0;
     }
 }
