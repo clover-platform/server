@@ -1,9 +1,14 @@
 package plus.xyc.server.i18n.member.mapper;
 import java.util.List;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 
+import plus.xyc.server.i18n.activity.entity.dto.Activity;
+import plus.xyc.server.i18n.activity.entity.request.ActivityListRequest;
 import plus.xyc.server.i18n.member.entity.dto.Member;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import plus.xyc.server.i18n.member.entity.request.MemberListRequest;
 
 /**
  * <p>
@@ -16,5 +21,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface MemberMapper extends BaseMapper<Member> {
 
     List<Member> findByModuleId(@Param("moduleId") Long moduleId);
+    int countByModuleIdAndAccountId(@Param("moduleId") Long moduleId, @Param("accountId") Long accountId);
+    List<Member> query(IPage<Member> page, @Param("request") MemberListRequest request);
 
 }

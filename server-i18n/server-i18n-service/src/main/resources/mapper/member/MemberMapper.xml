@@ -22,5 +22,31 @@
         where
         module_id = #{moduleId,jdbcType=NUMERIC}
     </select>
+    <select id="countByModuleIdAndAccountId" resultType="int">
+        select count(*)
+        from member
+        where module_id = #{moduleId,jdbcType=NUMERIC}
+          AND account_id = #{accountId,jdbcType=NUMERIC}
+    </select>
+
+    <select id="query" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from member m
+        left join member_role mr on m.id = mr.member_id
+        where module_id = #{request.moduleId,jdbcType=NUMERIC}
+        <if test="request.type == 'a;;'">
+            and mr.role in (1, 2, 3, 4)
+        </if>
+        <if test="request.type == 'manager'">
+            and mr.role in (1, 2)
+        </if>
+        <if test="request.type == 'translator'">
+            and mr.role in (3)
+        </if>
+        <if test="request.type == 'proofreader'">
+            and mr.role in (4)
+        </if>
+    </select>
 
 </mapper>

@@ -5,5 +5,6 @@ import java.util.List;
 public interface ModuleAccessService {
 
     boolean check(Long moduleId, Long userId, List<Integer> needRoles);
+    boolean isMember(Long moduleId, Long userId);
 
 }
