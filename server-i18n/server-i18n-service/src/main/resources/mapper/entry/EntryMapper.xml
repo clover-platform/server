@@ -22,12 +22,12 @@
     </sql>
 
     <select id="findByModuleId" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from entry
+        select e.*
+        from entry as e left join branch b on e.branch_id = b.id
         where
-        module_id = #{moduleId,jdbcType=NUMERIC}
-        and deleted = false
+        e.module_id = #{moduleId,jdbcType=NUMERIC}
+        and e.deleted = false
+        and b.deleted = false
     </select>
 
     <select id="query" resultMap="BaseResultMap">

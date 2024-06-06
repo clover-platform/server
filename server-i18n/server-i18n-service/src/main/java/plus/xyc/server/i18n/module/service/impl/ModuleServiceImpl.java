@@ -25,8 +25,10 @@ import plus.xyc.server.i18n.module.entity.mapstruct.ModuleMapStruct;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
 import plus.xyc.server.i18n.module.entity.response.*;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
+import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -35,6 +37,7 @@ import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,6 +68,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private EntryService entryService;
     @Resource
     private BranchMapper branchMapper;
+    @Resource
+    private ModuleAccessService moduleAccessService;
 
     @Override
     public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
@@ -79,6 +84,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         List<SizeResponse> targetSizes = targetSizes(moduleIds);
         return modules.stream().map(module -> {
             ModuleResponse response = moduleMapStruct.toModuleResponse(module);
+            response.setWordSize(entryService.wordCount(module.getId()));
             response.setMemberSize(memberSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             response.setTargetSize(targetSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             return response;
@@ -178,5 +184,38 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Override
     public List<ModuleResponse> all(ModuleAllRequest request) {
         return baseMapper.all(request);
+    }
+
+    @Override
+    public void delete(Long id, Long userId) {
+        boolean checked = moduleAccessService.check(id, userId, List.of(MemberRoleType.OWNER.code));
+        if(!checked) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+        update().set("deleted", true).eq("id", id).update();
+
+        activityService.module(id, ActivityOperate.DELETE.code, id);
+    }
+
+    @Override
+    public ModuleResponse detail(Long id) {
+        Module module = getById(id);
+        return moduleMapStruct.toModuleResponse(module);
+    }
+
+    @Override
+    public void update(ModuleUpdateRequest request) {
+        boolean checked = moduleAccessService.check(request.getId(), request.getUserId(), List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code));
+        if(!checked) {
+            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
+        }
+        update()
+                .set("name", request.getName())
+                .set("description", request.getDescription())
+                .set("update_time", new Date())
+                .set("update_user", request.getUserId())
+                .eq("id", request.getId())
+                .update();
+        activityService.module(request.getId(), ActivityOperate.UPDATE.code, getById(request.getId()));
     }
 }

@@ -23,6 +23,8 @@ public class ModuleResponse {
     private Integer memberSize;
     @Schema(description = "目标数量")
     private Integer targetSize;
+    @Schema(description = "词汇量")
+    private Integer wordSize;
     @Schema(description = "更新时间")
     private java.util.Date updateTime;
     @Schema(description = "创建时间")

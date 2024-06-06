@@ -222,6 +222,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             List<EntryState> part = states.subList(i, Math.min(i + 100, states.size()));
             entryStateService.saveBatch(part);
         }
+
+        updateWordCount(target.getModuleId());
     }
 
     @Override
@@ -249,6 +251,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         });
 
         moduleCountService.updateCount(request.getModuleId());
+        updateWordCount(request.getModuleId());
     }
 
     @Override
@@ -271,6 +274,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         entry.setValue(request.getValue());
         entry.setUpdateUserId(request.getUserId());
         updateById(entry);
+
+        updateWordCount(entry.getModuleId());
 
         activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.UPDATE.code, entry);
     }
@@ -305,6 +310,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         updateById(entry);
 
         activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.DELETE.code, entry);
+
+        updateWordCount(entry.getModuleId());
 
         // 更新数量
         moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId());

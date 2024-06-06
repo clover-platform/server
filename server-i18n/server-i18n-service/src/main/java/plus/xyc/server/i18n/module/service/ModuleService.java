@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
@@ -28,5 +29,8 @@ public interface ModuleService extends IService<Module> {
     ModuleDashboardResponse dashboard(Long id);
     List<ModuleLanguageResponse>  languages(Long id);
     List<ModuleResponse> all(ModuleAllRequest request);
+    void delete(Long id, Long userId);
+    ModuleResponse detail(Long id);
+    void update(ModuleUpdateRequest request);
 
 }

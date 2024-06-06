@@ -14,6 +14,7 @@ import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
+import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
@@ -85,6 +86,33 @@ public class ModuleController {
     ) {
         request.setUserId(user.getId());
         return moduleService.all(request);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除模块")
+    public void delete(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @Parameter(description = "模块ID") @PathVariable Long id
+    ) {
+        moduleService.delete(id, user.getId());
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "模块详情")
+    public ModuleResponse detail(
+            @Parameter(description = "模块ID") @PathVariable Long id
+    ) {
+        return moduleService.detail(id);
+    }
+
+    @PutMapping("/{id}")
+    @Operation(summary = "更新基本信息")
+    public void update(
+            @RequestBody ModuleUpdateRequest request,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
+    ) {
+        request.setUserId(user.getId());
+        moduleService.update(request);
     }
 
 }
