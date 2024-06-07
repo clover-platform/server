@@ -52,14 +52,19 @@
         email = #{email,jdbcType=VARCHAR}
     </select>
 
-    <select id="findByIds" resultType="plus.xyc.server.main.account.entity.dto.Account">
+    <select id="query" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from account
-        where id in
-        <foreach collection="ids" item="id" open="(" close=")" separator=",">
-            #{id}
-        </foreach>
+        <where>
+            id in
+            <foreach collection="request.ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+            <if test="request.keyword != null and request.keyword != ''">
+                and username like concat('%', #{request.keyword}, '%') or email like concat('%', #{request.keyword}, '%')
+            </if>
+        </where>
     </select>
 
 </mapper>
