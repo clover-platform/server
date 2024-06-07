@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.main.account.entity.dto.Account;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 
 import java.util.List;
 
@@ -18,11 +19,8 @@ import java.util.List;
 public interface AccountMapper extends BaseMapper<Account> {
 
     int countByEmail(@Param("email") String email);
-
     int countByUsername(@Param("username") String username);
-
     Account findOneByEmail(@Param("email") String email);
-
-    List<Account> findByIds(IPage<Account> page, @Param("ids") List<Long> ids);
+    List<Account> query(IPage<Account> page, @Param("request") ApiAccountListRequest request);
 
 }

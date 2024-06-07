@@ -24,6 +24,7 @@ import plus.xyc.server.i18n.entry.service.EntryCommentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
@@ -56,7 +57,11 @@ public class EntryCommentServiceImpl extends ServiceImpl<EntryCommentMapper, Ent
         List<EntryComment> list = baseMapper.query(pageResult, request);
 
         List<Long> userIds = list.stream().map(EntryComment::getCreateUserId).filter(Objects::nonNull).toList();
-        Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(userIds, userIds.size(), 1);
+
+        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+        apiRequest.setSize(userIds.size());
+        apiRequest.setIds(userIds);
+        Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
         if(!r.isSuccess()) {
             throw ResultException.internal();
         }

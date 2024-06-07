@@ -33,6 +33,7 @@ import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
@@ -147,7 +148,11 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         List<MemberResponse> admins = members.stream().filter(member -> adminRoles.stream().anyMatch(role -> member.getRoles().contains(role))).toList();
         List<Long> adminIds = admins.stream().map(MemberResponse::getAccountId).toList();
 
-        Result<PageResult<ApiAccountResponse>> adminUsersResult = mainAccountRestApi.list(adminIds, adminIds.size(), 1);
+        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+        apiRequest.setIds(adminIds);
+        apiRequest.setSize(adminIds.size());
+        apiRequest.setPage(1);
+        Result<PageResult<ApiAccountResponse>> adminUsersResult = mainAccountRestApi.list(apiRequest);
         if(!adminUsersResult.isSuccess()) {
             throw ResultException.internal();
         }

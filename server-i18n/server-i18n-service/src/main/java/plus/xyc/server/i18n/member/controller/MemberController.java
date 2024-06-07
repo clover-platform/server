@@ -2,6 +2,7 @@ package plus.xyc.server.i18n.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,6 +30,7 @@ import plus.xyc.server.i18n.member.service.MemberService;
 @RequestMapping("/member")
 public class MemberController {
 
+    @Resource
     private MemberService memberService;
 
     @GetMapping("/list")

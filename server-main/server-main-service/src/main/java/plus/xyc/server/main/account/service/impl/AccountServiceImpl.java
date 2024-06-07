@@ -30,6 +30,7 @@ import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 import java.util.List;
@@ -175,11 +176,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    public PageResult<ApiAccountResponse> findByIds(List<Long> ids, Integer size, Integer page) {
-        if(ids.isEmpty())
+    public PageResult<ApiAccountResponse> query(ApiAccountListRequest request) {
+        if(request.getIds() == null || request.getIds().isEmpty())
             return PageResult.of(0, List.of());
-        Page<Account> p = new Page<>(page, size);
-        List<Account> accounts = baseMapper.findByIds(p, ids);
+        Page<Account> p = new Page<>(request.getPage(), request.getSize());
+        List<Account> accounts = baseMapper.query(p, request);
         return PageResult.of(p.getTotal(), accounts.stream().map(accountMapStruct::toApiAccountResponse).toList());
     }
 }

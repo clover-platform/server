@@ -18,6 +18,7 @@ import plus.xyc.server.i18n.member.service.MemberService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
@@ -59,13 +60,18 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     @Override
     public List<MemberResponse> findMembers(Long moduleId) {
         List<Member> members = baseMapper.findByModuleId(moduleId);
-        return toResponse(members);
-    }
+        if(members.isEmpty()) {
+            return List.of();
+        }
 
-    private List<MemberResponse> toResponse(List<Member> members) {
         List<Long> memberIds = members.stream().map(Member::getId).toList();
+        List<Long> accountIds = members.stream().map(Member::getAccountId).toList();
         List<MemberRole> roles = memberRoleService.findByMemberIds(memberIds);
-        Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(memberIds, memberIds.size(), 1);
+        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+        apiRequest.setIds(accountIds);
+        apiRequest.setSize(accountIds.size());
+        apiRequest.setPage(1);
+        Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(apiRequest);
         return members.stream().map(member -> {
             MemberResponse response = memberMapStruct.toMemberResponse(member);
             List<Integer> memberRoles = roles.stream()
@@ -90,6 +96,41 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
             return PageResult.of(0, List.of());
         Page<Member> page = pageRequest.toPage();
         List<Member> members = baseMapper.query(page, request);
-        return PageResult.of(page.getTotal(), toResponse(members));
+        if(members.isEmpty()) {
+            return PageResult.of(0, List.of());
+        }
+
+        List<Long> memberIds = members.stream().map(Member::getId).toList();
+        List<MemberRole> roles = memberRoleService.findByMemberIds(memberIds);
+
+        List<Long> accountIds = members.stream().map(Member::getAccountId).toList();
+        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+        apiRequest.setIds(accountIds);
+        apiRequest.setSize(accountIds.size());
+        apiRequest.setPage(1);
+        apiRequest.setKeyword(pageRequest.getKeyword());
+        Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(apiRequest);
+
+        if(!result.isSuccess())
+            return PageResult.of(0, List.of());
+
+        List<MemberResponse> responses = result.getData().getData().stream().map(account -> {
+            Member member = members.stream()
+                    .filter(m -> m.getAccountId().equals(account.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if(member == null)
+                return null;
+            MemberResponse response = memberMapStruct.toMemberResponse(member);
+            List<Integer> memberRoles = roles.stream()
+                    .filter(role -> role.getMemberId().equals(member.getId()))
+                    .map(MemberRole::getRole)
+                    .toList();
+            response.setRoles(memberRoles);
+            response.setUser(account);
+            return response;
+        }).toList();
+
+        return PageResult.of(responses.size(), responses);
     }
 }

@@ -26,12 +26,11 @@
         select count(*)
         from member
         where module_id = #{moduleId,jdbcType=NUMERIC}
-          AND account_id = #{accountId,jdbcType=NUMERIC}
+        AND account_id = #{accountId,jdbcType=NUMERIC}
     </select>
 
     <select id="query" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
+        select m.*
         from member m
         left join member_role mr on m.id = mr.member_id
         where module_id = #{request.moduleId,jdbcType=NUMERIC}

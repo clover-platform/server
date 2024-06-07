@@ -5,11 +5,13 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.service.AccountService;
 import plus.xyc.server.main.api.constant.MainApiRoute;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 import java.util.List;
@@ -32,11 +34,7 @@ public class InternalAccountController {
 
     @Operation(summary = "批量查询用户")
     @GetMapping(MainApiRoute.ACCOUNT_LIST)
-    public PageResult<ApiAccountResponse> list(
-            @Parameter(description = "IDs") @RequestParam("ids") List<Long> ids,
-            @Parameter(description = "限制") @RequestParam(value = "size", defaultValue = "100") Integer size,
-            @Parameter(description = "页码") @RequestParam(value = "page", defaultValue = "1") Integer page
-    ) {
-        return accountService.findByIds(ids, size, page);
+    public PageResult<ApiAccountResponse> list(@ParameterObject @ModelAttribute ApiAccountListRequest request) {
+        return accountService.query(request);
     }
 }

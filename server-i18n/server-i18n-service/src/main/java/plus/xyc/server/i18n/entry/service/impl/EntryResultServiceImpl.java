@@ -32,6 +32,7 @@ import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.language.service.LanguageService;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 
@@ -91,7 +92,11 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         Set<Long> ids = new HashSet<>(translatorIds);
         ids.addAll(verifierIds);
         List<Long> uniqueIds = new ArrayList<>(ids);
-        Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(uniqueIds, uniqueIds.size(), 1);
+
+        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+        apiRequest.setIds(uniqueIds);
+        apiRequest.setSize(uniqueIds.size());
+        Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
         if(!r.isSuccess()) {
             throw ResultException.internal();
         }
