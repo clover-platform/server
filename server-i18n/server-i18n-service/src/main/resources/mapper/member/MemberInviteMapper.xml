@@ -9,12 +9,20 @@
         <result column="token" property="token" />
         <result column="create_time" property="createTime" />
         <result column="creator_id" property="creatorId" />
-        <result column="roles" property="roles" />
+        <result column="roles" property="roles" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, module_id, token, create_time, creator_id, roles
     </sql>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM member_invite
+        WHERE module_id = #{request.moduleId}
+        ORDER BY create_time DESC
+    </select>
 
 </mapper>
