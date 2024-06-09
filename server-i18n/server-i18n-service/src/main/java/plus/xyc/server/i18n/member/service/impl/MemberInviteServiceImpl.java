@@ -2,6 +2,7 @@ package plus.xyc.server.i18n.member.service.impl;
 
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.zkit.support.server.mail.api.ServerMailApi;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MD5Utils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -34,6 +35,8 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
 
     @Resource
     private ModuleAccessService moduleAccessService;
+    @Resource
+    private ServerMailApi serverMailApi;
 
     @Override
     public List<MemberInvite> query(MemberInviteRequest request) {
@@ -59,5 +62,6 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
     @Override
     public void send(MemberInviteSendRequest request) {
         log.info("send invite: {}", request);
+        serverMailApi.test();
     }
 }

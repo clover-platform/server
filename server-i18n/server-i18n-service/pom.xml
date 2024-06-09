@@ -13,13 +13,18 @@
 
     <dependencies>
         <dependency>
-            <groupId>plus.xyc</groupId>
-            <artifactId>server-main-api</artifactId>
+            <groupId>org.zkit.support</groupId>
+            <artifactId>server-openai-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.zkit.support</groupId>
-            <artifactId>server-openai-api</artifactId>
+            <artifactId>server-mail-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>plus.xyc</groupId>
+            <artifactId>server-main-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
