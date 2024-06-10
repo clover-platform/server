@@ -4,6 +4,7 @@ import plus.xyc.server.i18n.member.entity.dto.MemberInvite;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.member.entity.request.MemberInviteGenerateRequest;
 import plus.xyc.server.i18n.member.entity.request.MemberInviteRequest;
+import plus.xyc.server.i18n.member.entity.request.MemberInviteRevokeRequest;
 import plus.xyc.server.i18n.member.entity.request.MemberInviteSendRequest;
 
 import java.util.List;
@@ -21,5 +22,6 @@ public interface MemberInviteService extends IService<MemberInvite> {
     List<MemberInvite> query(MemberInviteRequest request);
     String generate(MemberInviteGenerateRequest request);
     void send(MemberInviteSendRequest request);
+    void revoke(MemberInviteRevokeRequest request);
 
 }

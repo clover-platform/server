@@ -5,12 +5,11 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties(prefix = "i18n")
+@ConfigurationProperties(prefix = "app.invite")
 @Data
-public class AppConfiguration {
+public class InviteConfiguration {
 
-    private String fallbackLanguage;
-    private String dataFallbackLanguage;
-    private String inviteBaseUrl;
+    private String base;
+    private Long expireAt;
 
 }

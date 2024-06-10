@@ -10,6 +10,7 @@ import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.member.entity.dto.MemberInvite;
 import plus.xyc.server.i18n.member.entity.request.MemberInviteGenerateRequest;
 import plus.xyc.server.i18n.member.entity.request.MemberInviteRequest;
+import plus.xyc.server.i18n.member.entity.request.MemberInviteRevokeRequest;
 import plus.xyc.server.i18n.member.entity.request.MemberInviteSendRequest;
 import plus.xyc.server.i18n.member.service.MemberInviteService;
 
@@ -54,6 +55,16 @@ public class MemberInviteController {
     ) {
         request.setUserId(user.getId());
         memberInviteService.send(request);
+    }
+
+    @DeleteMapping("/revoke")
+    @Operation(summary = "撤销邀请链接")
+    public void revoke(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @RequestBody MemberInviteRevokeRequest request
+    ) {
+        request.setUserId(user.getId());
+        memberInviteService.revoke(request);
     }
 
 }
