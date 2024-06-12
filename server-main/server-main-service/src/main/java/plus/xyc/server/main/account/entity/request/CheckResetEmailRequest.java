@@ -5,10 +5,8 @@ import lombok.Data;
 
 @Data
 @Schema(description = "校验邮件")
-public class CheckRegisterEmailRequest {
+public class CheckResetEmailRequest {
 
-    @Schema(description = "用户名")
-    private String username;
     @Schema(description = "邮箱")
     private String email;
     @Schema(description = "验证码")
