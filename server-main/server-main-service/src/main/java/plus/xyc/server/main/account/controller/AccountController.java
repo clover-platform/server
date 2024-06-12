@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
+import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
 import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
-import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.starter.security.annotation.CurrentUser;
@@ -21,8 +21,8 @@ import org.zkit.support.starter.throttler.annotation.Throttler;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
-import plus.xyc.server.main.account.entity.request.SendRegisterEmailRequest;
-import plus.xyc.server.main.account.entity.request.TestCheckRequest;
+import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
+import plus.xyc.server.main.account.entity.request.SendEmailCodeRequest;
 import plus.xyc.server.main.account.entity.response.AccountProfileResponse;
 import plus.xyc.server.main.account.service.AccountService;
 
@@ -49,35 +49,33 @@ public class AccountController {
     private AccountMapStruct accountMapStruct;
 
     @PublicRequest
-    @GetMapping("/test")
-    @Operation(summary = "测试")
-    public AccountResponse test(@RequestParam("username") @Parameter(description = "用户名") String username) {
-        Result<AccountResponse> response = authAccountRestApi.findByUsername(username);
-        log.info("AccountController test {}", response);
-        return response.getData();
-    }
-
-    @PublicRequest
-    @PostMapping("/test/check")
-    @Operation(summary = "测试表单验证")
-    public AccountResponse testCheck(@RequestBody @Validated TestCheckRequest request) {
-        log.info("AccountController testCheck {}", request);
-        return null;
-    }
-
-    @PublicRequest
     @PostMapping("/register/email/send")
     @Operation(summary = "发送邮件验证码")
-    public void sendRegisterEmail(@RequestBody SendRegisterEmailRequest request) {
+    @Throttler(value = "register.send", limit = 5)
+    public void sendRegisterEmail(@RequestBody SendEmailCodeRequest request) {
         this.accountService.sendRegisterEmail(request.getEmail());
     }
 
     @PublicRequest
     @PostMapping("/register/email/check")
-    @Throttler(value = "register", limit = 5)
     @Operation(summary = "校验邮件")
     public TokenResponse checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
         return this.accountService.checkRegisterEmail(request);
+    }
+
+    @PublicRequest
+    @PostMapping("/reset/email/send")
+    @Operation(summary = "发送重置邮件验证码")
+    @Throttler(value = "reset.send", limit = 5)
+    public void sendResetEmail(@RequestBody SendEmailCodeRequest request) {
+        this.accountService.sendResetEmail(request.getEmail());
+    }
+
+    @PublicRequest
+    @PostMapping("/reset/email/check")
+    @Operation(summary = "重置密码验证码校验")
+    public TokenResponse checkResetEmail(@RequestBody CheckResetEmailRequest request) {
+        return this.accountService.checkResetEmail(request);
     }
 
     @GetMapping("/otp/secret")
@@ -96,6 +94,16 @@ public class AccountController {
     ) {
         request.setId(user.getId());
         return this.accountService.setPassword(request);
+    }
+
+    @PostMapping("/reset/password")
+    @Operation(summary = "重置密码")
+    public TokenResponse resetPassword(
+            @CurrentUser() @Parameter(hidden = true) SessionUser user,
+            @RequestBody ResetPasswordRequest request
+    ) {
+        request.setId(user.getId());
+        return this.accountService.resetPassword(request);
     }
 
     @GetMapping("/profile")

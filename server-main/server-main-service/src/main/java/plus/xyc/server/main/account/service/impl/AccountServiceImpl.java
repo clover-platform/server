@@ -7,7 +7,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
+import org.zkit.support.server.account.api.entity.request.*;
 import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
 import org.zkit.support.server.mail.api.EmailCodeService;
 import org.zkit.support.starter.boot.entity.Result;
@@ -16,15 +16,13 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.boot.utils.StringUtils;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
-import org.zkit.support.server.account.api.entity.request.AccountAddRequest;
-import org.zkit.support.server.account.api.entity.request.CreateTokenRequest;
-import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import plus.xyc.server.main.account.entity.enums.AccountCode;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
+import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
@@ -76,14 +74,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         account.setEmail(request.getEmail());
         account.setUsername(request.getUsername());
         account = this.add(account);
-        CreateTokenRequest createTokenRequest = new CreateTokenRequest();
-        createTokenRequest.setId(account.getId());
-        createTokenRequest.setExpiresIn(5 * 60 * 1000L);
-        Result<TokenResponse> result = authAccountRestApi.createToken(createTokenRequest);
-        if(!result.isSuccess()) {
-            throw ResultException.internal();
-        }
-        return result.getData();
+        return createTempToken(account.getId());
     }
 
     @Override
@@ -182,5 +173,43 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         Page<Account> p = new Page<>(request.getPage(), request.getSize());
         List<Account> accounts = baseMapper.query(p, request);
         return PageResult.of(p.getTotal(), accounts.stream().map(accountMapStruct::toApiAccountResponse).toList());
+    }
+
+    public void sendResetEmail(String email) {
+        emailCodeService.send(email, "reset");
+    }
+
+    @Override
+    public TokenResponse checkResetEmail(CheckResetEmailRequest request) {
+        // 验证码是否正确
+        boolean checked = emailCodeService.check(request.getEmail(), request.getCode(), "reset");
+        if(!checked) {
+            throw new ResultException(AccountCode.RESET_CODE.code, MessageUtils.get(AccountCode.RESET_CODE.key));
+        }
+        Account account = baseMapper.findOneByEmail(request.getEmail());
+        if(account == null) {
+            throw new ResultException(AccountCode.ACCOUNT_NOT_EXIST.code, MessageUtils.get(AccountCode.ACCOUNT_NOT_EXIST.key));
+        }
+        return createTempToken(account.getId());
+    }
+
+    private TokenResponse createTempToken(Long id) {
+        CreateTokenRequest createTokenRequest = new CreateTokenRequest();
+        createTokenRequest.setId(id);
+        createTokenRequest.setExpiresIn(5 * 60 * 1000L);
+        Result<TokenResponse> result = authAccountRestApi.createToken(createTokenRequest);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
+        }
+        return result.getData();
+    }
+
+    @Override
+    public TokenResponse resetPassword(ResetPasswordRequest request) {
+        Result<TokenResponse> result = authAccountRestApi.resetPassword(request);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
+        }
+        return result.getData();
     }
 }

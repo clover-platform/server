@@ -50,6 +50,7 @@
         from account
         where
         email = #{email,jdbcType=VARCHAR}
+        and deleted = false
     </select>
 
     <select id="query" resultMap="BaseResultMap">
