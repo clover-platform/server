@@ -18,6 +18,11 @@
         </dependency>
         <dependency>
             <groupId>org.zkit.support</groupId>
+            <artifactId>skywalking-starter</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zkit.support</groupId>
             <artifactId>gateway-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
