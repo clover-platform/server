@@ -1,4 +1,5 @@
 package plus.xyc.server.main.project.mapper;
+import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.main.project.entity.dto.ProjectMember;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -12,5 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2024-05-11
  */
 public interface ProjectMemberMapper extends BaseMapper<ProjectMember> {
+
+    int countByAccountIdAndProjectId(@Param("accountId") Long accountId, @Param("projectId") Long projectId);
 
 }

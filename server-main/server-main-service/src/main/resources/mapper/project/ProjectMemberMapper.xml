@@ -15,5 +15,11 @@
     <sql id="Base_Column_List">
         id, project_id, account_id, join_time, type
     </sql>
+    <select id="countByAccountIdAndProjectId" resultType="int">
+        select count(*)
+        from project_member
+        where account_id = #{accountId,jdbcType=NUMERIC}
+          AND project_id = #{projectId,jdbcType=NUMERIC}
+    </select>
 
 </mapper>

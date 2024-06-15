@@ -15,5 +15,11 @@
     <sql id="Base_Column_List">
         id, team_id, account_id, join_time, type
     </sql>
+    <select id="countByAccountIdAndTeamId" resultType="int">
+        select count(*)
+        from team_member
+        where account_id = #{accountId,jdbcType=NUMERIC}
+          AND team_id = #{teamId,jdbcType=NUMERIC}
+    </select>
 
 </mapper>

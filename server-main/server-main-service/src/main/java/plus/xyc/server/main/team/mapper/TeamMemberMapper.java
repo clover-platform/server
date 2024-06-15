@@ -1,4 +1,5 @@
 package plus.xyc.server.main.team.mapper;
+import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.main.team.entity.dto.TeamMember;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -12,5 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2024-05-11
  */
 public interface TeamMemberMapper extends BaseMapper<TeamMember> {
+
+    int countByAccountIdAndTeamId(@Param("accountId") Long accountId, @Param("teamId") Long teamId);
 
 }
