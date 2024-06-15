@@ -18,5 +18,6 @@ import java.util.List;
 public interface MemberInviteMapper extends BaseMapper<MemberInvite> {
 
     List<MemberInvite> query(@Param("request") MemberInviteRequest request);
+    MemberInvite findOneByToken(@Param("token") String token);
 
 }

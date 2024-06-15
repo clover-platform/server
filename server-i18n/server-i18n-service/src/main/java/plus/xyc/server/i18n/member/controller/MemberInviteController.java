@@ -3,15 +3,16 @@ package plus.xyc.server.i18n.member.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.security.annotation.CurrentUser;
+import org.zkit.support.starter.security.annotation.PublicRequest;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.member.entity.dto.MemberInvite;
-import plus.xyc.server.i18n.member.entity.request.MemberInviteGenerateRequest;
-import plus.xyc.server.i18n.member.entity.request.MemberInviteRequest;
-import plus.xyc.server.i18n.member.entity.request.MemberInviteRevokeRequest;
-import plus.xyc.server.i18n.member.entity.request.MemberInviteSendRequest;
+import plus.xyc.server.i18n.member.entity.request.*;
+import plus.xyc.server.i18n.member.entity.response.MemberInviteDetailResponse;
 import plus.xyc.server.i18n.member.service.MemberInviteService;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/member/invite")
+@Slf4j
 public class MemberInviteController {
 
     @Resource
@@ -65,6 +67,26 @@ public class MemberInviteController {
     ) {
         request.setUserId(user.getId());
         memberInviteService.revoke(request);
+    }
+
+    @PublicRequest
+    @GetMapping("/detail/{token}")
+    @Operation(summary = "邀请详情")
+    public MemberInviteDetailResponse detail(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @Parameter(description = "邀请码") @PathVariable String token
+    ) {
+        return memberInviteService.detail(user != null ? user.getId() : null, token);
+    }
+
+    @PostMapping("/accept")
+    @Operation(summary = "接受邀请")
+    public Long accept(
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @RequestBody MemberInviteAcceptRequest request
+    ) {
+        request.setId(user.getId());
+        return memberInviteService.accept(request);
     }
 
 }

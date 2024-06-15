@@ -25,4 +25,12 @@
         ORDER BY create_time DESC
     </select>
 
+    <select id="findOneByToken" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from member_invite
+        where
+        token = #{token,jdbcType=VARCHAR}
+    </select>
+
 </mapper>

@@ -1,5 +1,6 @@
 package plus.xyc.server.main.project.service;
 
+import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
 import plus.xyc.server.main.project.entity.dto.Project;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -16,5 +17,6 @@ import java.util.List;
 public interface ProjectService extends IService<Project> {
 
     List<Project> my(Long userId);
+    boolean join(JoinProjectRequest request);
 
 }
