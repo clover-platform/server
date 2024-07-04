@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.wiki.book.mapper.BookMemberMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.wiki.book.entity.dto.BookMember">
+        <id column="id" property="id" />
+        <result column="book_id" property="bookId" />
+        <result column="user_id" property="userId" />
+        <result column="rule" property="rule" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, book_id, user_id, rule
+    </sql>
+
+</mapper>

@@ -6,9 +6,16 @@ datasource:
   url: jdbc:mysql://mysql:7307/clover_wiki
 # 激活的模块
 actives:
-  - catalog
+  - book
+  - page
 # 模块配置
 modules:
-  - name: catalog
+  - name: book
     tables:
-      - catalog
+      - book
+      - book_member
+  - name: page
+    tables:
+      - page
+      - page_version
+      - page_content
