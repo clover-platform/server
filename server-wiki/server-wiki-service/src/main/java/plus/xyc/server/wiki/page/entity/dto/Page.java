@@ -1,4 +1,4 @@
-package plus.xyc.server.wiki.catalog.entity.dto;
+package plus.xyc.server.wiki.page.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -16,11 +16,11 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-06-05
+ * @since 2024-07-04
  */
 @Data
-@Schema(name = "Catalog", description = "目录")
-public class Catalog implements Serializable {
+@Schema(name = "Page", description = "目录")
+public class Page implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -28,11 +28,11 @@ public class Catalog implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @Schema(description = "目录名称")
-    private String name;
+    @Schema(description = "访问路径")
+    private String path;
 
-    @Schema(description = "所属项目")
-    private Long projectId;
+    @Schema(description = "所属知识库")
+    private Long bookId;
 
     @Schema(description = "上级目录")
     private Long parentId;
