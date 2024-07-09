@@ -2,6 +2,7 @@ package plus.xyc.server.wiki.book.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +25,7 @@ import plus.xyc.server.wiki.book.service.BookService;
  */
 @RestController
 @RequestMapping("/book")
+@Tag(name = "book", description = "知识库")
 public class BookController {
 
     @Resource
