@@ -2,8 +2,6 @@ package plus.xyc.server.i18n.member.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-06-06
+ * @since 2024-07-13
  */
 @Data
 @TableName("member_role")
@@ -26,7 +24,6 @@ public class MemberRole implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "ID")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @Schema(description = "用户ID")

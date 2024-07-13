@@ -1,4 +1,5 @@
 package plus.xyc.server.wiki.book.mapper;
+import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.wiki.book.entity.dto.Book;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -12,5 +13,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2024-07-04
  */
 public interface BookMapper extends BaseMapper<Book> {
+
+    int countByPathAndDeleted(@Param("path") String path, @Param("deleted") Boolean deleted);
 
 }

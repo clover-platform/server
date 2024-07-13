@@ -2,8 +2,6 @@ package plus.xyc.server.i18n.activity.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-06-06
+ * @since 2024-07-13
  */
 @Data
 @Schema(name = "Activity", description = "项目动态")
@@ -25,7 +23,6 @@ public class Activity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @Schema(description = "模块ID")

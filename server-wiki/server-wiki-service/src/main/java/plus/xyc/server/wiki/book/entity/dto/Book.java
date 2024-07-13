@@ -14,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-04
+ * @since 2024-07-13
  */
 @Data
 @Schema(name = "Book", description = "")
@@ -54,4 +54,7 @@ public class Book implements Serializable {
 
     @Schema(description = "隐私性 0-公开；1-知识库成员可见；2-项目成员可见；3-团队成员可见")
     private Integer privacy;
+
+    @Schema(description = "访问路径")
+    private String path;
 }

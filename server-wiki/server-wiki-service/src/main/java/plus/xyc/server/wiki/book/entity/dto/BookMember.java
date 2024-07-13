@@ -14,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-04
+ * @since 2024-07-13
  */
 @Data
 @TableName("book_member")
@@ -32,6 +32,6 @@ public class BookMember implements Serializable {
     @Schema(description = "用户ID")
     private Long userId;
 
-    @Schema(description = "角色 1-创建这；2-贡献者；3-只读")
-    private Integer rule;
+    @Schema(description = "角色 1-创建者；2-贡献者；3-只读")
+    private Integer role;
 }
