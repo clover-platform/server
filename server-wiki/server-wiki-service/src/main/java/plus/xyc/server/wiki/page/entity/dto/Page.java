@@ -2,8 +2,6 @@ package plus.xyc.server.wiki.page.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import java.io.Serializable;
 import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-04
+ * @since 2024-07-13
  */
 @Data
 @Schema(name = "Page", description = "目录")
@@ -25,7 +23,6 @@ public class Page implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "自增ID")
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     @Schema(description = "访问路径")

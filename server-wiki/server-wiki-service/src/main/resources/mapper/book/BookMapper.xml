@@ -15,11 +15,19 @@
         <result column="update_time" property="updateTime" />
         <result column="deleted" property="deleted" />
         <result column="privacy" property="privacy" />
+        <result column="path" property="path" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, name, description, project_id, cover, logo, owner_id, create_time, update_time, deleted, privacy
     </sql>
+
+    <select id="countByPathAndDeleted" resultType="int">
+        select count(*)
+        from book
+        where path = #{path,jdbcType=VARCHAR}
+          AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
 
 </mapper>

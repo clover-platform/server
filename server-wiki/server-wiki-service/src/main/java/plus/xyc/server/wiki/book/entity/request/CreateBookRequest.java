@@ -10,11 +10,11 @@ public class CreateBookRequest {
     @Schema(description = "拥有者", hidden = true)
     private Long ownerId;
 
-    @Schema(description = "当前项目ID", hidden = true)
-    private Long projectId;
-
     @Schema(description = "知识库名称")
     private String name;
+
+    @Schema(description = "访问路径")
+    private String path;
 
     @Schema(description = "描述")
     private String description;

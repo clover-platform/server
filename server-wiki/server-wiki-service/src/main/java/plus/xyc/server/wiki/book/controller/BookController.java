@@ -29,8 +29,6 @@ import plus.xyc.server.wiki.book.service.BookService;
 public class BookController {
 
     @Resource
-    private MainAccountRestApi mainAccountRestApi;
-    @Resource
     private BookService bookService;
 
     @PostMapping("/create")
@@ -40,8 +38,6 @@ public class BookController {
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         request.setOwnerId(user.getId());
-        ApiAccountResponse account = mainAccountRestApi.getById(user.getId()).getData();
-        request.setProjectId(account.getCurrentProjectId());
         bookService.create(request);
     }
 
