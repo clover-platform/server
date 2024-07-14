@@ -30,4 +30,30 @@
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
+    <select id="query" resultMap="BaseResultMap">
+        SELECT b.*
+        FROM book as b
+        LEFT JOIN book_member as bm on bm.book_id = b.id
+        <where>
+            bm.user_id = #{request.userId}
+            AND b.deleted = false
+            <if test="request.type != null">
+                <choose>
+                    <when test="request.type == 'all'">
+                        AND bm.role in (1, 2, 3)
+                    </when>
+                    <when test="request.type == 'create'">
+                        AND bm.role in (1)
+                    </when>
+                    <when test="request.type == 'join'">
+                        AND bm.role in (2, 3)
+                    </when>
+                </choose>
+            </if>
+            <if test="request.keyword != null">
+                AND b.name like concat('%', #{request.keyword}, '%')
+            </if>
+        </where>
+    </select>
+
 </mapper>
