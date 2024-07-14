@@ -1,17 +1,22 @@
 package plus.xyc.server.wiki.book.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
+import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.book.entity.dto.BookMember;
 import plus.xyc.server.wiki.book.entity.mapstruct.BookMapStruct;
+import plus.xyc.server.wiki.book.entity.request.BookListRequest;
 import plus.xyc.server.wiki.book.entity.request.CreateBookRequest;
+import plus.xyc.server.wiki.book.entity.response.BookResponse;
 import plus.xyc.server.wiki.book.mapper.BookMapper;
 import plus.xyc.server.wiki.book.service.BookMemberService;
 import plus.xyc.server.wiki.book.service.BookService;
@@ -20,6 +25,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.wiki.enums.WikiCode;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -64,5 +70,13 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
         owner.setUserId(request.getOwnerId());
         owner.setRole(1);
         bookMemberService.save(owner);
+    }
+
+    @Override
+    public PageResult<BookResponse> query(PageQueryRequest pr, BookListRequest request) {
+        log.info("page: {}, request: {}", pr, request);
+        Page<Book> page = pr.toPage();
+        List<Book> books = baseMapper.query(page, request);
+        return PageResult.of(page.getTotal(), books.stream().map(struct::toResponse).toList());
     }
 }
