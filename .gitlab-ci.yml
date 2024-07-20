@@ -26,8 +26,10 @@ package-main:
     tags:
         - dev
     script:
-        - cd server-main/server-main-service
-        - mvn clean package deploy -U -s ../../settings.xml -Dmaven.test.skip=true
+        - cd server-main/server-main-api
+        - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
+        - cd ../../server-main/server-main-service
+        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/main:latest
@@ -43,8 +45,10 @@ package-i18n:
     tags:
         - dev
     script:
-        - cd server-i18n/server-i18n-service
-        - mvn clean package deploy -U -s ../../settings.xml -Dmaven.test.skip=true
+        - cd server-i18n/server-i18n-api
+        - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
+        - cd ../../server-i18n/server-i18n-service
+        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/i18n:latest
@@ -61,7 +65,9 @@ package-wiki:
         - dev
     script:
         - cd server-wiki/server-wiki-service
-        - mvn clean package deploy -U -s ../../settings.xml -Dmaven.test.skip=true
+        - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
+        - cd ../../server-wiki/server-wiki-service
+        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/wiki:latest
