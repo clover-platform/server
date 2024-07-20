@@ -1,26 +1,16 @@
 stages:
-    - maven
     - package
     - deploy
-
-maven-deploy:
-    stage: maven
-    only:
-        - main
-    tags:
-        - dev
-    script:
-        - mvn clean deploy -U -s settings.xml -Dmaven.test.skip=true
 
 package-gateway:
     stage: package
     only:
-        - main
+        - /^gateway-.*$/
     tags:
         - dev
     script:
         - cd server-gateway
-        - mvn clean package -U -s ../settings.xml -Dmaven.test.skip=true
+        - mvn clean package deploy -U -s ../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/gateway:latest
@@ -32,12 +22,12 @@ package-gateway:
 package-main:
     stage: package
     only:
-        - main
+        - /^main-.*$/
     tags:
         - dev
     script:
         - cd server-main/server-main-service
-        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
+        - mvn clean package deploy -U -s ../../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/main:latest
@@ -49,12 +39,12 @@ package-main:
 package-i18n:
     stage: package
     only:
-        - main
+        - /^i18n-.*$/
     tags:
         - dev
     script:
         - cd server-i18n/server-i18n-service
-        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
+        - mvn clean package deploy -U -s ../../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/i18n:latest
@@ -66,12 +56,12 @@ package-i18n:
 package-wiki:
     stage: package
     only:
-        - main
+        - /^wiki-.*$/
     tags:
         - dev
     script:
         - cd server-wiki/server-wiki-service
-        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
+        - mvn clean package deploy -U -s ../../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/wiki:latest
@@ -83,7 +73,7 @@ package-wiki:
 deploy-gateway:
     stage: deploy
     only:
-        - main
+        - /^gateway-.*$/
     tags:
         - dev
     script:
@@ -94,7 +84,7 @@ deploy-gateway:
 deploy-main:
     stage: deploy
     only:
-        - main
+        - /^main-.*$/
     tags:
         - dev
     script:
@@ -105,7 +95,7 @@ deploy-main:
 deploy-i18n:
     stage: deploy
     only:
-        - main
+        - /^i18n-.*$/
     tags:
         - dev
     script:
@@ -116,7 +106,7 @@ deploy-i18n:
 deploy-wiki:
     stage: deploy
     only:
-        - main
+        - /^wiki-.*$/
     tags:
         - dev
     script:
