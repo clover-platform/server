@@ -4,12 +4,12 @@ public enum I18nCode {
 
     ACCESS_ERROR(999, "i18n.access.error"),
 
-    MODULE_IDENTIFIER_EXIST(1001, "module.identifier.exist"),
+    MODULE_IDENTIFIER_EXIST(1001, "module.identifier.exists"),
 
     ENTRY_CREATE_BRANCHES(2001, "entry.create.branches"),
     ENTRY_CREATE_KEY(2002, "entry.create.key"),
 
-    ENTRY_RESULT_EXIST(3001, "entry.result.exist"),
+    ENTRY_RESULT_EXIST(3001, "entry.result.exists"),
 
     ENTRY_COMMENT_FAST(4001, "entry.comment.fast"),
 

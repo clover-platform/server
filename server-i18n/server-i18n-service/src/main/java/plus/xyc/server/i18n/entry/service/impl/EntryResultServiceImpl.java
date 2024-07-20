@@ -3,8 +3,8 @@ package plus.xyc.server.i18n.entry.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
-import org.zkit.support.server.openai.api.entity.TranslatorRequest;
-import org.zkit.support.server.openai.api.rest.OpenAIRestApi;
+import org.zkit.support.server.ai.api.entity.TranslatorRequest;
+import org.zkit.support.server.ai.api.rest.AIRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -62,7 +62,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @Resource
     private EntryMapper entryMapper;
     @Resource
-    private OpenAIRestApi openAIRestApi;
+    private AIRestApi aiRestApi;
     @Resource
     private LanguageService languageService;
 
@@ -188,7 +188,11 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         TranslatorRequest tr = new TranslatorRequest();
         tr.setMessage(entry.getValue());
         tr.setTarget(response.getName());
-        return openAIRestApi.translator(tr);
+        Result<List<String>> result = aiRestApi.translator(tr);
+        if(!result.getSuccess()) {
+            throw new ResultException(result.getCode(), result.getMessage());
+        }
+        return result.getData();
     }
 
     @Override
