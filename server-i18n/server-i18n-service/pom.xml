@@ -19,7 +19,7 @@
         </dependency>
         <dependency>
             <groupId>org.zkit.support</groupId>
-            <artifactId>server-openai-api</artifactId>
+            <artifactId>server-ai-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
