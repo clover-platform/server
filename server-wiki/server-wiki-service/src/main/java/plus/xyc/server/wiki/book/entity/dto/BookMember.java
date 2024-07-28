@@ -14,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-13
+ * @since 2024-07-28
  */
 @Data
 @TableName("book_member")

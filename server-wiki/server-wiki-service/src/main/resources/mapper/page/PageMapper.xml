@@ -5,7 +5,7 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="plus.xyc.server.wiki.page.entity.dto.Page">
         <id column="id" property="id" />
-        <result column="path" property="path" />
+        <result column="title" property="title" />
         <result column="book_id" property="bookId" />
         <result column="parent_id" property="parentId" />
         <result column="owner" property="owner" />
@@ -15,7 +15,16 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, path, book_id, parent_id, owner, create_time, deleted
+        id, title, book_id, parent_id, owner, create_time, deleted
     </sql>
+
+    <select id="findByBookIdAndDeleted" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from page
+        where
+        book_id = #{bookId,jdbcType=NUMERIC}
+        AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
 
 </mapper>

@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
-import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
@@ -15,12 +14,12 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-13
+ * @since 2024-07-28
  */
 @Data
-@TableName("page_version")
-@Schema(name = "PageVersion", description = "")
-public class PageVersion implements Serializable {
+@TableName("page_last_version")
+@Schema(name = "PageLastVersion", description = "")
+public class PageLastVersion implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -32,13 +31,4 @@ public class PageVersion implements Serializable {
 
     @Schema(description = "版本号")
     private Long versionNumber;
-
-    @Schema(description = "更新时间")
-    private Date updateTime;
-
-    @Schema(description = "更新人")
-    private Long updateUser;
-
-    @Schema(description = "是否是当前")
-    private Boolean current;
 }

@@ -5,14 +5,17 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="plus.xyc.server.wiki.page.entity.dto.PageContent">
         <id column="id" property="id" />
-        <result column="version_id" property="versionId" />
-        <result column="title" property="title" />
         <result column="content" property="content" />
+        <result column="version_number" property="versionNumber" />
+        <result column="update_time" property="updateTime" />
+        <result column="update_user" property="updateUser" />
+        <result column="current" property="current" />
+        <result column="page_id" property="pageId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, version_id, title, content
+        id, content, version_number, update_time, update_user, `current`, page_id
     </sql>
 
 </mapper>

@@ -17,5 +17,5 @@ modules:
   - name: page
     tables:
       - page
-      - page_version
       - page_content
+      - page_last_version

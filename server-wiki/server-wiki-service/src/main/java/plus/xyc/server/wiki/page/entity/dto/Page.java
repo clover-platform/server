@@ -14,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-13
+ * @since 2024-07-28
  */
 @Data
 @Schema(name = "Page", description = "目录")
@@ -25,8 +25,8 @@ public class Page implements Serializable {
     @Schema(description = "自增ID")
     private Long id;
 
-    @Schema(description = "访问路径")
-    private String path;
+    @Schema(description = "标题")
+    private String title;
 
     @Schema(description = "所属知识库")
     private Long bookId;
