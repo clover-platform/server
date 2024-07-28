@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RestController;
  * </p>
  *
  * @author generator
- * @since 2024-07-04
+ * @since 2024-07-28
  */
 @RestController
-@RequestMapping("/page/pageVersion")
-public class PageVersionController {
+@RequestMapping("/page/pageLastVersion")
+public class PageLastVersionController {
 
 }

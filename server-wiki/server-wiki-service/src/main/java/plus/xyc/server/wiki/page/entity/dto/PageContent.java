@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
@@ -14,7 +15,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-07-13
+ * @since 2024-07-28
  */
 @Data
 @TableName("page_content")
@@ -26,12 +27,21 @@ public class PageContent implements Serializable {
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "目录ID")
-    private Long versionId;
-
-    @Schema(description = "标题")
-    private String title;
-
     @Schema(description = "内容")
     private String content;
+
+    @Schema(description = "版本号")
+    private Long versionNumber;
+
+    @Schema(description = "更新时间")
+    private Date updateTime;
+
+    @Schema(description = "更新人")
+    private Long updateUser;
+
+    @Schema(description = "是否是当前")
+    private Boolean current;
+
+    @Schema(description = "页面ID")
+    private Long pageId;
 }

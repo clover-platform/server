@@ -1,4 +1,6 @@
 package plus.xyc.server.wiki.page.mapper;
+import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
@@ -12,5 +14,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * @since 2024-07-04
  */
 public interface PageMapper extends BaseMapper<Page> {
+
+    List<Page> findByBookIdAndDeleted(@Param("bookId") Long bookId, @Param("deleted") Boolean deleted);
 
 }
