@@ -45,6 +45,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         page.setBookId(request.getBookId());
         page.setOwner(request.getOwnerId());
         page.setTitle(title);
+        page.setParentId(request.getParent());
         save(page);
 
         // 获得最新版本号
