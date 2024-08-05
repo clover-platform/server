@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-@Schema(name = "查询知识库响应")
+@Schema(description = "查询知识库响应")
 public class BookResponse {
 
     @Schema(description = "主键")
