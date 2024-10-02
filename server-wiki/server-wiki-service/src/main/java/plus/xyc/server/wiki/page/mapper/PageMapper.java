@@ -16,5 +16,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface PageMapper extends BaseMapper<Page> {
 
     List<Page> findByBookIdAndDeleted(@Param("bookId") Long bookId, @Param("deleted") Boolean deleted);
+    int updateParentIdById(@Param("parentId") Long parentId, @Param("id") Long id);
 
 }

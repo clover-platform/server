@@ -2,10 +2,12 @@ package plus.xyc.server.wiki.page.service.impl;
 
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
+import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
@@ -27,6 +29,7 @@ import java.util.List;
  * @since 2024-07-04
  */
 @Service
+@Slf4j
 public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements PageService {
 
     @Resource
@@ -83,5 +86,12 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
                 .toList();
         catalog.setChildren(children);
         children.forEach(child -> setChildren(child, all));
+    }
+
+    @Override
+    public void changeCatalogParent(CatalogParentRequest request) {
+        log.info("changeCatalogParent {}", request);
+        // TODO 校验权限
+        getBaseMapper().updateParentIdById(request.getId(), request.getParentId());
     }
 }

@@ -7,6 +7,7 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
@@ -44,6 +45,12 @@ public class PageController {
     @Operation(summary = "目录")
     public List<CatalogResponse> catalog(@ModelAttribute CatalogRequest request) {
         return pageService.catalog(request);
+    }
+
+    @PutMapping("/catalog/parent")
+    @Operation(summary = "修改父目录")
+    public void changeCatalogParent(@RequestBody CatalogParentRequest request) {
+        pageService.changeCatalogParent(request);
     }
 
 }
