@@ -27,4 +27,10 @@
         AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
+    <update id="updateParentIdById">
+        update page
+        set parent_id = #{parentId,jdbcType=NUMERIC}
+        where id = #{id,jdbcType=NUMERIC}
+    </update>
+
 </mapper>

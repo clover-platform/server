@@ -2,6 +2,7 @@ package plus.xyc.server.wiki.page.service;
 
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
@@ -20,5 +21,6 @@ public interface PageService extends IService<Page> {
 
     Long create(CreatePageRequest request);
     List<CatalogResponse> catalog(CatalogRequest request);
+    void changeCatalogParent(CatalogParentRequest request);
 
 }
