@@ -17,5 +17,13 @@
     <sql id="Base_Column_List">
         id, content, version_number, update_time, update_user, `current`, page_id
     </sql>
+    <select id="findOneByPageIdAndCurrent" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from page_content
+        where
+        page_id = #{pageId,jdbcType=NUMERIC}
+        AND current = #{current,jdbcType=BOOLEAN}
+    </select>
 
 </mapper>

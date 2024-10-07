@@ -1,16 +1,23 @@
 package plus.xyc.server.wiki.page.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
+import plus.xyc.server.wiki.page.entity.mapstruct.PageContentStruct;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
+import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
+import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
+import plus.xyc.server.wiki.page.mapper.PageContentMapper;
 import plus.xyc.server.wiki.page.mapper.PageMapper;
 import plus.xyc.server.wiki.page.service.PageContentService;
 import plus.xyc.server.wiki.page.service.PageLastVersionService;
@@ -18,6 +25,7 @@ import plus.xyc.server.wiki.page.service.PageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +46,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private PageLastVersionService pageLastVersionService;
     @Resource
     private PageStruct pageStruct;
+    @Resource
+    private PageContentMapper pageContentMapper;
 
     @Override
     @Transactional
@@ -91,7 +101,35 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     @Override
     public void changeCatalogParent(CatalogParentRequest request) {
         log.info("changeCatalogParent {}", request);
-        // TODO 校验权限
-        getBaseMapper().updateParentIdById(request.getId(), request.getParentId());
+        getBaseMapper().updateParentIdById(request.getParentId(), request.getId());
     }
+
+    @Override
+    public PageDetailResponse detail(Long id) {
+        Page page = getById(id);
+        PageDetailResponse response = pageStruct.toPageDetailResponse(page);
+        PageContent content = pageContentMapper.findOneByPageIdAndCurrent(id, true);
+        BeanUtils.copyProperties(content, response);
+        log.info("detail {}", response);
+        return response;
+    }
+
+    @Override
+    @Transactional
+    public void saveContent(SavePageContentRequest request) {
+        PageDetailResponse response = detail(request.getId());
+        if(request.getContent() == null) {
+            return;
+        }
+        if(request.getTitle().equals(response.getContent())) {
+            return;
+        }
+        // 更新标题
+        getBaseMapper().updateTitleById(request.getTitle(), request.getId());
+        // 保存新版本
+        Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
+        // 其他的重置为非当前版本
+        pageContentService.resetCurrent(request.getId(), newPageId);
+    }
+
 }

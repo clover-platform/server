@@ -28,7 +28,7 @@ public class PageLastVersionServiceImpl extends ServiceImpl<PageLastVersionMappe
             lastVersion.setPageId(pageId);
         }
         lastVersion.setVersionNumber(version);
-        save(lastVersion);
+        saveOrUpdate(lastVersion);
         return version;
     }
 }

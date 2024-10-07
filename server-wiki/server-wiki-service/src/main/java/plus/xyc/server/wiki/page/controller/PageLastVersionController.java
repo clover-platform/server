@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2024-07-28
  */
 @RestController
-@RequestMapping("/page/pageLastVersion")
+@RequestMapping("/page/last/version")
 public class PageLastVersionController {
 
 }
