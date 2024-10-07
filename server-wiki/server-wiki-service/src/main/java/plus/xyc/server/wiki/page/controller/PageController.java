@@ -2,6 +2,7 @@ package plus.xyc.server.wiki.page.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
@@ -10,7 +11,9 @@ import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
+import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
+import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
 import plus.xyc.server.wiki.page.service.PageService;
 
 import java.util.List;
@@ -51,6 +54,24 @@ public class PageController {
     @Operation(summary = "修改父目录")
     public void changeCatalogParent(@RequestBody CatalogParentRequest request) {
         pageService.changeCatalogParent(request);
+    }
+
+    @GetMapping("/{id}/detail")
+    @Operation(summary = "详情")
+    public PageDetailResponse detail(@Schema(description = "文章ID") @PathVariable("id") Long id) {
+        return pageService.detail(id);
+    }
+
+    @PutMapping("/{id}/save")
+    @Operation(summary = "更新内容")
+    public void saveContent(
+            @Schema(description = "文章ID") @PathVariable("id") Long id,
+            @RequestBody SavePageContentRequest request,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
+    ) {
+        request.setId(id);
+        request.setUpdateUser(user.getId());
+        pageService.saveContent(request);
     }
 
 }

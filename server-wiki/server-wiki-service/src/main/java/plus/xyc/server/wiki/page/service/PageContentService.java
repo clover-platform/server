@@ -13,4 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface PageContentService extends IService<PageContent> {
 
+    void resetCurrent(Long pageId, Long contentId);
+    Long newVersion(Long pageId, Long updateUser, String content);
+
 }

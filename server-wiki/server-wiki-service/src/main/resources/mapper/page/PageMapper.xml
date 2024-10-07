@@ -32,5 +32,10 @@
         set parent_id = #{parentId,jdbcType=NUMERIC}
         where id = #{id,jdbcType=NUMERIC}
     </update>
+    <update id="updateTitleById">
+        update page
+        set title = #{title,jdbcType=VARCHAR}
+        where id = #{id,jdbcType=NUMERIC}
+    </update>
 
 </mapper>
