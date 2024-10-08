@@ -21,7 +21,7 @@ import java.util.List;
  */
 public interface PageService extends IService<Page> {
 
-    Long create(CreatePageRequest request);
+    CatalogResponse create(CreatePageRequest request);
     List<CatalogResponse> catalog(CatalogRequest request);
     void changeCatalogParent(CatalogParentRequest request);
     PageDetailResponse detail(Long id);

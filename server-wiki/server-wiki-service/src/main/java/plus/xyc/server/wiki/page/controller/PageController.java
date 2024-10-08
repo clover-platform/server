@@ -36,7 +36,7 @@ public class PageController {
 
     @PostMapping("/create")
     @Operation(summary = "创建页面")
-    public Long create(
+    public CatalogResponse create(
             @RequestBody CreatePageRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {

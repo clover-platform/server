@@ -1,7 +1,5 @@
 package plus.xyc.server.wiki.page.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.Wrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +7,6 @@ import org.springframework.beans.BeanUtils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
-import plus.xyc.server.wiki.page.entity.mapstruct.PageContentStruct;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
@@ -25,7 +22,6 @@ import plus.xyc.server.wiki.page.service.PageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -51,7 +47,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
 
     @Override
     @Transactional
-    public Long create(CreatePageRequest request) {
+    public CatalogResponse create(CreatePageRequest request) {
         String title = MessageUtils.get("page.title.default");
         Page page = new Page();
         page.setTitle(title);
@@ -72,7 +68,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         pageContent.setCurrent(true);
         pageContentService.save(pageContent);
 
-        return page.getId();
+        return pageStruct.toCatalogResponse(page);
     }
 
     @Override
