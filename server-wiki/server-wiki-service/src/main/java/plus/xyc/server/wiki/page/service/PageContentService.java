@@ -15,5 +15,6 @@ public interface PageContentService extends IService<PageContent> {
 
     void resetCurrent(Long pageId, Long contentId);
     Long newVersion(Long pageId, Long updateUser, String content);
+    void updateContent(Long pageId, Long updateUser, String content);
 
 }

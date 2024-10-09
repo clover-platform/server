@@ -48,4 +48,17 @@ public class PageContentServiceImpl extends ServiceImpl<PageContentMapper, PageC
         save(pc);
         return pc.getId();
     }
+
+    @Override
+    public void updateContent(Long pageId, Long updateUser, String content) {
+        UpdateWrapper<PageContent> update = new UpdateWrapper<PageContent>()
+                .set("content", content)
+                .set("update_user", updateUser)
+                .set("update_time", new Date())
+                .eq("page_id", pageId)
+                .eq("current", true);
+        getBaseMapper().update(update);
+    }
+
+
 }
