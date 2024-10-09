@@ -9,7 +9,6 @@ import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
-import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
 import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
@@ -72,8 +71,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     }
 
     @Override
-    public List<CatalogResponse> catalog(CatalogRequest request) {
-        List<Page> all = getBaseMapper().findByBookIdAndDeleted(request.getBookId(), false);
+    public List<CatalogResponse> catalog(Long bookId) {
+        List<Page> all = getBaseMapper().findByBookIdAndDeleted(bookId, false);
         return all.stream()
                 .filter(page -> page.getParentId() == null)
                 .map(page -> {
