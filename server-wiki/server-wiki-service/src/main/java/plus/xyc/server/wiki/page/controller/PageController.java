@@ -8,8 +8,8 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.wiki.access.annotation.MemberAccess;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
-import plus.xyc.server.wiki.page.entity.request.CatalogRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
 import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
@@ -27,7 +27,7 @@ import java.util.List;
  * @since 2024-07-04
  */
 @RestController
-@RequestMapping("/page")
+@RequestMapping("/book/{bookId}/page")
 @Tag(name = "page", description = "页面")
 public class PageController {
 
@@ -37,39 +37,52 @@ public class PageController {
     @PostMapping("/create")
     @Operation(summary = "创建页面")
     public CatalogResponse create(
+            @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
             @RequestBody CreatePageRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
+        request.setBookId(bookId);
         request.setOwnerId(user.getId());
         return pageService.create(request);
     }
 
     @GetMapping("/catalog")
     @Operation(summary = "目录")
-    public List<CatalogResponse> catalog(@ModelAttribute CatalogRequest request) {
-        return pageService.catalog(request);
+    public List<CatalogResponse> catalog(@Schema(description = "知识库ID") @PathVariable("bookId") Long bookId) {
+        return pageService.catalog(bookId);
     }
 
-    @PutMapping("/catalog/parent")
+    @PutMapping("/{pageId}/parent")
     @Operation(summary = "修改父目录")
-    public void changeCatalogParent(@RequestBody CatalogParentRequest request) {
+    public void changeCatalogParent(
+            @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
+            @Schema(description = "页面ID") @PathVariable("pageId") Long pageId,
+            @RequestBody CatalogParentRequest request
+    ) {
+        request.setBookId(bookId);
+        request.setId(pageId);
         pageService.changeCatalogParent(request);
     }
 
-    @GetMapping("/{id}/detail")
+    @MemberAccess()
+    @GetMapping("/{pageId}")
     @Operation(summary = "详情")
-    public PageDetailResponse detail(@Schema(description = "文章ID") @PathVariable("id") Long id) {
-        return pageService.detail(id);
+    public PageDetailResponse detail(
+            @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
+            @Schema(description = "文章ID") @PathVariable("pageId") Long pageId
+    ) {
+        return pageService.detail(pageId);
     }
 
-    @PutMapping("/{id}/save")
+    @PutMapping("/{pageId}")
     @Operation(summary = "更新内容")
     public void saveContent(
-            @Schema(description = "文章ID") @PathVariable("id") Long id,
+            @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
+            @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
             @RequestBody SavePageContentRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
-        request.setId(id);
+        request.setId(pageId);
         request.setUpdateUser(user.getId());
         pageService.saveContent(request);
     }

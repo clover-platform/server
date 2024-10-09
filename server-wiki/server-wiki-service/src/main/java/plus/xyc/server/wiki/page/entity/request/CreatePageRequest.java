@@ -13,7 +13,7 @@ public class CreatePageRequest {
     @Schema(description = "上级文档")
     private Long parent;
 
-    @Schema(description = "知识库ID")
+    @Schema(description = "知识库ID", hidden = true)
     private Long bookId;
 
 }
