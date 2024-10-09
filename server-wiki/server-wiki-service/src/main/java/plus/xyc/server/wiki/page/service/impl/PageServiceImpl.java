@@ -114,17 +114,21 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     public void saveContent(SavePageContentRequest request) {
         // 更新标题
         getBaseMapper().updateTitleById(request.getTitle(), request.getId());
-        // 保存新版本
-        PageDetailResponse response = detail(request.getId());
-        if(request.getContent() == null) {
-            return;
+        if(request.getNewVersion()) {
+            // 保存新版本
+            PageDetailResponse response = detail(request.getId());
+            if(request.getContent() == null) {
+                return;
+            }
+            if(request.getTitle().equals(response.getContent())) {
+                return;
+            }
+            Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
+            // 其他的重置为非当前版本
+            pageContentService.resetCurrent(request.getId(), newPageId);
+        }else{
+            pageContentService.updateContent(request.getId(), request.getUpdateUser(), request.getContent());
         }
-        if(request.getTitle().equals(response.getContent())) {
-            return;
-        }
-        Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
-        // 其他的重置为非当前版本
-        pageContentService.resetCurrent(request.getId(), newPageId);
     }
 
 }

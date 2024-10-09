@@ -19,4 +19,7 @@ public class SavePageContentRequest {
     @Schema(description = "更新人", hidden = true)
     private Long updateUser;
 
+    @Schema(description = "是否新版本")
+    private Boolean newVersion;
+
 }
