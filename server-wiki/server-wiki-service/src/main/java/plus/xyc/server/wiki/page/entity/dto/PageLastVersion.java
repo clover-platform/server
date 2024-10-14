@@ -10,15 +10,15 @@ import lombok.Data;
 
 /**
  * <p>
- * 
+ * 最新版本
  * </p>
  *
  * @author generator
- * @since 2024-07-28
+ * @since 2024-10-14
  */
 @Data
 @TableName("page_last_version")
-@Schema(name = "PageLastVersion", description = "")
+@Schema(name = "PageLastVersion", description = "最新版本")
 public class PageLastVersion implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

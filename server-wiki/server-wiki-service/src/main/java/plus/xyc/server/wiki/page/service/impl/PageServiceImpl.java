@@ -4,7 +4,14 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.zkit.support.starter.boot.entity.Result;
+import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
+import org.zkit.support.starter.mybatis.entity.PageResult;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
+import plus.xyc.server.main.api.rest.MainAccountRestApi;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
@@ -12,7 +19,9 @@ import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
 import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
+import plus.xyc.server.wiki.page.entity.response.PageAuthorResponse;
 import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
+import plus.xyc.server.wiki.page.mapper.PageCollectMapper;
 import plus.xyc.server.wiki.page.mapper.PageContentMapper;
 import plus.xyc.server.wiki.page.mapper.PageMapper;
 import plus.xyc.server.wiki.page.service.PageContentService;
@@ -20,8 +29,11 @@ import plus.xyc.server.wiki.page.service.PageLastVersionService;
 import plus.xyc.server.wiki.page.service.PageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -43,6 +55,12 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private PageStruct pageStruct;
     @Resource
     private PageContentMapper pageContentMapper;
+    @Resource
+    private PageCollectMapper pageCollectMapper;
+    @Resource
+    private MainAccountRestApi mainAccountRestApi;
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
     @Transactional
@@ -100,27 +118,61 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     }
 
     @Override
-    public PageDetailResponse detail(Long id) {
+    public PageDetailResponse detail(Long id, Long currentUserId) {
+        String key = "wiki:book:page:" + id;
+        if(currentUserId != null) {
+            key = "wiki:book:page:" + id + ":" + currentUserId;
+        }
+        Object cache = redisTemplate.opsForValue().get(key);
+        if(cache != null) {
+            return (PageDetailResponse) cache;
+        }
         Page page = getById(id);
         PageDetailResponse response = pageStruct.toPageDetailResponse(page);
         PageContent content = pageContentMapper.findOneByPageIdAndCurrent(id, true);
         BeanUtils.copyProperties(content, response);
+        if(currentUserId != null) { // 是否已收藏
+            response.setCollected(pageCollectMapper.countByPageIdAndUserId(id, currentUserId) > 0);
+        }
+        List<Long> userIdList = pageContentService.getHistoryUserList(id);
+        if(!userIdList.contains(page.getOwner())) {
+            userIdList.add(page.getOwner());
+        }
+        ApiAccountListRequest request = new ApiAccountListRequest();
+        request.setIds(userIdList);
+        Result<PageResult<ApiAccountResponse>> result =  mainAccountRestApi.list(request);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
+        }
+        List<PageAuthorResponse> authorList = result.getData().getData().stream()
+                .map(account -> {
+                    PageAuthorResponse author = new PageAuthorResponse();
+                    author.setAccount(account);
+                    author.setUserId(account.getId());
+                    author.setOwner(page.getOwner().equals(account.getId()));
+                    return author;
+                })
+                .toList();
+        response.setUserList(authorList);
         log.info("detail {}", response);
+        redisTemplate.opsForValue().set(key, response, 1, TimeUnit.HOURS);
         return response;
     }
 
     @Override
     @Transactional
     public void saveContent(SavePageContentRequest request) {
+        // 清空缓存
+        clearCache(request.getId());
         // 更新标题
         getBaseMapper().updateTitleById(request.getTitle(), request.getId());
         if(request.getNewVersion()) {
             // 保存新版本
-            PageDetailResponse response = detail(request.getId());
+            PageContent content = pageContentMapper.findOneByPageIdAndCurrent(request.getId(), true);
             if(request.getContent() == null) {
                 return;
             }
-            if(request.getTitle().equals(response.getContent())) {
+            if(request.getContent().equals(content.getContent())) {
                 return;
             }
             Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
@@ -128,6 +180,15 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
             pageContentService.resetCurrent(request.getId(), newPageId);
         }else{
             pageContentService.updateContent(request.getId(), request.getUpdateUser(), request.getContent());
+        }
+    }
+
+    private void clearCache(Long id) {
+        String key = "wiki:book:page:" + id;
+        redisTemplate.delete(key);
+        Set<String> keys = redisTemplate.keys(key + "*");
+        if (!ObjectUtils.isEmpty(keys)) {
+            redisTemplate.delete(keys);
         }
     }
 

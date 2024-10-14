@@ -10,14 +10,14 @@ import lombok.Data;
 
 /**
  * <p>
- * 
+ * 知识库
  * </p>
  *
  * @author generator
- * @since 2024-07-28
+ * @since 2024-10-14
  */
 @Data
-@Schema(name = "Book", description = "")
+@Schema(name = "Book", description = "知识库")
 public class Book implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

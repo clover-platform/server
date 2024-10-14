@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.wiki.page.mapper.PageCollectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.wiki.page.entity.dto.PageCollect">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="page_id" property="pageId" />
+        <result column="create_time" property="createTime" />
+        <result column="book_id" property="bookId" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, user_id, page_id, create_time, book_id
+    </sql>
+    <select id="countByPageIdAndUserId" resultType="int">
+        select count(*)
+        from page_collect
+        where page_id = #{pageId,jdbcType=NUMERIC}
+          AND user_id = #{userId,jdbcType=NUMERIC}
+    </select>
+
+</mapper>

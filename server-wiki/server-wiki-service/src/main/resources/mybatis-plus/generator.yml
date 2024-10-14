@@ -19,3 +19,4 @@ modules:
       - page
       - page_content
       - page_last_version
+      - page_collect

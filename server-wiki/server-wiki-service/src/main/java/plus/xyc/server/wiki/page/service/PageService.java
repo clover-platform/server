@@ -23,7 +23,7 @@ public interface PageService extends IService<Page> {
     CatalogResponse create(CreatePageRequest request);
     List<CatalogResponse> catalog(Long bookId);
     void changeCatalogParent(CatalogParentRequest request);
-    PageDetailResponse detail(Long id);
+    PageDetailResponse detail(Long id, Long currentUserId);
     void saveContent(SavePageContentRequest request);
 
 }

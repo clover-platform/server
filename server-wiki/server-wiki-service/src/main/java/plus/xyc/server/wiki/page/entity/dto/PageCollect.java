@@ -11,37 +11,31 @@ import lombok.Data;
 
 /**
  * <p>
- * 内容
+ * 收藏夹
  * </p>
  *
  * @author generator
  * @since 2024-10-14
  */
 @Data
-@TableName("page_content")
-@Schema(name = "PageContent", description = "内容")
-public class PageContent implements Serializable {
+@TableName("page_collect")
+@Schema(name = "PageCollect", description = "收藏夹")
+public class PageCollect implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "内容")
-    private String content;
-
-    @Schema(description = "版本号")
-    private Long versionNumber;
-
-    @Schema(description = "更新时间")
-    private Date updateTime;
-
-    @Schema(description = "更新人")
-    private Long updateUser;
-
-    @Schema(description = "是否是当前")
-    private Boolean current;
+    @Schema(description = "用户ID")
+    private Long userId;
 
     @Schema(description = "页面ID")
     private Long pageId;
+
+    @Schema(description = "收藏时间")
+    private Date createTime;
+
+    @Schema(description = "知识库ID")
+    private Long bookId;
 }

@@ -26,4 +26,10 @@
         AND current = #{current,jdbcType=BOOLEAN}
     </select>
 
+    <select id="selectUpdateUserByPageId" resultMap="BaseResultMap">
+        select distinct update_user
+        from page_content
+        where page_id = #{pageId,jdbcType=NUMERIC}
+    </select>
+
 </mapper>

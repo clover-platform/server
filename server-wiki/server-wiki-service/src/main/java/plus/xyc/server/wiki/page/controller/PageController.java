@@ -69,9 +69,10 @@ public class PageController {
     @Operation(summary = "详情")
     public PageDetailResponse detail(
             @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
-            @Schema(description = "文章ID") @PathVariable("pageId") Long pageId
+            @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
-        return pageService.detail(pageId);
+        return pageService.detail(pageId, user.getId());
     }
 
     @PutMapping("/{pageId}")

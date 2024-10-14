@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Schema(description = "文章详情")
@@ -38,5 +39,11 @@ public class PageDetailResponse {
 
     @Schema(description = "更新人")
     private Long updateUser;
+
+    @Schema(description = "文章作者列表")
+    private List<PageAuthorResponse> userList;
+
+    @Schema(description = "是否收藏")
+    private Boolean collected = false;
 
 }

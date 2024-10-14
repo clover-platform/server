@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.wiki.page.service.PageLastVersionService;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -58,6 +60,13 @@ public class PageContentServiceImpl extends ServiceImpl<PageContentMapper, PageC
                 .eq("page_id", pageId)
                 .eq("current", true);
         getBaseMapper().update(update);
+    }
+
+    @Override
+    public List<Long> getHistoryUserList(Long pageId) {
+        // 获取所有编辑过 pageId 的用户 id
+        List<PageContent> list = getBaseMapper().selectUpdateUserByPageId(pageId);
+        return list.stream().map(PageContent::getUpdateUser).distinct().toList();
     }
 
 
