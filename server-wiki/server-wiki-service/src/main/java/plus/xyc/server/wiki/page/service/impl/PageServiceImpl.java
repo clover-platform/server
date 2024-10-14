@@ -24,15 +24,14 @@ import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
 import plus.xyc.server.wiki.page.mapper.PageCollectMapper;
 import plus.xyc.server.wiki.page.mapper.PageContentMapper;
 import plus.xyc.server.wiki.page.mapper.PageMapper;
+import plus.xyc.server.wiki.page.service.PageCacheService;
 import plus.xyc.server.wiki.page.service.PageContentService;
 import plus.xyc.server.wiki.page.service.PageLastVersionService;
 import plus.xyc.server.wiki.page.service.PageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,6 +60,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private MainAccountRestApi mainAccountRestApi;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
+    @Resource
+    private PageCacheService pageCacheService;
 
     @Override
     @Transactional
@@ -163,7 +164,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     @Transactional
     public void saveContent(SavePageContentRequest request) {
         // 清空缓存
-        clearCache(request.getId());
+        pageCacheService.clearCache(request.getId());
         // 更新标题
         getBaseMapper().updateTitleById(request.getTitle(), request.getId());
         if(request.getNewVersion()) {
@@ -180,15 +181,6 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
             pageContentService.resetCurrent(request.getId(), newPageId);
         }else{
             pageContentService.updateContent(request.getId(), request.getUpdateUser(), request.getContent());
-        }
-    }
-
-    private void clearCache(Long id) {
-        String key = "wiki:book:page:" + id;
-        redisTemplate.delete(key);
-        Set<String> keys = redisTemplate.keys(key + "*");
-        if (!ObjectUtils.isEmpty(keys)) {
-            redisTemplate.delete(keys);
         }
     }
 

@@ -21,5 +21,11 @@
         where page_id = #{pageId,jdbcType=NUMERIC}
           AND user_id = #{userId,jdbcType=NUMERIC}
     </select>
+    <delete id="deleteByPageIdAndUserId">
+        delete
+        from page_collect
+        where page_id = #{pageId,jdbcType=NUMERIC}
+          AND user_id = #{userId,jdbcType=NUMERIC}
+    </delete>
 
 </mapper>

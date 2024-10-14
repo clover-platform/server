@@ -15,5 +15,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface PageCollectMapper extends BaseMapper<PageCollect> {
 
     int countByPageIdAndUserId(@Param("pageId") Long pageId, @Param("userId") Long userId);
+    int deleteByPageIdAndUserId(@Param("pageId") Long pageId, @Param("userId") Long userId);
 
 }
