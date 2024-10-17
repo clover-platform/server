@@ -24,6 +24,6 @@ public interface PageService extends IService<Page> {
     List<CatalogResponse> catalog(Long bookId);
     void changeCatalogParent(CatalogParentRequest request);
     PageDetailResponse detail(Long id, Long currentUserId);
-    void saveContent(SavePageContentRequest request);
+    Long saveContent(SavePageContentRequest request);
 
 }

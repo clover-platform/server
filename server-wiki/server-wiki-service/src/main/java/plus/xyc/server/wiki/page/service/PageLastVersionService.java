@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface PageLastVersionService extends IService<PageLastVersion> {
 
+    Long getLastVersion(Long pageId);
     Long getVersion(Long pageId);
 
 }

@@ -18,6 +18,16 @@ import org.springframework.stereotype.Service;
 public class PageLastVersionServiceImpl extends ServiceImpl<PageLastVersionMapper, PageLastVersion> implements PageLastVersionService {
 
     @Override
+    public Long getLastVersion(Long pageId) {
+        PageLastVersion lastVersion = getBaseMapper().findOneByPageId(pageId);
+        if(lastVersion == null) {
+            return 1L;
+        }else{
+            return lastVersion.getVersionNumber();
+        }
+    }
+
+    @Override
     public Long getVersion(Long pageId) {
         PageLastVersion lastVersion = getBaseMapper().findOneByPageId(pageId);
         long version = 1L;

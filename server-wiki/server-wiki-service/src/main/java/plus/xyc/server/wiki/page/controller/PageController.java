@@ -77,7 +77,7 @@ public class PageController {
 
     @PutMapping("/{pageId}")
     @Operation(summary = "更新内容")
-    public void saveContent(
+    public Long saveContent(
             @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
             @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
             @RequestBody SavePageContentRequest request,
@@ -85,7 +85,7 @@ public class PageController {
     ) {
         request.setId(pageId);
         request.setUpdateUser(user.getId());
-        pageService.saveContent(request);
+        return pageService.saveContent(request);
     }
 
 }

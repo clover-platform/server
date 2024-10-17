@@ -162,26 +162,29 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
 
     @Override
     @Transactional
-    public void saveContent(SavePageContentRequest request) {
+    public Long saveContent(SavePageContentRequest request) {
         // 清空缓存
         pageCacheService.clearCache(request.getId());
         // 更新标题
         getBaseMapper().updateTitleById(request.getTitle(), request.getId());
+        Long lastVersion = pageLastVersionService.getLastVersion(request.getId());
         if(request.getNewVersion()) {
             // 保存新版本
             PageContent content = pageContentMapper.findOneByPageIdAndCurrent(request.getId(), true);
             if(request.getContent() == null) {
-                return;
+                return lastVersion;
             }
             if(request.getContent().equals(content.getContent())) {
-                return;
+                return lastVersion;
             }
             Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
             // 其他的重置为非当前版本
             pageContentService.resetCurrent(request.getId(), newPageId);
+            return lastVersion + 1;
         }else{
             pageContentService.updateContent(request.getId(), request.getUpdateUser(), request.getContent());
         }
+        return lastVersion;
     }
 
 }
