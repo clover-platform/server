@@ -1,5 +1,7 @@
 package plus.xyc.server.wiki.access.annotation;
 
+import plus.xyc.server.wiki.access.enums.AccessCode;
+
 import java.lang.annotation.*;
 
 import static java.lang.annotation.ElementType.*;
@@ -9,6 +11,6 @@ import static java.lang.annotation.ElementType.*;
 @Documented
 public @interface MemberAccess {
 
-    int[] value() default {};
+    AccessCode[] value() default {};
 
 }

@@ -4,12 +4,15 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.wiki.access.annotation.MemberAccess;
+import plus.xyc.server.wiki.access.enums.AccessCode;
 import plus.xyc.server.wiki.book.entity.request.BookListRequest;
 import plus.xyc.server.wiki.book.entity.request.CreateBookRequest;
 import plus.xyc.server.wiki.book.entity.response.BookResponse;
@@ -26,6 +29,7 @@ import plus.xyc.server.wiki.book.service.BookService;
 @RestController
 @RequestMapping("/book")
 @Tag(name = "book", description = "知识库")
+@Slf4j
 public class BookController {
 
     @Resource
@@ -51,6 +55,16 @@ public class BookController {
         request.setKeyword(page.getKeyword());
         request.setUserId(user.getId());
         return bookService.query(page, request);
+    }
+
+    @MemberAccess({AccessCode.BOOK_OWNER})
+    @DeleteMapping("/{bookPath}")
+    @Operation(summary = "删除")
+    public void delete(
+            @PathVariable String bookPath,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
+    ) {
+        bookService.deleteByPath(bookPath);
     }
 
 }

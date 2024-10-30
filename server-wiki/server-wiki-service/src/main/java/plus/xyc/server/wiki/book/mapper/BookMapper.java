@@ -20,5 +20,6 @@ public interface BookMapper extends BaseMapper<Book> {
 
     int countByPathAndDeleted(@Param("path") String path, @Param("deleted") Boolean deleted);
     List<Book> query(Page<Book> page, @Param("request") BookListRequest request);
+    Book findOneByPathAndDeleted(@Param("path") String path, @Param("deleted") Boolean deleted);
 
 }

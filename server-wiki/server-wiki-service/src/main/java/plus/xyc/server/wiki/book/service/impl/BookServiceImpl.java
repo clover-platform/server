@@ -1,9 +1,12 @@
 package plus.xyc.server.wiki.book.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
@@ -78,5 +81,20 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
         Page<Book> page = pr.toPage();
         List<Book> books = baseMapper.query(page, request);
         return PageResult.of(page.getTotal(), books.stream().map(struct::toResponse).toList());
+    }
+
+    @Cacheable(value = "wiki:book", key = "#path")
+    @Override
+    public Book findByPath(String path) {
+        return baseMapper.findOneByPathAndDeleted(path, false);
+    }
+
+    @Override
+    @CacheEvict(value = "wiki:book", key = "#path")
+    public void deleteByPath(String path) {
+        UpdateWrapper<Book> wrapper = new UpdateWrapper<>();
+        wrapper.eq("path", path);
+        wrapper.set("deleted", true);
+        update(wrapper);
     }
 }

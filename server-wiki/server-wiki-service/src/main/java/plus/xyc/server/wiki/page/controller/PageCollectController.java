@@ -8,6 +8,8 @@ import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.wiki.book.annotation.BookInject;
+import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.page.entity.request.CollectPageRequest;
 import plus.xyc.server.wiki.page.service.PageCollectService;
 
@@ -20,7 +22,7 @@ import plus.xyc.server.wiki.page.service.PageCollectService;
  * @since 2024-10-14
  */
 @RestController
-@RequestMapping("/book/{bookId}/page")
+@RequestMapping("/book/{bookPath}/page")
 @Tag(name = "page", description = "收藏")
 public class PageCollectController {
 
@@ -30,8 +32,9 @@ public class PageCollectController {
     @PostMapping("/{pageId}/collect")
     @Operation(summary = "收藏页面")
     public void collect(
-            @Schema(description = "知识库ID") @PathVariable("bookId") Long bookId,
+            @Schema(description = "知识库ID") @PathVariable("bookPath") String bookPath,
             @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
+            @BookInject Book book,
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @RequestBody CollectPageRequest request
     ) {

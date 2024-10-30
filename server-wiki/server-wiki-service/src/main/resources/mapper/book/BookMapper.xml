@@ -56,4 +56,13 @@
         </where>
     </select>
 
+    <select id="findOneByPathAndDeleted" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from book
+        where
+        path = #{path,jdbcType=VARCHAR}
+        AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
+
 </mapper>
