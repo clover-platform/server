@@ -56,6 +56,6 @@ public class BookInjectArgumentResolver implements HandlerMethodArgumentResolver
         if(request == null) return null;
         Map<String, String> path = (Map<String, String>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
         log.info("BookInjectArgumentResolver uriTemplateVariables: {}", path);
-        return bookService.findByPath(path.get("bookPath"));
+        return bookService.findBookByPath(path.get("bookPath"));
     }
 }

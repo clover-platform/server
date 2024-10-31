@@ -1,4 +1,4 @@
-package plus.xyc.server.wiki.page.entity.dto;
+package plus.xyc.server.wiki.book.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -11,37 +11,31 @@ import lombok.Data;
 
 /**
  * <p>
- * 内容
+ * 
  * </p>
  *
  * @author generator
  * @since 2024-10-31
  */
 @Data
-@TableName("page_content")
-@Schema(name = "PageContent", description = "内容")
-public class PageContent implements Serializable {
+@TableName("book_home_page")
+@Schema(name = "BookHomePage", description = "")
+public class BookHomePage implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
     private Long id;
 
+    @Schema(description = "知识库ID")
+    private Long bookId;
+
     @Schema(description = "内容")
     private String content;
-
-    @Schema(description = "版本号")
-    private Long versionNumber;
-
-    @Schema(description = "更新时间")
-    private Date updateTime;
 
     @Schema(description = "更新人")
     private Long updateUser;
 
-    @Schema(description = "是否是当前")
-    private Boolean current;
-
-    @Schema(description = "页面ID")
-    private Long pageId;
+    @Schema(description = "更新时间")
+    private Date updateTime;
 }

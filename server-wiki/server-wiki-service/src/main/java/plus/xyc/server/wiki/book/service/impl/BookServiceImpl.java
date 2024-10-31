@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
@@ -15,12 +16,14 @@ import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
 import plus.xyc.server.wiki.book.entity.dto.Book;
+import plus.xyc.server.wiki.book.entity.dto.BookHomePage;
 import plus.xyc.server.wiki.book.entity.dto.BookMember;
 import plus.xyc.server.wiki.book.entity.mapstruct.BookMapStruct;
 import plus.xyc.server.wiki.book.entity.request.BookListRequest;
 import plus.xyc.server.wiki.book.entity.request.CreateBookRequest;
 import plus.xyc.server.wiki.book.entity.response.BookResponse;
 import plus.xyc.server.wiki.book.mapper.BookMapper;
+import plus.xyc.server.wiki.book.service.BookHomePageService;
 import plus.xyc.server.wiki.book.service.BookMemberService;
 import plus.xyc.server.wiki.book.service.BookService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -48,6 +51,8 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
     private BookMapStruct struct;
     @Resource
     private BookMemberService bookMemberService;
+    @Resource
+    private BookHomePageService bookHomePageService;
 
     @Override
     @DistributedLock(value = "wiki:book:create", el = false)
@@ -83,14 +88,24 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
         return PageResult.of(page.getTotal(), books.stream().map(struct::toResponse).toList());
     }
 
-    @Cacheable(value = "wiki:book", key = "#path")
     @Override
-    public Book findByPath(String path) {
+    @Cacheable(value = "wiki:book:base", key = "#path")
+    public Book findBookByPath(String path) {
         return baseMapper.findOneByPathAndDeleted(path, false);
     }
 
     @Override
-    @CacheEvict(value = "wiki:book", key = "#path")
+    @Cacheable(value = "wiki:book", key = "#path")
+    public BookResponse findByPath(String path) {
+        Book book = ((BookService) AopContext.currentProxy()).findBookByPath(path);
+        BookResponse response = struct.toResponse(book);
+        BookHomePage homePage = bookHomePageService.findByBookId(response.getId());
+        response.setHomePage(homePage);
+        return response;
+    }
+
+    @Override
+    @CacheEvict(value = "wiki:book:base", key = "#path")
     public void deleteByPath(String path) {
         UpdateWrapper<Book> wrapper = new UpdateWrapper<>();
         wrapper.eq("path", path);

@@ -2,6 +2,7 @@ package plus.xyc.server.wiki.book.entity.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import plus.xyc.server.wiki.book.entity.dto.BookHomePage;
 
 import java.util.Date;
 
@@ -41,5 +42,11 @@ public class BookResponse {
 
     @Schema(description = "访问路径")
     private String path;
+
+    @Schema(description = "主页内容")
+    private BookHomePage homePage;
+
+    @Schema(description = "统计信息")
+    private BookCountResponse count;
 
 }

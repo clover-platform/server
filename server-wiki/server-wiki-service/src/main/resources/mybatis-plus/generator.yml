@@ -14,6 +14,7 @@ modules:
     tables:
       - book
       - book_member
+      - book_home_page
   - name: page
     tables:
       - page

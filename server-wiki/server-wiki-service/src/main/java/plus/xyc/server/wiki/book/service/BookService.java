@@ -20,7 +20,8 @@ public interface BookService extends IService<Book> {
 
     void create(CreateBookRequest request);
     PageResult<BookResponse> query(PageQueryRequest page, BookListRequest request);
-    Book findByPath(String path);
+    Book findBookByPath(String path);
+    BookResponse findByPath(String path);
     void deleteByPath(String path);
 
 }
