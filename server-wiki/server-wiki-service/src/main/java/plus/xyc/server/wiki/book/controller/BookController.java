@@ -13,6 +13,7 @@ import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.wiki.access.annotation.MemberAccess;
 import plus.xyc.server.wiki.access.enums.AccessCode;
+import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.book.entity.request.BookListRequest;
 import plus.xyc.server.wiki.book.entity.request.CreateBookRequest;
 import plus.xyc.server.wiki.book.entity.response.BookResponse;
@@ -61,10 +62,19 @@ public class BookController {
     @DeleteMapping("/{bookPath}")
     @Operation(summary = "删除")
     public void delete(
-            @PathVariable String bookPath,
+            @Parameter(description = "访问路径") @PathVariable String bookPath,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         bookService.deleteByPath(bookPath);
+    }
+
+    @GetMapping("/{bookPath}")
+    @Operation(summary = "详情")
+    public Book detail(
+            @Parameter(description = "访问路径") @PathVariable String bookPath,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
+    ) {
+        return bookService.findByPath(bookPath);
     }
 
 }
