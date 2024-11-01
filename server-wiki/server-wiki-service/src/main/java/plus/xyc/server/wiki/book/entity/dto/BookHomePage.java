@@ -11,15 +11,15 @@ import lombok.Data;
 
 /**
  * <p>
- * 
+ * 首页内容
  * </p>
  *
  * @author generator
- * @since 2024-10-31
+ * @since 2024-11-01
  */
 @Data
 @TableName("book_home_page")
-@Schema(name = "BookHomePage", description = "")
+@Schema(name = "BookHomePage", description = "首页内容")
 public class BookHomePage implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

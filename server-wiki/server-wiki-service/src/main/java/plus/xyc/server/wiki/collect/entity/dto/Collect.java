@@ -1,8 +1,7 @@
-package plus.xyc.server.wiki.page.entity.dto;
+package plus.xyc.server.wiki.collect.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,12 +14,11 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-10-31
+ * @since 2024-11-01
  */
 @Data
-@TableName("page_collect")
-@Schema(name = "PageCollect", description = "收藏夹")
-public class PageCollect implements Serializable {
+@Schema(name = "Collect", description = "收藏夹")
+public class Collect implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

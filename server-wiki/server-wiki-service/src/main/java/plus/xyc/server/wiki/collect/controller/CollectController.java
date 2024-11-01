@@ -1,4 +1,4 @@
-package plus.xyc.server.wiki.page.controller;
+package plus.xyc.server.wiki.collect.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -10,8 +10,8 @@ import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.wiki.book.annotation.BookInject;
 import plus.xyc.server.wiki.book.entity.dto.Book;
-import plus.xyc.server.wiki.page.entity.request.CollectPageRequest;
-import plus.xyc.server.wiki.page.service.PageCollectService;
+import plus.xyc.server.wiki.collect.entity.request.CollectRequest;
+import plus.xyc.server.wiki.collect.service.CollectService;
 
 /**
  * <p>
@@ -22,25 +22,39 @@ import plus.xyc.server.wiki.page.service.PageCollectService;
  * @since 2024-10-14
  */
 @RestController
-@RequestMapping("/book/{bookPath}/page")
+@RequestMapping("/book/{bookPath}")
 @Tag(name = "page", description = "收藏")
-public class PageCollectController {
+public class CollectController {
 
     @Resource
-    private PageCollectService pageCollectService;
+    private CollectService collectService;
 
-    @PostMapping("/{pageId}/collect")
+    @PostMapping("/collect")
     @Operation(summary = "收藏页面")
-    public void collect(
+    public void bookCollect(
+            @Schema(description = "知识库ID") @PathVariable("bookPath") String bookPath,
+            @BookInject Book book,
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @RequestBody CollectRequest request
+    ) {
+        request.setUserId(user.getId());
+        request.setBookId(book.getId());
+        collectService.collect(request);
+    }
+
+    @PostMapping("/page/{pageId}/collect")
+    @Operation(summary = "收藏页面")
+    public void pageCollect(
             @Schema(description = "知识库ID") @PathVariable("bookPath") String bookPath,
             @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
             @BookInject Book book,
             @CurrentUser @Parameter(hidden = true) SessionUser user,
-            @RequestBody CollectPageRequest request
+            @RequestBody CollectRequest request
     ) {
         request.setUserId(user.getId());
-        request.setId(pageId);
-        pageCollectService.collect(request);
+        request.setBookId(book.getId());
+        request.setPageId(pageId);
+        collectService.collect(request);
     }
 
 }

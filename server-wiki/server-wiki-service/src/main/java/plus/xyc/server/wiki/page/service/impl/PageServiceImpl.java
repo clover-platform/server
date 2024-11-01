@@ -12,6 +12,7 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.wiki.collect.mapper.CollectMapper;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
@@ -21,7 +22,6 @@ import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
 import plus.xyc.server.wiki.page.entity.response.PageAuthorResponse;
 import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
-import plus.xyc.server.wiki.page.mapper.PageCollectMapper;
 import plus.xyc.server.wiki.page.mapper.PageContentMapper;
 import plus.xyc.server.wiki.page.mapper.PageMapper;
 import plus.xyc.server.wiki.page.service.PageCacheService;
@@ -55,7 +55,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     @Resource
     private PageContentMapper pageContentMapper;
     @Resource
-    private PageCollectMapper pageCollectMapper;
+    private CollectMapper collectMapper;
     @Resource
     private MainAccountRestApi mainAccountRestApi;
     @Resource
@@ -133,7 +133,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         PageContent content = pageContentMapper.findOneByPageIdAndCurrent(id, true);
         BeanUtils.copyProperties(content, response);
         if(currentUserId != null) { // 是否已收藏
-            response.setCollected(pageCollectMapper.countByPageIdAndUserId(id, currentUserId) > 0);
+            response.setCollected(collectMapper.countByBookIdAndPageIdAndUserId(page.getBookId(), id, currentUserId) > 0);
         }
         List<Long> userIdList = pageContentService.getHistoryUserList(id);
         if(!userIdList.contains(page.getOwner())) {
