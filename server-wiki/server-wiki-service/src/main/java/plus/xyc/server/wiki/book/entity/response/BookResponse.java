@@ -2,9 +2,11 @@ package plus.xyc.server.wiki.book.entity.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.wiki.book.entity.dto.BookHomePage;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Schema(description = "查询知识库响应")
@@ -48,5 +50,8 @@ public class BookResponse {
 
     @Schema(description = "统计信息")
     private BookCountResponse count;
+
+    @Schema(description = "成员列表")
+    private List<ApiAccountResponse> members;
 
 }

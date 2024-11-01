@@ -30,7 +30,7 @@ public class LanguageServiceImpl extends ServiceImpl<LanguageMapper, Language> i
     private AppConfiguration configuration;
 
     @Override
-    @Cacheable(value = "language", key = "#root.methodName")
+    @Cacheable(value = "language#1d", key = "#root.methodName")
     public List<LanguageResponse> all() {
         String lang = MessageUtils.getLocale();
         List<LanguageResponse> fallbackLangList = selectByLang(configuration.getDataFallbackLanguage());

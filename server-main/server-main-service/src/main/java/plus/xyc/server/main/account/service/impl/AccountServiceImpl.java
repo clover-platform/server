@@ -53,7 +53,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AccountMapStruct accountMapStruct;
 
     @Override
-    @Cacheable(value = "account", key = "#id")
+    @Cacheable(value = "account#1d", key = "#id")
     public Account findById(Long id) {
         return getById(id);
     }

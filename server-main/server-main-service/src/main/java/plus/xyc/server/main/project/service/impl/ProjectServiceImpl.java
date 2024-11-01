@@ -45,7 +45,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private AccountService accountService;
 
     @Override
-    @Cacheable(value = "account:projects", key = "#userId")
+    @Cacheable(value = "account:projects#1d", key = "#userId")
     public List<Project> my(Long userId) {
         return baseMapper.findMy(userId);
     }

@@ -44,7 +44,7 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     private AccountService accountService;
 
     @Override
-    @Cacheable(value = "account:teams", key = "#userId")
+    @Cacheable(value = "account:teams#1d", key = "#userId")
     public List<Team> my(Long userId) {
         return baseMapper.findMy(userId);
     }

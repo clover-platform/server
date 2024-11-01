@@ -89,18 +89,19 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
     }
 
     @Override
-    @Cacheable(value = "wiki:book:base", key = "#path")
+    @Cacheable(value = "wiki:book:base#1h", key = "#path")
     public Book findBookByPath(String path) {
         return baseMapper.findOneByPathAndDeleted(path, false);
     }
 
     @Override
-    @Cacheable(value = "wiki:book", key = "#path")
+    @Cacheable(value = "wiki:book#1h", key = "#path")
     public BookResponse findByPath(String path) {
         Book book = ((BookService) AopContext.currentProxy()).findBookByPath(path);
         BookResponse response = struct.toResponse(book);
         BookHomePage homePage = bookHomePageService.findByBookId(response.getId());
         response.setHomePage(homePage);
+        response.setMembers(bookMemberService.getMemberList(book.getId()));
         return response;
     }
 

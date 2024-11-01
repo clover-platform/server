@@ -15,4 +15,10 @@
         id, book_id, user_id, rule
     </sql>
 
+    <select id="findUserIdByBookId" resultMap="BaseResultMap">
+        select user_id
+        from book_member
+        where book_id = #{bookId,jdbcType=NUMERIC}
+    </select>
+
 </mapper>
