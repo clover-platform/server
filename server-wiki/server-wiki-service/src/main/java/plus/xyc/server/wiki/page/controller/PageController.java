@@ -53,9 +53,10 @@ public class PageController {
     @Operation(summary = "目录")
     public List<CatalogResponse> catalog(
             @Schema(description = "知识库ID") @PathVariable("bookPath") String bookPath,
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
             @BookInject Book book
     ) {
-        return pageService.catalog(book.getId());
+        return pageService.catalog(book.getId(), user.getId());
     }
 
     @PutMapping("/{pageId}/parent")

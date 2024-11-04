@@ -12,6 +12,7 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.wiki.collect.entity.dto.Collect;
 import plus.xyc.server.wiki.collect.mapper.CollectMapper;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
@@ -93,12 +94,14 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     }
 
     @Override
-    public List<CatalogResponse> catalog(Long bookId) {
+    public List<CatalogResponse> catalog(Long bookId, Long userId) {
+        List<Collect> collects = collectMapper.findByBookIdAndUserIdAndPageIdIsNotNull(bookId, userId);
         List<Page> all = getBaseMapper().findByBookIdAndDeleted(bookId, false);
         return all.stream()
                 .filter(page -> page.getParentId() == null)
                 .map(page -> {
                     CatalogResponse catalog = pageStruct.toCatalogResponse(page);
+                    catalog.setCollected(collects.stream().anyMatch(collect -> collect.getPageId().equals(page.getId())));
                     setChildren(catalog, all);
                     return catalog;
                 })

@@ -31,5 +31,23 @@
           AND page_id = #{pageId,jdbcType=NUMERIC}
           AND user_id = #{userId,jdbcType=NUMERIC}
     </delete>
+    <select id="findByBookIdAndPageIdAndUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from collect
+        where
+        book_id = #{bookId,jdbcType=NUMERIC}
+        AND page_id = #{pageId,jdbcType=NUMERIC}
+        AND user_id = #{userId,jdbcType=NUMERIC}
+    </select>
+    <select id="findByBookIdAndUserIdAndPageIdIsNotNull" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from collect
+        where
+        book_id = #{bookId,jdbcType=NUMERIC}
+        AND user_id = #{userId,jdbcType=NUMERIC}
+        AND page_id is not null
+    </select>
 
 </mapper>

@@ -31,5 +31,8 @@ public class CatalogResponse {
     @Schema(description = "子元素")
     private List<CatalogResponse> children;
 
+    @Schema(description = "是否收藏")
+    private Boolean collected;
+
 
 }

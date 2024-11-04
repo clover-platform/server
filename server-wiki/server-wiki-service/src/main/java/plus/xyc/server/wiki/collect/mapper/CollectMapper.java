@@ -1,4 +1,5 @@
 package plus.xyc.server.wiki.collect.mapper;
+import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.wiki.collect.entity.dto.Collect;
@@ -16,5 +17,7 @@ public interface CollectMapper extends BaseMapper<Collect> {
 
     int countByBookIdAndPageIdAndUserId(@Param("bookId") Long bookId, @Param("pageId") Long pageId, @Param("userId") Long userId);
     int deleteByBookIdAndPageIdAndUserId(@Param("bookId") Long bookId, @Param("pageId") Long pageId, @Param("userId") Long userId);
+    List<Collect> findByBookIdAndPageIdAndUserId(@Param("bookId") Long bookId, @Param("pageId") Long pageId, @Param("userId") Long userId);
+    List<Collect> findByBookIdAndUserIdAndPageIdIsNotNull(@Param("bookId") Long bookId, @Param("userId") Long userId);
 
 }
