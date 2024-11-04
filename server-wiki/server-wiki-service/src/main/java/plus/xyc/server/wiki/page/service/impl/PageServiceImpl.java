@@ -66,7 +66,10 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     @Override
     @Transactional
     public CatalogResponse create(CreatePageRequest request) {
-        String title = MessageUtils.get("page.title.default");
+        String title = request.getTitle();
+        if(title == null || title.isBlank()) {
+            title = MessageUtils.get("page.title.default");
+        }
         Page page = new Page();
         page.setTitle(title);
         page.setBookId(request.getBookId());

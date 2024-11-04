@@ -16,4 +16,7 @@ public class CreatePageRequest {
     @Schema(description = "知识库ID", hidden = true)
     private Long bookId;
 
+    @Schema(description = "标题")
+    private String title;
+
 }
