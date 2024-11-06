@@ -4,6 +4,7 @@ import plus.xyc.server.wiki.page.entity.dto.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
+import plus.xyc.server.wiki.page.entity.request.DeletePageRequest;
 import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
 import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
@@ -25,5 +26,8 @@ public interface PageService extends IService<Page> {
     void changeCatalogParent(CatalogParentRequest request);
     PageDetailResponse detail(Long id, Long currentUserId);
     Long saveContent(SavePageContentRequest request);
+    void delete(DeletePageRequest request);
+    void deleteByPageId(Long pageId);
+    void deleteByPageIds(List<Long> pageIds);
 
 }

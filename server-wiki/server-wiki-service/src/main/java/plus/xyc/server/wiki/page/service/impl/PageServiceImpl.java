@@ -1,5 +1,6 @@
 package plus.xyc.server.wiki.page.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import plus.xyc.server.wiki.page.entity.dto.PageContent;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
+import plus.xyc.server.wiki.page.entity.request.DeletePageRequest;
 import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
 import plus.xyc.server.wiki.page.entity.response.PageAuthorResponse;
@@ -193,4 +195,77 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         return lastVersion;
     }
 
+    private CatalogResponse findById(Long id, List<CatalogResponse> catalog) {
+        for (CatalogResponse response : catalog) {
+            if(response.getId().equals(id)) {
+                return response;
+            }
+            CatalogResponse find = findById(id, response.getChildren());
+            if(find != null) {
+                return find;
+            }
+        }
+        return null;
+    }
+
+    private List<Long> getChildrenId(CatalogResponse catalog, Boolean deep) {
+        List<Long> ids = new java.util.ArrayList<>(List.of());
+        catalog.getChildren().forEach(child -> {
+            ids.add(child.getId());
+            if(deep) {
+                ids.addAll(getChildrenId(child, true));
+            }
+        });
+        return ids;
+    }
+
+    @Override
+    public void delete(DeletePageRequest request) {
+        log.info("delete {}", request);
+        List<CatalogResponse> catalog = catalog(request.getBookId(), request.getUserId());
+        CatalogResponse current = findById(request.getPageId(), catalog);
+        if(request.getParent() == null) { // 不迁移，删除所有 children
+            if (current != null) {
+                List<Long> childrenIds = getChildrenId(current, true);
+                if(!childrenIds.isEmpty()) {
+                    log.info("delete children {}", childrenIds);
+                    deleteByPageIds(childrenIds);
+                }
+            }
+        }else{ // 迁移
+            if (current != null) {
+                List<Long> childrenIds = getChildrenId(current, false);
+                if(!childrenIds.isEmpty()) {
+                    log.info("move children {}", childrenIds);
+                    UpdateWrapper<Page> wrapper = new UpdateWrapper<>();
+                    wrapper.set("parent_id", request.getParent());
+                    wrapper.in("id", childrenIds);
+                    update(wrapper);
+                }
+            }
+        }
+        deleteByPageId(request.getPageId());
+    }
+
+    @Override
+    public void deleteByPageId(Long pageId) {
+        // 清空缓存
+        pageCacheService.clearCache(pageId);
+        // 删除页面
+        UpdateWrapper<Page> wrapper = new UpdateWrapper<>();
+        wrapper.set("deleted", true);
+        wrapper.eq("id", pageId);
+        update(wrapper);
+    }
+
+    @Override
+    public void deleteByPageIds(List<Long> pageIds) {
+        // 清空缓存
+        pageIds.forEach(pageCacheService::clearCache);
+        // 删除页面
+        UpdateWrapper<Page> wrapper = new UpdateWrapper<>();
+        wrapper.set("deleted", true);
+        wrapper.in("id", pageIds);
+        update(wrapper);
+    }
 }

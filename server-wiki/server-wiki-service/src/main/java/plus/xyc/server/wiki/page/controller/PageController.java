@@ -13,6 +13,7 @@ import plus.xyc.server.wiki.book.annotation.BookInject;
 import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.page.entity.request.CatalogParentRequest;
 import plus.xyc.server.wiki.page.entity.request.CreatePageRequest;
+import plus.xyc.server.wiki.page.entity.request.DeletePageRequest;
 import plus.xyc.server.wiki.page.entity.request.SavePageContentRequest;
 import plus.xyc.server.wiki.page.entity.response.CatalogResponse;
 import plus.xyc.server.wiki.page.entity.response.PageDetailResponse;
@@ -96,6 +97,21 @@ public class PageController {
         request.setId(pageId);
         request.setUpdateUser(user.getId());
         return pageService.saveContent(request);
+    }
+
+    @DeleteMapping("/{pageId}")
+    @Operation(summary = "删除页面")
+    public void delete(
+            @Schema(description = "知识库ID") @PathVariable("bookPath") String bookPath,
+            @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
+            @BookInject Book book,
+            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @RequestBody DeletePageRequest request
+    ) {
+        request.setPageId(pageId);
+        request.setBookId(book.getId());
+        request.setUserId(user.getId());
+        pageService.delete(request);
     }
 
 }
