@@ -20,7 +20,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, description, project_id, cover, logo, owner_id, create_time, update_time, deleted, privacy
+        id, `name`, description, project_id, cover, logo, owner_id, create_time, update_time, deleted, privacy, `path`
     </sql>
 
     <select id="countByPathAndDeleted" resultType="int">
