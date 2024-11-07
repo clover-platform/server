@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.starter.boot.entity.Result;
@@ -90,6 +91,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         pageContent.setVersionNumber(version);
         pageContent.setUpdateUser(request.getOwnerId());
         pageContent.setCurrent(true);
+        pageContent.setContent(request.getContent());
         pageContentService.save(pageContent);
 
         return pageStruct.toCatalogResponse(page);
@@ -267,5 +269,18 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         wrapper.set("deleted", true);
         wrapper.in("id", pageIds);
         update(wrapper);
+    }
+
+    @Override
+    public CatalogResponse copy(Long pageId, Long userId) {
+        // 获取文章详情
+        PageDetailResponse detail = detail(pageId, null);
+        // 创建文章
+        CreatePageRequest createPageRequest = new CreatePageRequest();
+        createPageRequest.setBookId(detail.getBookId());
+        createPageRequest.setTitle(detail.getTitle());
+        createPageRequest.setOwnerId(userId);
+        createPageRequest.setContent(detail.getContent());
+        return ((PageService)AopContext.currentProxy()).create(createPageRequest);
     }
 }

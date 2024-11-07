@@ -19,4 +19,7 @@ public class CreatePageRequest {
     @Schema(description = "标题")
     private String title;
 
+    @Schema(description = "内容")
+    private String content;
+
 }

@@ -29,5 +29,6 @@ public interface PageService extends IService<Page> {
     void delete(DeletePageRequest request);
     void deleteByPageId(Long pageId);
     void deleteByPageIds(List<Long> pageIds);
+    CatalogResponse copy(Long pageId, Long userId);
 
 }

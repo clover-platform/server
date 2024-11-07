@@ -114,4 +114,15 @@ public class PageController {
         pageService.delete(request);
     }
 
+    @PostMapping("/{pageId}/copy")
+    @Operation(summary = "复制页面")
+    public CatalogResponse copy(
+            @Schema(description = "知识库ID") @PathVariable("bookPath") String bookPath,
+            @Schema(description = "文章ID") @PathVariable("pageId") Long pageId,
+            @BookInject Book book,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
+    ) {
+        return pageService.copy(pageId, user.getId());
+    }
+
 }
