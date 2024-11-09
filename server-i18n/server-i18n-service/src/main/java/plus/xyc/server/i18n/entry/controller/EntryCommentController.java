@@ -23,7 +23,7 @@ import plus.xyc.server.i18n.entry.service.EntryCommentService;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/entry/comment")
+@RequestMapping("/{module}/entry/{entryId}/comment")
 public class EntryCommentController {
 
     @Resource
@@ -33,8 +33,11 @@ public class EntryCommentController {
     @Operation(summary = "查询评论")
     public PageResult<EntryCommentResponse> list(
             @ParameterObject @ModelAttribute PageQueryRequest page,
-            @ParameterObject @ModelAttribute EntryCommentListRequest request
+            @ParameterObject @ModelAttribute EntryCommentListRequest request,
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
     ) {
+        request.setEntryId(entryId);
         return entryCommentService.query(page, request);
     }
 
@@ -42,8 +45,11 @@ public class EntryCommentController {
     @Operation(summary = "添加评论")
     public void add(
             @CurrentUser @Parameter(hidden = true) SessionUser user,
-            @RequestBody EntryCommentAddRequest request
+            @RequestBody EntryCommentAddRequest request,
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
     ) {
+        request.setEntryId(entryId);
         request.setCreateUserId(user.getId());
         entryCommentService.add(request);
     }
@@ -52,7 +58,9 @@ public class EntryCommentController {
     @Operation(summary = "添加评论")
     public void delete(
             @CurrentUser @Parameter(hidden = true) SessionUser user,
-            @Parameter(description = "评论ID") @PathVariable Long id
+            @Parameter(description = "评论ID") @PathVariable Long id,
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
     ) {
         entryCommentService.delete(user.getId(), id);
     }

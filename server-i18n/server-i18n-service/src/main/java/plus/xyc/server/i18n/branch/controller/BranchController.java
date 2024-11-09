@@ -36,7 +36,12 @@ public class BranchController {
 
     @GetMapping("/all")
     @Operation(summary = "查询所有分支")
-    public List<BranchResponse> all(@ParameterObject @ModelAttribute BranchAllRequest request) {
+    public List<BranchResponse> all(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @ModuleInject Module module,
+            @ParameterObject @ModelAttribute BranchAllRequest request
+    ) {
+        request.setModuleId(module.getId());
         return branchService.all(request);
     }
 

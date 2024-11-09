@@ -11,7 +11,7 @@ public class EntryCreateRequest {
 
     @Schema(description = "词条名称")
     private List<String> branches;
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "词条键")
     private String key;

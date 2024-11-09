@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "词条数量统计请求")
 public class EntryCountRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "语言")
     private String language;

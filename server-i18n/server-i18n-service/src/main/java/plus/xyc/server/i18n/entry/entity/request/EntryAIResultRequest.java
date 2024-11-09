@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "AI建议")
 public class EntryAIResultRequest {
 
-    @Schema(description = "词条ID")
+    @Schema(description = "词条ID", hidden = true)
     private Long entryId;
 
     @Schema(description = "语言")

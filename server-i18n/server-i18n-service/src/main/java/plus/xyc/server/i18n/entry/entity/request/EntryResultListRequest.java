@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "查询词条翻译结果")
 public class EntryResultListRequest {
 
-    @Schema(description = "词条ID")
+    @Schema(description = "词条ID", hidden = true)
     private Long entryId;
     @Schema(description = "语言")
     private String language;

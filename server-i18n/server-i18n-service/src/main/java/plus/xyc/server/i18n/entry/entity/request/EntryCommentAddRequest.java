@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "添加词条评论请求")
 public class EntryCommentAddRequest {
 
-    @Schema(description = "词条ID")
+    @Schema(description = "词条ID", hidden = true)
     private Long entryId;
     @Schema(description = "评论内容")
     private String content;

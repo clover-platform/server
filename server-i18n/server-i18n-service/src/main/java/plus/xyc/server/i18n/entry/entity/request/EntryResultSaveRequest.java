@@ -7,13 +7,13 @@ import lombok.Data;
 @Schema(description = "保存翻译")
 public class EntryResultSaveRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
 
     @Schema(description = "内容")
     private String content;
 
-    @Schema(description = "词条ID")
+    @Schema(description = "词条ID", hidden = true)
     private Long entryId;
 
     @Schema(description = "语言")
