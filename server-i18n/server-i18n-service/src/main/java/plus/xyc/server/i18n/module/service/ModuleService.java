@@ -32,5 +32,6 @@ public interface ModuleService extends IService<Module> {
     void delete(Long id, Long userId);
     ModuleResponse detail(Long id);
     void update(ModuleUpdateRequest request);
+    Module findByIdentifier(String identifier);
 
 }

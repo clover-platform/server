@@ -11,6 +11,8 @@ import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.i18n.module.annotation.ModuleInject;
+import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
@@ -66,16 +68,22 @@ public class ModuleController {
         moduleService.create(request);
     }
 
-    @GetMapping("/{id}/dashboard")
+    @GetMapping("/{module}/dashboard")
     @Operation(summary = "概览")
-    public ModuleDashboardResponse dashboard(@Parameter(description = "模块ID") @PathVariable Long id) {
-        return moduleService.dashboard(id);
+    public ModuleDashboardResponse dashboard(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @ModuleInject Module module
+    ) {
+        return moduleService.dashboard(module.getId());
     }
 
-    @GetMapping("/{id}/languages")
+    @GetMapping("/{module}/languages")
     @Operation(summary = "语言列表")
-    public List<ModuleLanguageResponse> languages(@Parameter(description = "模块ID") @PathVariable Long id) {
-        return moduleService.languages(id);
+    public List<ModuleLanguageResponse> languages(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @ModuleInject Module module
+    ) {
+        return moduleService.languages(module.getId());
     }
 
     @GetMapping("/all")

@@ -26,5 +26,6 @@ public interface ModuleMapper extends BaseMapper<Module> {
     List<SizeResponse> targetSizes(@Param("moduleIds") List<Long> moduleIds);
     int countByIdentifier(@Param("identifier") String identifier);
     List<ModuleResponse> all(@Param("request") ModuleAllRequest request);
+    Module findOneByIdentifier(@Param("identifier") String identifier);
 
 }

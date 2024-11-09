@@ -88,4 +88,11 @@
             AND m.name like concat('%', #{request.keyword}, '%')
         </if>
     </select>
+    <select id="findOneByIdentifier" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from module
+        where
+        identifier = #{identifier,jdbcType=VARCHAR}
+    </select>
 </mapper>

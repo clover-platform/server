@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -222,5 +223,11 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
                 .eq("id", request.getId())
                 .update();
         activityService.module(request.getId(), ActivityOperate.UPDATE.code, getById(request.getId()));
+    }
+
+    @Override
+    @Cacheable(value = "module", key = "#identifier")
+    public Module findByIdentifier(String identifier) {
+        return baseMapper.findOneByIdentifier(identifier);
     }
 }

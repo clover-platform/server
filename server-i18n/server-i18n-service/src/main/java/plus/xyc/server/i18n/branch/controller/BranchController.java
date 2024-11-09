@@ -13,6 +13,8 @@ import plus.xyc.server.i18n.branch.entity.request.*;
 import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
 import plus.xyc.server.i18n.branch.service.BranchService;
+import plus.xyc.server.i18n.module.annotation.ModuleInject;
+import plus.xyc.server.i18n.module.entity.dto.Module;
 
 import java.util.List;
 
@@ -25,7 +27,7 @@ import java.util.List;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/branch")
+@RequestMapping("/{module}/branch")
 @Tag(name = "branch", description = "分支")
 public class BranchController {
 
@@ -41,9 +43,12 @@ public class BranchController {
     @GetMapping("/list")
     @Operation(summary = "查询分支")
     public PageResult<Branch> list(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @ModuleInject Module module,
             @ParameterObject @ModelAttribute PageQueryRequest page,
             @ParameterObject @ModelAttribute BranchListRequest request
     ) {
+        request.setModuleId(module.getId());
         return branchService.list(page, request);
     }
 
