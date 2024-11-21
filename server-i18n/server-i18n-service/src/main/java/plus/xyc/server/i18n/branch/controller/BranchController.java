@@ -59,39 +59,56 @@ public class BranchController {
 
     @PostMapping("/create")
     @Operation(summary = "创建分支")
-    public void create(@RequestBody BranchCreateRequest request) {
+    public void create(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @RequestBody BranchCreateRequest request,
+            @ModuleInject Module module
+    ) {
+        request.setModuleId(module.getId());
         branchService.create(request);
     }
 
     @PutMapping("/{id}/rename")
     @Operation(summary = "重命名")
     public void rename(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
             @Parameter(description = "分支ID") @PathVariable Long id,
-            @RequestBody BranchRenameRequest request
+            @RequestBody BranchRenameRequest request,
+            @ModuleInject Module module
     ) {
         request.setId(id);
+        request.setModuleId(module.getId());
         branchService.rename(request);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "删除")
-    public void delete(@Parameter(description = "分支ID") @PathVariable Long id) {
+    public void delete(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "分支ID") @PathVariable Long id
+    ) {
         branchService.delete(id);
     }
 
     @GetMapping("/{id}/merge/overview")
     @Operation(summary = "合并概览")
-    public BranchMergeOverviewResponse mergeOverview(@Parameter(description = "分支ID") @PathVariable Long id) {
+    public BranchMergeOverviewResponse mergeOverview(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "分支ID") @PathVariable Long id
+    ) {
         return branchService.mergeOverview(id);
     }
 
     @PutMapping("/{id}/merge")
     @Operation(summary = "合并")
     public void merge(
+            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
             @Parameter(description = "分支ID") @PathVariable Long id,
-            @RequestBody BranchMergeRequest request
+            @RequestBody BranchMergeRequest request,
+            @ModuleInject Module module
     ) {
         request.setId(id);
+        request.setModuleId(module.getId());
         branchService.merge(request);
     }
 

@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "合并分支")
 public class BranchMergeRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "分支ID", hidden = true)
     private Long id;

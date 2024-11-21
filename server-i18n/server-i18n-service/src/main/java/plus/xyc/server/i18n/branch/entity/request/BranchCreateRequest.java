@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "创建分支")
 public class BranchCreateRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "类型 clone-克隆, empty-空分支")
     private String type;

@@ -148,7 +148,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId) {
         List<Entry> entries = baseMapper.findByBranchId(branchId);
         List<Long> entryIds = entries.stream().map(Entry::getId).toList();
-        List<EntryResult> results = entryResultMapper.findByEntryIds(entryIds);
+        List<EntryResult> results = entryIds.isEmpty() ? List.of() : entryResultMapper.findByEntryIds(entryIds);
         return entries.stream().map(entry -> {
             List<EntryResult> entryResults = results.stream().filter(entryResult -> entryResult.getEntryId().equals(entry.getId())).toList();
             EntryWithResultResponse response = entryMapStruct.toEntryWithResultResponse(entry);
