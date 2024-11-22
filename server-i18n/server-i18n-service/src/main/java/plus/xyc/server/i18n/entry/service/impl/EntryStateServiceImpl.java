@@ -2,7 +2,6 @@ package plus.xyc.server.i18n.entry.service.impl;
 
 import jakarta.annotation.Resource;
 import org.zkit.support.starter.redisson.DistributedLock;
-import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
@@ -62,11 +61,6 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
         state.setResultId(resultId);
         state.setTranslated(true);
         updateById(state);
-
-        Entry entry = entryMapper.selectById(entryId);
-
-        // 更新统计
-        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId(), language);
     }
 
     @Override
@@ -84,9 +78,6 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
             state.setVerified(result.getVerified());
         }
         updateById(state);
-        Entry entry = entryMapper.selectById(entryId);
-        // 更新统计
-        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId(), language);
     }
 
     @Override
@@ -94,19 +85,12 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
     public void approve(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
         update().set("verified", true).set("verification_time", new Date()).eq("id", state.getId()).update();
-
-        // 更新统计
-        Entry entry = entryMapper.selectById(entryId);
-        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId(), language);
     }
 
     @Override
     public void removeApproval(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
         update().set("verified", false).eq("id", state.getId()).update();
-
-        // 更新统计
-        Entry entry = entryMapper.selectById(entryId);
-        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId(), language);
     }
+
 }

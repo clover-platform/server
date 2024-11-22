@@ -5,6 +5,8 @@ import plus.xyc.server.i18n.entry.entity.dto.EntryState;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 
+import java.util.List;
+
 /**
  * <p>
  * 词条翻译状态 服务类

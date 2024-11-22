@@ -1,5 +1,6 @@
 package plus.xyc.server.i18n.common.aspect;
 
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -13,6 +14,8 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import plus.xyc.server.i18n.common.annotation.Recount;
+import plus.xyc.server.i18n.common.entity.PathRequest;
+import plus.xyc.server.i18n.module.service.ModuleCountService;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -21,6 +24,9 @@ import java.util.Arrays;
 @Component
 @Slf4j
 public class RecountAspect {
+
+    @Resource
+    private ModuleCountService moduleCountService;
 
     @Pointcut("@annotation(plus.xyc.server.i18n.common.annotation.Recount)")
     public void pointcut() {}
@@ -37,7 +43,14 @@ public class RecountAspect {
         HttpServletRequest request = sra.getRequest();
         log.info("RecountAspect URI: {}", request.getRequestURI());
         Arrays.stream(joinPoint.getArgs()).forEach(arg -> {
-            log.info("RecountAspect arg: {}", arg);
+            if(arg instanceof PathRequest pathRequest) {
+                log.info("RecountAspect pathRequest: {}", pathRequest);
+                if(pathRequest.getBranch() != null) {
+                    moduleCountService.updateCount(pathRequest.getModule().getId(), pathRequest.getBranch().getId());
+                }else{
+                    moduleCountService.updateCount(pathRequest.getModule().getId());
+                }
+            }
         });
     }
 

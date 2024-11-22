@@ -9,6 +9,8 @@ import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.i18n.common.annotation.PathInject;
+import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCommentAddRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCommentListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCommentResponse;
@@ -23,7 +25,7 @@ import plus.xyc.server.i18n.entry.service.EntryCommentService;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/{moduleName}/entry/{entryId}/comment")
+@RequestMapping("/{moduleName}/branch/{branchName}/entry/{entryId}/comment")
 public class EntryCommentController {
 
     @Resource
@@ -35,7 +37,9 @@ public class EntryCommentController {
             @ParameterObject @ModelAttribute PageQueryRequest page,
             @ParameterObject @ModelAttribute EntryCommentListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
+            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "词条ID") @PathVariable Long entryId,
+            @PathInject PathRequest pathRequest
     ) {
         request.setEntryId(entryId);
         return entryCommentService.query(page, request);
@@ -47,7 +51,9 @@ public class EntryCommentController {
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @RequestBody EntryCommentAddRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
+            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "词条ID") @PathVariable Long entryId,
+            @PathInject PathRequest pathRequest
     ) {
         request.setEntryId(entryId);
         request.setCreateUserId(user.getId());
@@ -60,7 +66,9 @@ public class EntryCommentController {
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "评论ID") @PathVariable Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
+            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "词条ID") @PathVariable Long entryId,
+            @PathInject PathRequest pathRequest
     ) {
         entryCommentService.delete(user.getId(), id);
     }

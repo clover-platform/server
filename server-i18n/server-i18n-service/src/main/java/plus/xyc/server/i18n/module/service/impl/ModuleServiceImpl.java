@@ -86,7 +86,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         List<SizeResponse> targetSizes = targetSizes(moduleIds);
         return modules.stream().map(module -> {
             ModuleResponse response = moduleMapStruct.toModuleResponse(module);
-            response.setWordSize(entryService.wordCount(module.getId()));
+            // TODO setWordSize
+            // response.setWordSize(entryService.wordCount(module.getId()));
             response.setMemberSize(memberSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             response.setTargetSize(targetSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             return response;
@@ -167,7 +168,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         response.setLanguages(languages);
         ModuleCountResponse countResponse = new ModuleCountResponse();
         countResponse.setTargetCount(targetSizes.stream().findFirst().map(SizeResponse::getSize).orElse(0));
-        countResponse.setWordCount(entryService.wordCount(id));
+        // TODO setWordCount
+        // countResponse.setWordCount(entryService.wordCount(id));
         countResponse.setBranchCount(branchMapper.countByModuleId(id));
         countResponse.setMemberCount(members.size());
         response.setCount(countResponse);

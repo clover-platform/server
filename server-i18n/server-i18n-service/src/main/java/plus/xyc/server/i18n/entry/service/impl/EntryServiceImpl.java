@@ -5,6 +5,9 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -45,7 +48,6 @@ import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -59,8 +61,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements EntryService {
 
-    @Resource
-    private RedisTemplate<String, Integer> redisTemplate;
     @Resource
     private EntryResultService entryResultService;
     @Resource
@@ -78,27 +78,9 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Resource
     private ModuleAccessService moduleAccessService;
     @Resource
-    private ModuleCountService moduleCountService;
-    @Resource
     private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
     @Resource
     private EntryStateService entryStateService;
-
-    @Override
-    public int wordCount(Long moduleId) {
-        Integer count = redisTemplate.opsForValue().get("entry:word:count:" + moduleId);
-        if(count == null) {
-            return updateWordCount(moduleId);
-        }
-        return count;
-    }
-
-    private int updateWordCount(Long moduleId) {
-        List<Entry> entries = baseMapper.findByModuleId(moduleId);
-        int count = entries.stream().mapToInt(entry -> entry.getValue().length()).sum();
-        redisTemplate.opsForValue().set("entry:word:count:" + moduleId, count, 1, TimeUnit.DAYS);
-        return count;
-    }
 
     @Override
     public PageResult<EntryWithStateResponse> query(PageQueryRequest query, EntryListRequest request) {
@@ -221,8 +203,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             List<EntryState> part = states.subList(i, Math.min(i + 100, states.size()));
             entryStateService.saveBatch(part);
         }
-
-        updateWordCount(target.getModuleId());
     }
 
     @Override
@@ -248,9 +228,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
             activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
         });
-
-        moduleCountService.updateCount(request.getModuleId());
-        updateWordCount(request.getModuleId());
     }
 
     @Override
@@ -261,6 +238,10 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Override
     @Transactional
     @DistributedLock("'i18n:entry:'+#request.id")
+    @Caching(evict = {
+            @CacheEvict(value = "i18n:entry:detail", key = "#request.id"),
+            @CacheEvict(value = "i18n:entry", key = "#request.id")
+    })
     public void edit(EntryEditRequest request) {
         Entry entry = getById(request.getId());
 
@@ -274,12 +255,11 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         entry.setUpdateUserId(request.getUserId());
         updateById(entry);
 
-        updateWordCount(entry.getModuleId());
-
         activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.UPDATE.code, entry);
     }
 
     @Override
+    @Cacheable(value = "i18n:entry:detail", key = "#id")
     public EntryWithStateResponse detail(Long id, String language) {
         Entry entry = getById(id);
         EntryWithStateResponse response = entryMapStruct.toEntryWithStateResponse(entry);
@@ -296,6 +276,10 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Override
     @Transactional
     @DistributedLock("'i18n:entry:'+#id")
+    @Caching(evict = {
+            @CacheEvict(value = "i18n:entry:detail", key = "#id"),
+            @CacheEvict(value = "i18n:entry", key = "#id")
+    })
     public void remove(Long id, Long userId) {
         Entry entry = getById(id);
 
@@ -309,15 +293,16 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         updateById(entry);
 
         activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.DELETE.code, entry);
-
-        updateWordCount(entry.getModuleId());
-
-        // 更新数量
-        moduleCountService.updateCount(entry.getModuleId(), entry.getBranchId());
     }
 
     @Override
     public List<Entry> getByBranchId(Long branchId) {
         return baseMapper.findByBranchId(branchId);
+    }
+
+    @Override
+    @Cacheable(value = "i18n:entry", key = "#id")
+    public Entry findById(Long id) {
+        return getById(id);
     }
 }

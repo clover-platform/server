@@ -12,6 +12,7 @@ import org.springframework.web.servlet.HandlerMapping;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.entity.PathRequest;
+import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 
 import java.util.Map;
@@ -20,10 +21,16 @@ import java.util.Map;
 public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver {
     private final ModuleService moduleService;
     private final BranchService branchService;
+    private final EntryService entryService;
 
-    public PathInjectArgumentResolver(ModuleService moduleService, BranchService branchService) {
+    public PathInjectArgumentResolver(
+            ModuleService moduleService,
+            BranchService branchService,
+            EntryService entryService
+    ) {
         this.moduleService = moduleService;
         this.branchService = branchService;
+        this.entryService = entryService;
     }
 
     /**
@@ -62,11 +69,15 @@ public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver
         PathRequest pathRequest = new PathRequest();
         String moduleName = path.get("moduleName");
         String branchName = path.get("branchName");
+        String entryId = path.get("entryId");
         if(moduleName != null) {
             pathRequest.setModule(moduleService.findByIdentifier(moduleName));
         }
         if(branchName != null && !"-".equals(branchName)) {
             pathRequest.setBranch(branchService.findByName(pathRequest.getModule().getId(), branchName));
+        }
+        if(entryId != null) {
+            pathRequest.setEntry(entryService.findById(Long.parseLong(entryId)));
         }
         return pathRequest;
     }

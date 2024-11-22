@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface EntryService extends IService<Entry> {
 
-    int wordCount(Long moduleId);
+    // int wordCount(Long moduleId);
     PageResult<EntryWithStateResponse> query(PageQueryRequest page, EntryListRequest request);
     EntryCountResponse count(EntryCountRequest request);
     List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId);
@@ -36,5 +36,6 @@ public interface EntryService extends IService<Entry> {
     EntryWithStateResponse detail(Long id, String language);
     void remove(Long id, Long userId);
     List<Entry> getByBranchId(Long branchId);
+    Entry findById(Long id);
 
 }

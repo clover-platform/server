@@ -14,6 +14,7 @@ import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.common.annotation.PathInject;
+import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 
 import java.util.List;
@@ -57,6 +58,7 @@ public class BranchController {
         return branchService.list(page, request);
     }
 
+    @Recount
     @PostMapping("/create")
     @Operation(summary = "创建分支")
     public void create(
@@ -81,6 +83,7 @@ public class BranchController {
         branchService.rename(request);
     }
 
+    @Recount
     @DeleteMapping("/{id}")
     @Operation(summary = "删除")
     public void delete(
@@ -99,6 +102,7 @@ public class BranchController {
         return branchService.mergeOverview(id);
     }
 
+    @Recount
     @PutMapping("/{id}/merge")
     @Operation(summary = "合并")
     public void merge(

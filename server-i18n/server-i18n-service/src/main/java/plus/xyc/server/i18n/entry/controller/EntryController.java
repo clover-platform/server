@@ -77,6 +77,7 @@ public class EntryController {
         entryService.remove(id, user.getId());
     }
 
+    @Recount
     @PutMapping("/{entryId}")
     @Operation(summary = "更新词条")
     public void edit(
@@ -102,6 +103,8 @@ public class EntryController {
             @PathInject PathRequest pathRequest
     ) {
         request.setModuleId(pathRequest.getModule().getId());
+        if(pathRequest.getBranch() != null)
+            request.setBranchId(pathRequest.getBranch().getId());
         return entryService.query(page, request);
     }
 
