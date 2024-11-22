@@ -27,7 +27,7 @@ import plus.xyc.server.i18n.entry.service.EntryResultService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
-import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.language.service.LanguageService;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;

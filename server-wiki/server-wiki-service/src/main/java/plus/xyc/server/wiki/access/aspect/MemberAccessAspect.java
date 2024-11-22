@@ -27,9 +27,9 @@ public class MemberAccessAspect {
     private SessionService sessionService;
 
     @Pointcut("@annotation(plus.xyc.server.wiki.access.annotation.MemberAccess)")
-    public void accessPointcut() {}
+    public void pointcut() {}
 
-    @Before(value = "accessPointcut()")
+    @Before(value = "pointcut()")
     @SuppressWarnings("unchecked")
     public void doBefore(JoinPoint joinPoint) {
         RequestAttributes ra = RequestContextHolder.getRequestAttributes();

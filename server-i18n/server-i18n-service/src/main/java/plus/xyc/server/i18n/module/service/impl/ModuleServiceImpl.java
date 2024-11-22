@@ -16,7 +16,7 @@ import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.mapper.BranchMapper;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.entry.service.EntryService;
-import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.member.entity.response.MemberResponse;
 import plus.xyc.server.i18n.member.service.MemberService;
@@ -226,7 +226,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     }
 
     @Override
-    @Cacheable(value = "module", key = "#identifier")
+    @Cacheable(value = "i18n:module", key = "#identifier")
     public Module findByIdentifier(String identifier) {
         return baseMapper.findOneByIdentifier(identifier);
     }

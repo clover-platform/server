@@ -35,7 +35,7 @@ import plus.xyc.server.i18n.entry.service.EntryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
-import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
@@ -43,7 +43,6 @@ import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
 import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
-import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;

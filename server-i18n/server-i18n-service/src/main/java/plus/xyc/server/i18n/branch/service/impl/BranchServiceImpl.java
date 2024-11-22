@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
@@ -24,7 +25,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.service.EntryService;
-import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 
 import java.util.List;
 import java.util.Map;
@@ -209,5 +210,11 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
             update().set("deleted", true).eq("id", request.getId()).update();
         }
         log.info("end");
+    }
+
+    @Override
+    @Cacheable(value = "i18n:branch", key = "#moduleId + ':' + #name")
+    public Branch findByName(Long moduleId, String name) {
+        return baseMapper.findOneByModuleIdAndNameAndDeleted(moduleId, name, false);
     }
 }

@@ -102,5 +102,14 @@
         AND name = #{name,jdbcType=VARCHAR}
         and deleted = false
     </select>
+    <select id="findOneByModuleIdAndNameAndDeleted" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from branch
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+        AND name = #{name,jdbcType=VARCHAR}
+        AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
 
 </mapper>

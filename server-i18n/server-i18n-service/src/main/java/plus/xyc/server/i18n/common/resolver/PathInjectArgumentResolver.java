@@ -1,4 +1,4 @@
-package plus.xyc.server.i18n.module.resolver;
+package plus.xyc.server.i18n.common.resolver;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
@@ -9,18 +9,21 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
-import plus.xyc.server.i18n.module.annotation.ModuleInject;
-import plus.xyc.server.i18n.module.entity.dto.Module;
+import plus.xyc.server.i18n.branch.service.BranchService;
+import plus.xyc.server.i18n.common.annotation.PathInject;
+import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.module.service.ModuleService;
 
 import java.util.Map;
 
 @Slf4j
-public class ModuleInjectArgumentResolver implements HandlerMethodArgumentResolver {
+public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver {
     private final ModuleService moduleService;
+    private final BranchService branchService;
 
-    public ModuleInjectArgumentResolver(ModuleService moduleService) {
+    public PathInjectArgumentResolver(ModuleService moduleService, BranchService branchService) {
         this.moduleService = moduleService;
+        this.branchService = branchService;
     }
 
     /**
@@ -31,7 +34,7 @@ public class ModuleInjectArgumentResolver implements HandlerMethodArgumentResolv
      */
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
-        return methodParameter.hasParameterAnnotation(ModuleInject.class) && methodParameter.getParameterType().equals(Module.class);
+        return methodParameter.hasParameterAnnotation(PathInject.class) && methodParameter.getParameterType().equals(PathRequest.class);
     }
 
     /**
@@ -49,13 +52,22 @@ public class ModuleInjectArgumentResolver implements HandlerMethodArgumentResolv
             @NonNull NativeWebRequest nativeWebRequest,
             WebDataBinderFactory webDataBinderFactory
     ) {
-        ModuleInject moduleInject = methodParameter.getParameterAnnotation(ModuleInject.class);
-        log.info("ModuleInjectArgumentResolver moduleInject: {}", moduleInject);
-        if(moduleInject == null) return null;
+        PathInject pathInject = methodParameter.getParameterAnnotation(PathInject.class);
+        log.info("PathInjectArgumentResolver pathInject: {}", pathInject);
+        if(pathInject == null) return null;
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
         if(request == null) return null;
         Map<String, String> path = (Map<String, String>)request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-        log.info("ModuleInjectArgumentResolver uriTemplateVariables: {}", path);
-        return moduleService.findByIdentifier(path.get("module"));
+        log.info("PathInjectArgumentResolver uriTemplateVariables: {}", path);
+        PathRequest pathRequest = new PathRequest();
+        String moduleName = path.get("moduleName");
+        String branchName = path.get("branchName");
+        if(moduleName != null) {
+            pathRequest.setModule(moduleService.findByIdentifier(moduleName));
+        }
+        if(branchName != null && !"-".equals(branchName)) {
+            pathRequest.setBranch(branchService.findByName(pathRequest.getModule().getId(), branchName));
+        }
+        return pathRequest;
     }
 }

@@ -23,7 +23,7 @@ import plus.xyc.server.i18n.entry.service.EntryCommentService;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/{module}/entry/{entryId}/comment")
+@RequestMapping("/{moduleName}/entry/{entryId}/comment")
 public class EntryCommentController {
 
     @Resource
@@ -34,7 +34,7 @@ public class EntryCommentController {
     public PageResult<EntryCommentResponse> list(
             @ParameterObject @ModelAttribute PageQueryRequest page,
             @ParameterObject @ModelAttribute EntryCommentListRequest request,
-            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
     ) {
         request.setEntryId(entryId);
@@ -46,7 +46,7 @@ public class EntryCommentController {
     public void add(
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @RequestBody EntryCommentAddRequest request,
-            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
     ) {
         request.setEntryId(entryId);
@@ -59,7 +59,7 @@ public class EntryCommentController {
     public void delete(
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "评论ID") @PathVariable Long id,
-            @Parameter(description = "模块标识") @PathVariable("module") String identifier,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(description = "词条ID") @PathVariable("entryId") Long entryId
     ) {
         entryCommentService.delete(user.getId(), id);

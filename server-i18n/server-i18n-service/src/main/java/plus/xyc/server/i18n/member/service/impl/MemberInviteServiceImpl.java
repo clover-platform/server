@@ -13,7 +13,7 @@ import org.zkit.support.starter.boot.utils.MD5Utils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.configuration.InviteConfiguration;
-import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.member.entity.dto.Member;
 import plus.xyc.server.i18n.member.entity.dto.MemberInvite;
 import plus.xyc.server.i18n.member.entity.dto.MemberRole;

@@ -32,5 +32,6 @@ public interface BranchService extends IService<Branch> {
     BranchMergeOverviewResponse mergeOverview(Long id);
     BranchMergeEntriesResponse getMergeEntries(Long id);
     void merge(BranchMergeRequest request);
+    Branch findByName(Long moduleId, String name);
 
 }

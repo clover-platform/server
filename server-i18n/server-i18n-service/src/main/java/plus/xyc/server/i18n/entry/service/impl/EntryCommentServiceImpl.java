@@ -23,7 +23,7 @@ import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.service.EntryCommentService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import plus.xyc.server.i18n.enums.I18nCode;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;

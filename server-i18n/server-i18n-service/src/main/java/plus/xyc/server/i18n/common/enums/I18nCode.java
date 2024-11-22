@@ -1,4 +1,4 @@
-package plus.xyc.server.i18n.enums;
+package plus.xyc.server.i18n.common.enums;
 
 public enum I18nCode {
 
