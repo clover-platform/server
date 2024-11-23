@@ -17,7 +17,6 @@ import plus.xyc.server.i18n.member.service.MemberRoleService;
 import plus.xyc.server.i18n.member.service.MemberService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
@@ -39,8 +38,6 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     private MemberRoleService memberRoleService;
     @Resource
     private MemberMapStruct memberMapStruct;
-    @Resource
-    private ModuleAccessService moduleAccessService;
     @Resource
     private MainAccountRestApi mainAccountRestApi;
 
@@ -92,8 +89,6 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
 
     @Override
     public PageResult<MemberResponse> query(PageQueryRequest pageRequest, MemberListRequest request) {
-        if(!moduleAccessService.isMember(request.getModuleId(), request.getUserId()))
-            return PageResult.of(0, List.of());
         Page<Member> page = pageRequest.toPage();
         List<Member> members = baseMapper.query(page, request);
         if(members.isEmpty()) {

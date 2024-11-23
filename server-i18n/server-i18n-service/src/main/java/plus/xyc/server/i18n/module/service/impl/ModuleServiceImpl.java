@@ -29,7 +29,6 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
 import plus.xyc.server.i18n.module.entity.response.*;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
-import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -67,11 +66,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Resource
     private MainAccountRestApi mainAccountRestApi;
     @Resource
-    private EntryService entryService;
-    @Resource
     private BranchMapper branchMapper;
-    @Resource
-    private ModuleAccessService moduleAccessService;
 
     @Override
     public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
@@ -196,11 +191,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     @Override
     public void delete(Long id, Long userId) {
-        boolean checked = moduleAccessService.check(id, userId, List.of(MemberRoleType.OWNER.code));
-        if(!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
-        update().set("deleted", true).eq("id", id).update();
+        lambdaUpdate().set(Module::getDeleted, true).eq(Module::getId, id).update();
 
         activityService.module(id, ActivityOperate.DELETE.code, id);
     }
@@ -213,16 +204,11 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     @Override
     public void update(ModuleUpdateRequest request) {
-        boolean checked = moduleAccessService.check(request.getId(), request.getUserId(), List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code));
-        if(!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
-        update()
-                .set("name", request.getName())
-                .set("description", request.getDescription())
-                .set("update_time", new Date())
-                .set("update_user", request.getUserId())
-                .eq("id", request.getId())
+        lambdaUpdate().set(Module::getName, request.getName())
+                .set(Module::getDescription, request.getDescription())
+                .set(Module::getUpdateTime, new Date())
+                .set(Module::getUpdateUser, request.getUserId())
+                .eq(Module::getId, request.getId())
                 .update();
         activityService.module(request.getId(), ActivityOperate.UPDATE.code, getById(request.getId()));
     }

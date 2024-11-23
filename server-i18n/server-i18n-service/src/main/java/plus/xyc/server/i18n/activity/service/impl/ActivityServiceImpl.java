@@ -1,7 +1,6 @@
 package plus.xyc.server.i18n.activity.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
 import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.SessionHolder;
@@ -13,7 +12,6 @@ import plus.xyc.server.i18n.activity.mapper.ActivityMapper;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import plus.xyc.server.i18n.module.service.ModuleAccessService;
 
 import java.util.List;
 
@@ -27,9 +25,6 @@ import java.util.List;
  */
 @Service
 public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> implements ActivityService {
-
-    @Resource
-    private ModuleAccessService moduleAccessService;
 
     @Override
     public void module(Long id, Integer operate, Object origin) {
@@ -76,8 +71,6 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
 
     @Override
     public PageResult<Activity> query(PageQueryRequest pageRequest, ActivityListRequest request) {
-        if(!moduleAccessService.isMember(request.getModuleId(), request.getUserId()))
-            return PageResult.of(0, List.of());
         Page<Activity> page = pageRequest.toPage();
         List<Activity> modules = baseMapper.query(page, request);
         return PageResult.of(page.getTotal(), modules);

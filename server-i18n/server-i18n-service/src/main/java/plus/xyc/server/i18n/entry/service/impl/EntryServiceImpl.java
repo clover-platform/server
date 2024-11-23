@@ -44,8 +44,6 @@ import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
-import plus.xyc.server.i18n.module.service.ModuleAccessService;
-import plus.xyc.server.i18n.module.service.ModuleCountService;
 
 import java.util.*;
 
@@ -75,8 +73,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private EntryStateMapper entryStateMapper;
     @Resource
     private ModuleCountMapper moduleCountMapper;
-    @Resource
-    private ModuleAccessService moduleAccessService;
     @Resource
     private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
     @Resource
@@ -245,12 +241,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public void edit(EntryEditRequest request) {
         Entry entry = getById(request.getId());
 
-        if(request.getUserId().longValue() != entry.getCreateUserId().longValue()) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }else if(!moduleAccessService.check(entry.getModuleId(), request.getUserId(), List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code))){
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
-
         entry.setValue(request.getValue());
         entry.setUpdateUserId(request.getUserId());
         updateById(entry);
@@ -282,12 +272,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     })
     public void remove(Long id, Long userId) {
         Entry entry = getById(id);
-
-        if(userId.longValue() != entry.getCreateUserId().longValue()) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }else if(!moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code))){
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
 
         entry.setDeleted(true);
         updateById(entry);

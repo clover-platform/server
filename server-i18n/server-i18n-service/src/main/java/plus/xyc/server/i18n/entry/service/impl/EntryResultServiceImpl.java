@@ -3,6 +3,8 @@ package plus.xyc.server.i18n.entry.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.ai.api.entity.TranslatorRequest;
 import org.zkit.support.server.ai.api.rest.AIRestApi;
 import org.zkit.support.starter.boot.entity.Result;
@@ -30,8 +32,6 @@ import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.language.service.LanguageService;
-import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
-import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
@@ -53,8 +53,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     private EntryResultMapStruct mapStruct;
     @Resource
     private MainAccountRestApi mainAccountRestApi;
-    @Resource
-    private ModuleAccessService moduleAccessService;
     @Resource
     private ActivityService activityService;
     @Resource
@@ -114,10 +112,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @Transactional
     @DistributedLock("'i18n:entry:result:'+#request.entryId")
     public void saveResult(EntryResultSaveRequest request) {
-        boolean checked = moduleAccessService.check(request.getModuleId(), request.getUserId(), List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code, MemberRoleType.TRANSLATOR.code));
-        if (!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
         EntryResult origin = baseMapper.findOneByEntryIdAndLanguageAndContent(request.getEntryId(), request.getLanguage(), request.getContent());
         if (origin != null) {
             throw new ResultException(I18nCode.ENTRY_RESULT_EXIST.code, MessageUtils.get(I18nCode.ENTRY_RESULT_EXIST.key));
@@ -141,12 +135,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     public void delete(Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
         Entry entry = entryMapper.selectById(result.getEntryId());
-        if(result.getTranslatorId().longValue() != userId.longValue()) {
-            boolean checked = moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code));
-            if(!checked) {
-                throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-            }
-        }
         result.setDeleted(true);
         result.setUpdateTime(new Date());
         baseMapper.updateById(result);
@@ -160,20 +148,25 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @Override
     @Transactional
     @DistributedLock("'i18n:entry:result:'+#id")
-    public void approve(Long id, Long userId) {
+    @CacheEvict(value = "i18n:entry:detail", key = "#entryId")
+    public void approve(Long entryId, Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
         Entry entry = entryMapper.selectById(result.getEntryId());
-        boolean checked = moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code, MemberRoleType.CHECK.code));
-        if (!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
 
         // 不等于 id 的 设置 verified = false
-        update().set("verified", false).ne("id", result.getId()).eq("entry_id", result.getEntryId()).eq("language", result.getLanguage()).update();
+        lambdaUpdate().set(EntryResult::getVerified, false)
+                .ne(EntryResult::getId, result.getId())
+                .eq(EntryResult::getEntryId, result.getEntryId())
+                .eq(EntryResult::getLanguage, result.getLanguage())
+                .update();
 
         // 更新当前
         Date now = new Date();
-        update().set("checker_id", userId).set("verified", true).set("update_time", now).set("verified_time", now).eq("id", result.getId()).update();
+        lambdaUpdate().set(EntryResult::getCheckerId, userId)
+                .set(EntryResult::getVerified, true)
+                .set(EntryResult::getVerifiedTime, now)
+                .eq(EntryResult::getId, result.getId())
+                .update();
 
         entryStateService.approve(result.getEntryId(), result.getLanguage(), result.getId());
 
@@ -198,17 +191,17 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @Override
     @Transactional
     @DistributedLock("'i18n:entry:result:'+#id")
-    public void removeApproval(Long id, Long userId) {
+    @CacheEvict(value = "i18n:entry:detail", key = "#entryId")
+    public void removeApproval(Long entryId, Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
         Entry entry = entryMapper.selectById(result.getEntryId());
-        boolean checked = moduleAccessService.check(entry.getModuleId(), userId, List.of(MemberRoleType.OWNER.code, MemberRoleType.ADMIN.code, MemberRoleType.CHECK.code));
-        if (!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
 
-        update().set("verified", false).eq("id", result.getId()).update();
+        lambdaUpdate().set(EntryResult::getVerified, false).eq(EntryResult::getId, result.getId()).update();
 
-        entryStateService.removeApproval(result.getEntryId(), result.getLanguage(), result.getId());
+        List<Long> ids = List.of(result.getEntryId());
+        List<EntryResult> results = getLastResults(ids, result.getLanguage());
+        Long lastId = results.get(0).getId();
+        entryStateService.removeApproval(result.getEntryId(), result.getLanguage(), lastId);
 
         activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.REMOVE_APPROVAL.code, result);
     }

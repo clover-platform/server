@@ -29,7 +29,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
-import plus.xyc.server.i18n.module.service.ModuleAccessService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
 import plus.xyc.server.main.api.rest.MainRestApi;
@@ -49,8 +48,6 @@ import java.util.stream.Stream;
 @Slf4j
 public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, MemberInvite> implements MemberInviteService {
 
-    @Resource
-    private ModuleAccessService moduleAccessService;
     @Resource
     private ServerMailApi serverMailApi;
     @Resource
@@ -74,10 +71,6 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
     @Override
     public String generate(MemberInviteGenerateRequest request) {
         List<Integer> adminRoles = List.of(MemberRoleType.ADMIN.code, MemberRoleType.OWNER.code);
-        boolean checked = moduleAccessService.check(request.getModuleId(), request.getUserId(), adminRoles);
-        if(!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
         MemberInvite invite = new MemberInvite();
         invite.setToken(MD5Utils.text(UUID.randomUUID().toString()));
         invite.setModuleId(request.getModuleId());
@@ -107,11 +100,6 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
 
     @Override
     public void revoke(MemberInviteRevokeRequest request) {
-        List<Integer> adminRoles = List.of(MemberRoleType.ADMIN.code, MemberRoleType.OWNER.code);
-        boolean checked = moduleAccessService.check(request.getModuleId(), request.getUserId(), adminRoles);
-        if(!checked) {
-            throw new ResultException(I18nCode.ACCESS_ERROR.code, MessageUtils.get(I18nCode.ACCESS_ERROR.key));
-        }
         removeById(request.getId());
     }
 

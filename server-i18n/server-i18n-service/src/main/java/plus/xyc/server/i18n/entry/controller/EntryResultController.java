@@ -104,7 +104,7 @@ public class EntryResultController {
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
-        entryResultService.approve(id, user.getId());
+        entryResultService.approve(entryId, id, user.getId());
     }
 
     @Recount
@@ -118,7 +118,7 @@ public class EntryResultController {
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
-        entryResultService.removeApproval(id, user.getId());
+        entryResultService.removeApproval(entryId, id, user.getId());
     }
 
 }

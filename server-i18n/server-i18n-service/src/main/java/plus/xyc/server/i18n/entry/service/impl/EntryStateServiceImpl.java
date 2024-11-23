@@ -84,13 +84,20 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
     @DistributedLock(value = "'i18n:entry:state:'+#entryId")
     public void approve(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
-        update().set("verified", true).set("verification_time", new Date()).eq("id", state.getId()).update();
+        lambdaUpdate().set(EntryState::getVerified, true)
+                .set(EntryState::getVerificationTime, new Date())
+                .set(EntryState::getResultId, resultId)
+                .eq(EntryState::getId, state.getId())
+                .update();
     }
 
     @Override
     public void removeApproval(Long entryId, String language, Long resultId) {
         EntryState state = getByEntryIdAndLanguage(entryId, language);
-        update().set("verified", false).eq("id", state.getId()).update();
+        lambdaUpdate().set(EntryState::getVerified, false)
+                .set(EntryState::getResultId, resultId)
+                .eq(EntryState::getId, state.getId())
+                .update();
     }
 
 }
