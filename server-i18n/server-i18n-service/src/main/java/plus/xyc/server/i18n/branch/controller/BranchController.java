@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import plus.xyc.server.i18n.branch.entity.request.*;
@@ -51,7 +51,7 @@ public class BranchController {
     public PageResult<Branch> list(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @PathInject PathRequest pathRequest,
-            @ParameterObject @ModelAttribute PageQueryRequest page,
+            @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute BranchListRequest request
     ) {
         request.setModuleId(pathRequest.getModule().getId());

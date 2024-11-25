@@ -1,10 +1,10 @@
 package plus.xyc.server.i18n.member.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.zkit.support.starter.boot.entity.Result;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.member.entity.dto.Member;
 import plus.xyc.server.i18n.member.entity.dto.MemberRole;
@@ -88,44 +88,45 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     }
 
     @Override
-    public PageResult<MemberResponse> query(PageQueryRequest pageRequest, MemberListRequest request) {
-        Page<Member> page = pageRequest.toPage();
-        List<Member> members = baseMapper.query(page, request);
-        if(members.isEmpty()) {
-            return PageResult.of(0, List.of());
+    public PageResult<MemberResponse> query(PageRequest pageRequest, MemberListRequest request) {
+        try(Page<Member> page = pageRequest.start()) {
+            List<Member> members = baseMapper.query(request);
+            if(members.isEmpty()) {
+                return PageResult.of(0, List.of());
+            }
+
+            List<Long> memberIds = members.stream().map(Member::getId).toList();
+            List<MemberRole> roles = memberRoleService.findByMemberIds(memberIds);
+
+            List<Long> accountIds = members.stream().map(Member::getAccountId).toList();
+            ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+            apiRequest.setIds(accountIds);
+            apiRequest.setSize(accountIds.size());
+            apiRequest.setPage(1);
+            apiRequest.setKeyword(pageRequest.getKeyword());
+            Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(apiRequest);
+
+            if(!result.isSuccess())
+                return PageResult.of(0, List.of());
+
+            List<MemberResponse> responses = result.getData().getData().stream().map(account -> {
+                Member member = members.stream()
+                        .filter(m -> m.getAccountId().equals(account.getId()))
+                        .findFirst()
+                        .orElse(null);
+                if(member == null)
+                    return null;
+                MemberResponse response = memberMapStruct.toMemberResponse(member);
+                List<Integer> memberRoles = roles.stream()
+                        .filter(role -> role.getMemberId().equals(member.getId()))
+                        .map(MemberRole::getRole)
+                        .toList();
+                response.setRoles(memberRoles);
+                response.setUser(account);
+                return response;
+            }).toList();
+
+            return PageResult.of(page.getTotal(), responses);
         }
-
-        List<Long> memberIds = members.stream().map(Member::getId).toList();
-        List<MemberRole> roles = memberRoleService.findByMemberIds(memberIds);
-
-        List<Long> accountIds = members.stream().map(Member::getAccountId).toList();
-        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
-        apiRequest.setIds(accountIds);
-        apiRequest.setSize(accountIds.size());
-        apiRequest.setPage(1);
-        apiRequest.setKeyword(pageRequest.getKeyword());
-        Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(apiRequest);
-
-        if(!result.isSuccess())
-            return PageResult.of(0, List.of());
-
-        List<MemberResponse> responses = result.getData().getData().stream().map(account -> {
-            Member member = members.stream()
-                    .filter(m -> m.getAccountId().equals(account.getId()))
-                    .findFirst()
-                    .orElse(null);
-            if(member == null)
-                return null;
-            MemberResponse response = memberMapStruct.toMemberResponse(member);
-            List<Integer> memberRoles = roles.stream()
-                    .filter(role -> role.getMemberId().equals(member.getId()))
-                    .map(MemberRole::getRole)
-                    .toList();
-            response.setRoles(memberRoles);
-            response.setUser(account);
-            return response;
-        }).toList();
-
-        return PageResult.of(responses.size(), responses);
     }
 }

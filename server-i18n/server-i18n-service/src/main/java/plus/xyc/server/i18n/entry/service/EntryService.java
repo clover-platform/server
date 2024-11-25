@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.entry.service;
 
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -25,7 +25,7 @@ import java.util.List;
 public interface EntryService extends IService<Entry> {
 
     // int wordCount(Long moduleId);
-    PageResult<EntryWithStateResponse> query(PageQueryRequest page, EntryListRequest request);
+    PageResult<EntryWithStateResponse> query(PageRequest page, EntryListRequest request);
     EntryCountResponse count(EntryCountRequest request);
     List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId);
     void cloneEntriesBySourceId(Long sourceId, Long targetId);

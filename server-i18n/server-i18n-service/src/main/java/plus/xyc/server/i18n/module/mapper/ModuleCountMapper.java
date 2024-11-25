@@ -1,4 +1,5 @@
 package plus.xyc.server.i18n.module.mapper;
+import java.util.Collection;
 
 import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
@@ -20,5 +21,6 @@ public interface ModuleCountMapper extends BaseMapper<ModuleCount> {
     List<ModuleCount> findByCountRequest(@Param("request")EntryCountRequest request);
     ModuleCount findOneByModuleIdAndBranchIdAndCode(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("code") String code);
     List<ModuleCount> findByModuleId(@Param("moduleId") Long moduleId);
+    List<ModuleCount> findByModuleIdIn(@Param("moduleIdList") Collection<Long> moduleIdList);
 
 }

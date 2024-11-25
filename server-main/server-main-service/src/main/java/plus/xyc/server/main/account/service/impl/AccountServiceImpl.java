@@ -2,7 +2,8 @@ package plus.xyc.server.main.account.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -170,9 +171,10 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public PageResult<ApiAccountResponse> query(ApiAccountListRequest request) {
         if(request.getIds() == null || request.getIds().isEmpty())
             return PageResult.of(0, List.of());
-        Page<Account> p = new Page<>(request.getPage(), request.getSize());
-        List<Account> accounts = baseMapper.query(p, request);
-        return PageResult.of(p.getTotal(), accounts.stream().map(accountMapStruct::toApiAccountResponse).toList());
+        try(Page<Account> page = PageHelper.startPage(request.getPage(), request.getSize())) {
+            List<Account> accounts = baseMapper.query(request);
+            return PageResult.of(page.getTotal(), accounts.stream().map(accountMapStruct::toApiAccountResponse).toList());
+        }
     }
 
     public void sendResetEmail(String email) {

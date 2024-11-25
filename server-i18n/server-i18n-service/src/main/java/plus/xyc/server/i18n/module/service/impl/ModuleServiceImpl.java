@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.module.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -8,14 +8,13 @@ import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.mapper.BranchMapper;
 import plus.xyc.server.i18n.branch.service.BranchService;
-import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.member.entity.response.MemberResponse;
@@ -29,6 +28,7 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
 import plus.xyc.server.i18n.module.entity.response.*;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
+import plus.xyc.server.i18n.module.service.ModuleCountService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -67,22 +67,25 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private MainAccountRestApi mainAccountRestApi;
     @Resource
     private BranchMapper branchMapper;
+    @Resource
+    private ModuleCountService moduleCountService;
 
     @Override
-    public PageResult<ModuleResponse> query(PageQueryRequest pageRequest, ModuleQueryRequest query) {
-        Page<Module> page = pageRequest.toPage();
-        List<Module> modules = baseMapper.query(page, pageRequest.getKeyword(), query);
-        return PageResult.of(page.getTotal(), wrapResponse(modules));
+    public PageResult<ModuleResponse> query(PageRequest pageRequest, ModuleQueryRequest query) {
+        try(Page<Module> page = pageRequest.start()) {
+            baseMapper.query(pageRequest.getKeyword(), query);
+            return PageResult.of(page.getTotal(), wrapResponse(page.getResult()));
+        }
     }
 
     public List<ModuleResponse> wrapResponse(List<Module> modules) {
         List<Long> moduleIds = modules.stream().map(Module::getId).toList();
         List<SizeResponse> memberSizes = memberSizes(moduleIds);
         List<SizeResponse> targetSizes = targetSizes(moduleIds);
+        List<ModuleCountResponse> counts = moduleCountService.getCounts(moduleIds);
         return modules.stream().map(module -> {
             ModuleResponse response = moduleMapStruct.toModuleResponse(module);
-            // TODO setWordSize
-            // response.setWordSize(entryService.wordCount(module.getId()));
+            response.setWordSize(counts.stream().filter(count -> count.getModuleId().equals(module.getId())).findFirst().map(ModuleCountResponse::getWordCount).orElse(0L));
             response.setMemberSize(memberSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             response.setTargetSize(targetSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             return response;
@@ -163,8 +166,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         response.setLanguages(languages);
         ModuleCountResponse countResponse = new ModuleCountResponse();
         countResponse.setTargetCount(targetSizes.stream().findFirst().map(SizeResponse::getSize).orElse(0));
-        // TODO setWordCount
-        // countResponse.setWordCount(entryService.wordCount(id));
+        List<ModuleCountResponse> counts = moduleCountService.getCounts(List.of(id));
+        countResponse.setWordCount(counts.stream().findFirst().map(ModuleCountResponse::getWordCount).orElse(0L));
         countResponse.setBranchCount(branchMapper.countByModuleId(id));
         countResponse.setMemberCount(members.size());
         response.setCount(countResponse);

@@ -18,6 +18,6 @@ import java.util.List;
  */
 public interface ActivityMapper extends BaseMapper<Activity> {
 
-    List<Activity> query(IPage<Activity> page, @Param("request")ActivityListRequest request);
+    List<Activity> query(@Param("request")ActivityListRequest request);
 
 }

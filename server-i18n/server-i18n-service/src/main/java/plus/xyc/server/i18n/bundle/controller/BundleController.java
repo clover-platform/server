@@ -1,7 +1,19 @@
 package plus.xyc.server.i18n.bundle.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.web.bind.annotation.*;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
+import org.zkit.support.starter.mybatis.entity.PageResult;
+import plus.xyc.server.i18n.bundle.entity.dto.Bundle;
+import plus.xyc.server.i18n.bundle.entity.request.BundleQueryRequest;
+import plus.xyc.server.i18n.bundle.service.BundleService;
+import plus.xyc.server.i18n.common.annotation.PathInject;
+import plus.xyc.server.i18n.common.entity.PathRequest;
+import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 
 /**
  * <p>
@@ -12,7 +24,23 @@ import org.springframework.web.bind.annotation.RestController;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/bundle/bundle")
+@RequestMapping("/{moduleName}/bundle")
+@Tag(name = "bundle", description = "下载包")
 public class BundleController {
+
+    @Resource
+    private BundleService bundleService;
+
+    @GetMapping("/list")
+    @Operation(summary = "查询词条")
+    public PageResult<Bundle> list(
+            @ParameterObject @ModelAttribute PageRequest page,
+            @ParameterObject @ModelAttribute BundleQueryRequest request,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @PathInject PathRequest pathRequest
+    ) {
+        request.setModuleId(pathRequest.getModule().getId());
+        return bundleService.query(page, request);
+    }
 
 }

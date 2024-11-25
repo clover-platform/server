@@ -53,4 +53,19 @@
         and b.deleted = false
     </select>
 
+    <select id="findByModuleIdIn" resultMap="BaseResultMap">
+        select
+            mc.*
+        from
+            module_count as mc,
+            branch as b
+        where
+            mc.branch_id = b.id
+            and mc.module_id in
+            <foreach collection="moduleIdList" item="item" open="(" close=")" separator=",">
+                #{item,jdbcType=NUMERIC}
+            </foreach>
+            and b.deleted = 0
+    </select>
+
 </mapper>

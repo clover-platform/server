@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.entry.service;
 
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryComment;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -18,7 +18,7 @@ import plus.xyc.server.i18n.entry.entity.response.EntryCommentResponse;
  */
 public interface EntryCommentService extends IService<EntryComment> {
 
-    PageResult<EntryCommentResponse> query(PageQueryRequest page, EntryCommentListRequest request);
+    PageResult<EntryCommentResponse> query(PageRequest page, EntryCommentListRequest request);
     void add(EntryCommentAddRequest request);
     EntryComment getLatestComment(Long entryId, Long createUserId, String language);
     void delete(Long userId, Long id);

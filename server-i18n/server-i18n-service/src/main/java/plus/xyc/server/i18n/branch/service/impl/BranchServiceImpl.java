@@ -1,13 +1,13 @@
 package plus.xyc.server.i18n.branch.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
@@ -70,10 +70,11 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
     }
 
     @Override
-    public PageResult<Branch> list(PageQueryRequest page, BranchListRequest request) {
-        Page<Branch> p = page.toPage();
-        List<Branch> all = baseMapper.list(p, request);
-        return PageResult.of(p.getTotal(), all);
+    public PageResult<Branch> list(PageRequest pr, BranchListRequest request) {
+        try(Page<Branch> page = pr.start()) {
+            baseMapper.list(request);
+            return PageResult.of(page);
+        }
     }
 
     @Override

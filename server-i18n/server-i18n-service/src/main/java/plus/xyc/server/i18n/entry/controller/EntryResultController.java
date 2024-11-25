@@ -2,10 +2,11 @@ package plus.xyc.server.i18n.entry.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/{moduleName}/branch/{branchName}/entry/{entryId}/result")
+@Tag(name = "entryResult", description = "词条翻译结果")
 public class EntryResultController {
 
     @Resource
@@ -76,13 +78,13 @@ public class EntryResultController {
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
-        entryResultService.delete(id, user.getId());
+        entryResultService.delete(entryId, id, user.getId());
     }
 
     @GetMapping("/list")
     @Operation(summary = "查询翻译结果")
     public PageResult<EntryResultResponse> list(
-            @ParameterObject @ModelAttribute PageQueryRequest page,
+            @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute EntryResultListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(description = "分支ID") @PathVariable String branchName,

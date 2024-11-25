@@ -1,12 +1,12 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
@@ -52,26 +52,27 @@ public class EntryCommentServiceImpl extends ServiceImpl<EntryCommentMapper, Ent
     private ActivityService activityService;
 
     @Override
-    public PageResult<EntryCommentResponse> query(PageQueryRequest page, EntryCommentListRequest request) {
-        Page<EntryComment> pageResult = page.toPage();
-        List<EntryComment> list = baseMapper.query(pageResult, request);
+    public PageResult<EntryCommentResponse> query(PageRequest page, EntryCommentListRequest request) {
+        try(Page<EntryComment> pageResult = page.start()) {
+            List<EntryComment> list = baseMapper.query(request);
 
-        List<Long> userIds = list.stream().map(EntryComment::getCreateUserId).filter(Objects::nonNull).toList();
+            List<Long> userIds = list.stream().map(EntryComment::getCreateUserId).filter(Objects::nonNull).toList();
 
-        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
-        apiRequest.setSize(userIds.size());
-        apiRequest.setIds(userIds);
-        Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
-        if(!r.isSuccess()) {
-            throw ResultException.internal();
+            ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+            apiRequest.setSize(userIds.size());
+            apiRequest.setIds(userIds);
+            Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
+            if(!r.isSuccess()) {
+                throw ResultException.internal();
+            }
+            List<EntryCommentResponse> responses = list.stream().map(entryComment -> {
+                EntryCommentResponse response = mapStruct.toEntryCommentResponse(entryComment);
+                response.setUser(r.getData().getData().stream().filter(apiAccountResponse -> apiAccountResponse.getId().equals(entryComment.getCreateUserId())).findFirst().orElse(null));
+                return response;
+            }).toList();
+
+            return PageResult.of(pageResult.getTotal(), responses);
         }
-        List<EntryCommentResponse> responses = list.stream().map(entryComment -> {
-            EntryCommentResponse response = mapStruct.toEntryCommentResponse(entryComment);
-            response.setUser(r.getData().getData().stream().filter(apiAccountResponse -> apiAccountResponse.getId().equals(entryComment.getCreateUserId())).findFirst().orElse(null));
-            return response;
-        }).toList();
-
-        return PageResult.of(pageResult.getTotal(), responses);
     }
 
     @Override

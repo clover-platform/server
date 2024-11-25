@@ -22,6 +22,6 @@ public interface MemberMapper extends BaseMapper<Member> {
 
     List<Member> findByModuleId(@Param("moduleId") Long moduleId);
     int countByModuleIdAndAccountId(@Param("moduleId") Long moduleId, @Param("accountId") Long accountId);
-    List<Member> query(IPage<Member> page, @Param("request") MemberListRequest request);
+    List<Member> query(@Param("request") MemberListRequest request);
 
 }

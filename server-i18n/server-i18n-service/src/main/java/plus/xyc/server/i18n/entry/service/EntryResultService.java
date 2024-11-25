@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.entry.service;
 
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -23,9 +23,9 @@ public interface EntryResultService extends IService<EntryResult> {
 
     List<EntryResult> getLastResults(List<Long> ids, String language);
     List<EntryResult> getResults(List<Long> ids, String language);
-    PageResult<EntryResultResponse> query(PageQueryRequest page, EntryResultListRequest request);
+    PageResult<EntryResultResponse> query(PageRequest page, EntryResultListRequest request);
     void saveResult(EntryResultSaveRequest request);
-    void delete(Long id, Long userId);
+    void delete(Long entryId, Long id, Long userId);
     void approve(Long entryId, Long id, Long userId);
     void removeApproval(Long entryId, Long id, Long userId);
     List<String> ai(EntryAIResultRequest request);

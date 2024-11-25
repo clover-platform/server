@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -96,7 +96,7 @@ public class EntryController {
     @GetMapping("/list")
     @Operation(summary = "查询词条")
     public PageResult<EntryWithStateResponse> list(
-            @ParameterObject @ModelAttribute PageQueryRequest page,
+            @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute EntryListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(description = "分支ID") @PathVariable String branchName,

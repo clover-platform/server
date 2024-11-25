@@ -7,7 +7,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -48,7 +48,7 @@ public class ModuleController {
     @GetMapping("/list")
     @Operation(summary = "列表")
     public PageResult<ModuleResponse> list(
-            @ParameterObject @ModelAttribute PageQueryRequest page,
+            @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute ModuleQueryRequest query,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {

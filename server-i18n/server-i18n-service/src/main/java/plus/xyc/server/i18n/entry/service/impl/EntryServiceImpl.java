@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +8,9 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
@@ -39,7 +38,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
-import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
@@ -79,28 +77,29 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private EntryStateService entryStateService;
 
     @Override
-    public PageResult<EntryWithStateResponse> query(PageQueryRequest query, EntryListRequest request) {
-        Page<Entry> page = query.toPage();
-        List<Entry> all = baseMapper.query(page, query.getKeyword(), request);
-        if(all.isEmpty()) {
-            return PageResult.of(page.getTotal(), List.of());
-        }
-        List<Long> entryIds = all.stream().map(Entry::getId).toList();
-        List<EntryState> states = entryStateMapper.findByEntryIdInAndLanguage(entryIds, request.getLanguage());
-        List<Long> resultIds = states.stream().map(EntryState::getResultId).toList();
-        List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
-        List<EntryWithStateResponse> list = all.stream().map(item -> {
-            EntryState state = states.stream().filter(entryState -> entryState.getEntryId().equals(item.getId())).findFirst().orElse(null);
-            EntryWithStateResponse response = entryMapStruct.toEntryWithStateResponse(item);
-            response.setTranslated(state != null && state.getTranslated());
-            response.setVerified(state != null && state.getVerified());
-            if(state != null && response.getTranslated()) {
-                EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(state.getResultId())).findFirst().orElse(null);
-                response.setTranslation(result);
+    public PageResult<EntryWithStateResponse> query(PageRequest query, EntryListRequest request) {
+        try(Page<EntryWithStateResponse> page = query.start()) {
+            List<Entry> all = baseMapper.query(query.getKeyword(), request);
+            if(all.isEmpty()) {
+                return PageResult.of(0, List.of());
             }
-            return response;
-        }).toList();
-        return PageResult.of(page.getTotal(), list);
+            List<Long> entryIds = all.stream().map(Entry::getId).toList();
+            List<EntryState> states = entryStateMapper.findByEntryIdInAndLanguage(entryIds, request.getLanguage());
+            List<Long> resultIds = states.stream().map(EntryState::getResultId).toList();
+            List<EntryResult> results = entryResultService.getResults(resultIds, request.getLanguage());
+            List<EntryWithStateResponse> list = all.stream().map(item -> {
+                EntryState state = states.stream().filter(entryState -> entryState.getEntryId().equals(item.getId())).findFirst().orElse(null);
+                EntryWithStateResponse response = entryMapStruct.toEntryWithStateResponse(item);
+                response.setTranslated(state != null && state.getTranslated());
+                response.setVerified(state != null && state.getVerified());
+                if(state != null && response.getTranslated()) {
+                    EntryResult result = results.stream().filter(entryResult -> entryResult.getId().equals(state.getResultId())).findFirst().orElse(null);
+                    response.setTranslation(result);
+                }
+                return response;
+            }).toList();
+            return PageResult.of(page.getTotal(), list);
+        }
     }
 
     @Override

@@ -2,6 +2,9 @@ package plus.xyc.server.i18n.module.service;
 
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import com.baomidou.mybatisplus.extension.service.IService;
+import plus.xyc.server.i18n.module.entity.response.ModuleCountResponse;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,5 +19,6 @@ public interface ModuleCountService extends IService<ModuleCount> {
     void updateCount(Long id);
     void updateCount(Long id, Long branchId);
     void updateCount(Long id, Long branchId, String language);
+    List<ModuleCountResponse> getCounts(List<Long> moduleIds);
 
 }

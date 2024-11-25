@@ -1,7 +1,7 @@
 package plus.xyc.server.i18n.activity.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import com.github.pagehelper.Page;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.SessionHolder;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -70,9 +70,10 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     @Override
-    public PageResult<Activity> query(PageQueryRequest pageRequest, ActivityListRequest request) {
-        Page<Activity> page = pageRequest.toPage();
-        List<Activity> modules = baseMapper.query(page, request);
-        return PageResult.of(page.getTotal(), modules);
+    public PageResult<Activity> query(PageRequest pageRequest, ActivityListRequest request) {
+        try(Page<Activity> page = pageRequest.start()) {
+            baseMapper.query(request);
+            return PageResult.of(page);
+        }
     }
 }

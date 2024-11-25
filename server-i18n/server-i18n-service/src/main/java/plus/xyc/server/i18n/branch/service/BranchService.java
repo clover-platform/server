@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.branch.service;
 
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -23,7 +23,7 @@ public interface BranchService extends IService<Branch> {
 
     void createDefault(Long moduleId);
     List<BranchResponse> all(BranchAllRequest request);
-    PageResult<Branch> list(PageQueryRequest page, BranchListRequest request);
+    PageResult<Branch> list(PageRequest page, BranchListRequest request);
     void create(BranchCreateRequest request);
     Branch getDefault(Long moduleId);
     List<Branch> getByNames(Long moduleId, List<String> names);

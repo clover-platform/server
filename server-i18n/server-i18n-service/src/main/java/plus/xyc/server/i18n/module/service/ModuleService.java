@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.module.service;
 
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface ModuleService extends IService<Module> {
 
-    PageResult<ModuleResponse> query(PageQueryRequest page, ModuleQueryRequest query);
+    PageResult<ModuleResponse> query(PageRequest page, ModuleQueryRequest query);
     void create(ModuleCreateRequest request);
     ModuleDashboardResponse dashboard(Long id);
     List<ModuleLanguageResponse>  languages(Long id);

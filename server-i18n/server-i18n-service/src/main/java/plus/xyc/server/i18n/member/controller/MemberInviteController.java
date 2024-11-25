@@ -2,6 +2,7 @@ package plus.xyc.server.i18n.member.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -27,6 +28,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/member/invite")
+@Tag(name = "memberInvite", description = "成员邀请")
 @Slf4j
 public class MemberInviteController {
 

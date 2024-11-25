@@ -7,7 +7,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -49,7 +49,7 @@ public class BookController {
     @Operation(summary = "创建")
     public PageResult<BookResponse> list(
             @ParameterObject @ModelAttribute BookListRequest request,
-            @ParameterObject @ModelAttribute PageQueryRequest page,
+            @ParameterObject @ModelAttribute PageRequest page,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         request.setKeyword(page.getKeyword());

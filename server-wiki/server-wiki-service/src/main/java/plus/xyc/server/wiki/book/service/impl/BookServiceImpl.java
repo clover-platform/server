@@ -1,7 +1,7 @@
 package plus.xyc.server.wiki.book.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
@@ -81,11 +81,12 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
     }
 
     @Override
-    public PageResult<BookResponse> query(PageQueryRequest pr, BookListRequest request) {
-        log.info("page: {}, request: {}", pr, request);
-        Page<Book> page = pr.toPage();
-        List<Book> books = baseMapper.query(page, request);
-        return PageResult.of(page.getTotal(), books.stream().map(struct::toResponse).toList());
+    public PageResult<BookResponse> query(PageRequest pr, BookListRequest request) {
+        try(Page<Book> page = pr.start()) {
+            log.info("page: {}, request: {}", pr, request);
+            List<Book> books = baseMapper.query(request);
+            return PageResult.of(page.getTotal(), books.stream().map(struct::toResponse).toList());
+        }
     }
 
     @Override

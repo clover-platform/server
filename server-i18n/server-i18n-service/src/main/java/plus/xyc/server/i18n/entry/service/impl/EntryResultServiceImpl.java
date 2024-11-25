@@ -1,16 +1,15 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.ai.api.entity.TranslatorRequest;
 import org.zkit.support.server.ai.api.rest.AIRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import org.zkit.support.starter.mybatis.entity.PageQueryRequest;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
@@ -81,36 +80,38 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     }
 
     @Override
-    public PageResult<EntryResultResponse> query(PageQueryRequest page, EntryResultListRequest request) {
-        Page<EntryResult> pageResult = page.toPage();
-        List<EntryResult> list = baseMapper.query(pageResult, request);
+    public PageResult<EntryResultResponse> query(PageRequest page, EntryResultListRequest request) {
+        try(Page<EntryResult> pageResult = page.start()) {
+            List<EntryResult> list = baseMapper.query(request);
 
-        List<Long> translatorIds = list.stream().map(EntryResult::getTranslatorId).filter(Objects::nonNull).toList();
-        List<Long> verifierIds = list.stream().map(EntryResult::getCheckerId).filter(Objects::nonNull).toList();
-        Set<Long> ids = new HashSet<>(translatorIds);
-        ids.addAll(verifierIds);
-        List<Long> uniqueIds = new ArrayList<>(ids);
+            List<Long> translatorIds = list.stream().map(EntryResult::getTranslatorId).filter(Objects::nonNull).toList();
+            List<Long> verifierIds = list.stream().map(EntryResult::getCheckerId).filter(Objects::nonNull).toList();
+            Set<Long> ids = new HashSet<>(translatorIds);
+            ids.addAll(verifierIds);
+            List<Long> uniqueIds = new ArrayList<>(ids);
 
-        ApiAccountListRequest apiRequest = new ApiAccountListRequest();
-        apiRequest.setIds(uniqueIds);
-        apiRequest.setSize(uniqueIds.size());
-        Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
-        if(!r.isSuccess()) {
-            throw ResultException.internal();
+            ApiAccountListRequest apiRequest = new ApiAccountListRequest();
+            apiRequest.setIds(uniqueIds);
+            apiRequest.setSize(uniqueIds.size());
+            Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
+            if(!r.isSuccess()) {
+                throw ResultException.internal();
+            }
+
+            List<EntryResultResponse> responses = list.stream().map(result -> {
+                EntryResultResponse response = mapStruct.toEntryResultResponse(result);
+                response.setTranslator(r.getData().getData().stream().filter(user -> user.getId().equals(result.getTranslatorId())).findFirst().orElse(null));
+                response.setVerifier(r.getData().getData().stream().filter(user -> user.getId().equals(result.getCheckerId())).findFirst().orElse(null));
+                return response;
+            }).toList();
+            return PageResult.of(pageResult.getTotal(), responses);
         }
-
-        List<EntryResultResponse> responses = list.stream().map(result -> {
-            EntryResultResponse response = mapStruct.toEntryResultResponse(result);
-            response.setTranslator(r.getData().getData().stream().filter(user -> user.getId().equals(result.getTranslatorId())).findFirst().orElse(null));
-            response.setVerifier(r.getData().getData().stream().filter(user -> user.getId().equals(result.getCheckerId())).findFirst().orElse(null));
-            return response;
-        }).toList();
-        return PageResult.of(pageResult.getTotal(), responses);
     }
 
     @Override
     @Transactional
     @DistributedLock("'i18n:entry:result:'+#request.entryId")
+    @CacheEvict(value = "i18n:entry:detail", key = "#request.entryId")
     public void saveResult(EntryResultSaveRequest request) {
         EntryResult origin = baseMapper.findOneByEntryIdAndLanguageAndContent(request.getEntryId(), request.getLanguage(), request.getContent());
         if (origin != null) {
@@ -132,7 +133,8 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @Override
     @Transactional
     @DistributedLock("'i18n:entry:result:'+#id")
-    public void delete(Long id, Long userId) {
+    @CacheEvict(value = "i18n:entry:detail", key = "#entryId")
+    public void delete(Long entryId, Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
         Entry entry = entryMapper.selectById(result.getEntryId());
         result.setDeleted(true);

@@ -13,6 +13,7 @@ import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
+import plus.xyc.server.i18n.module.entity.response.ModuleCountResponse;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
@@ -100,4 +101,14 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
         baseMapper.update(count, wrapper);
     }
 
+    @Override
+    public List<ModuleCountResponse> getCounts(List<Long> moduleIds) {
+        List<ModuleCount> counts = baseMapper.findByModuleIdIn(moduleIds);
+        return moduleIds.stream().map(id -> {
+            ModuleCountResponse response = new ModuleCountResponse();
+            response.setModuleId(id);
+            response.setWordCount(counts.stream().filter(count -> count.getModuleId().equals(id)).mapToLong(ModuleCount::getTotalEntry).sum());
+            return response;
+        }).toList();
+    }
 }
