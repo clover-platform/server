@@ -16,7 +16,9 @@ public enum I18nCode {
     BRANCH_EXISTED(5001, "branch.existed"),
 
     MEMBER_INVITE_EXPIRED(10033, "member.invite.expired"),
-    MEMBER_JOINED(10032, "member.invite.joined");
+    MEMBER_JOINED(10032, "member.invite.joined"),
+
+    BUNDLE_EXISTED(6001, "bundle.existed");
 
     public final int code;
     public final String key;

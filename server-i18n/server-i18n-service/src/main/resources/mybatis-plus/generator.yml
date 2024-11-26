@@ -13,6 +13,7 @@ actives:
   - language
   - member
   - module
+  - test
 # 模块配置
 modules:
   - name: activity

@@ -11,13 +11,28 @@
         <result column="name" property="name" />
         <result column="format" property="format" />
         <result column="include_source" property="includeSource" />
-        <result column="format_config" property="formatConfig" />
-        <result column="sources" property="sources" />
+        <result column="format_config" property="formatConfig" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
+        <result column="sources" property="sources" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, module_id, user_id, create_time, name, format, include_source, format_config, sources
     </sql>
+
+    <select id="countByModuleIdAndName" resultType="int">
+        select count(*)
+        from bundle
+        where module_id = #{moduleId,jdbcType=NUMERIC}
+          AND name = #{name,jdbcType=VARCHAR}
+    </select>
+
+    <select id="findByModuleId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bundle
+        where
+        module_id = #{moduleId,jdbcType=NUMERIC}
+    </select>
 
 </mapper>
