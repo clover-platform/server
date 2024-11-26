@@ -106,6 +106,9 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
     @Override
     public MemberInviteDetailResponse detail(Long userId, String token) {
         MemberInvite invite = baseMapper.findOneByToken(token);
+        if(invite == null) {
+            throw new ResultException(I18nCode.MEMBER_INVITE_EXPIRED.code, MessageUtils.get(I18nCode.MEMBER_INVITE_EXPIRED.key));
+        }
         Long time = configuration.getExpireAt();
         if(System.currentTimeMillis() - invite.getCreateTime().getTime() >= time * 1000) {
             throw new ResultException(I18nCode.MEMBER_INVITE_EXPIRED.code, MessageUtils.get(I18nCode.MEMBER_INVITE_EXPIRED.key));
@@ -114,7 +117,8 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         List<Long> memberIds = members.stream().map(Member::getAccountId).toList();
         if(memberIds.contains(userId)) {
             ResultException exception = new ResultException(I18nCode.MEMBER_JOINED.code, MessageUtils.get(I18nCode.MEMBER_JOINED.key));
-            exception.setData(invite.getModuleId());
+            Module module = moduleService.getById(invite.getModuleId());
+            exception.setData(module.getIdentifier());
             throw exception;
         }
         ModuleDashboardResponse result = moduleService.dashboard(invite.getModuleId());
@@ -127,7 +131,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
     @Override
     @Transactional
     @DistributedLock("'module:member:accept:'+#request.token")
-    public Long accept(MemberInviteAcceptRequest request) {
+    public String accept(MemberInviteAcceptRequest request) {
         MemberInvite invite = baseMapper.findOneByToken(request.getToken());
         Module module = moduleService.getById(invite.getModuleId());
         int size = memberMapper.countByModuleIdAndAccountId(invite.getModuleId(), request.getId());
@@ -153,6 +157,6 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
             memberRole.setRole(role);
             memberRoleMapper.insert(memberRole);
         });
-        return module.getId();
+        return module.getIdentifier();
     }
 }

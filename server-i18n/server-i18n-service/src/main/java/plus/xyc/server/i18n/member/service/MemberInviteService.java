@@ -22,6 +22,6 @@ public interface MemberInviteService extends IService<MemberInvite> {
     void send(MemberInviteSendRequest request);
     void revoke(MemberInviteRevokeRequest request);
     MemberInviteDetailResponse detail(Long userId, String token);
-    Long accept(MemberInviteAcceptRequest request);
+    String accept(MemberInviteAcceptRequest request);
 
 }

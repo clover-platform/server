@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "更新请求")
 public class ModuleUpdateRequest {
 
-    @Schema(description = "ID")
+    @Schema(description = "ID", hidden = true)
     private Long id;
     @Schema(description = "模块名称")
     private String name;

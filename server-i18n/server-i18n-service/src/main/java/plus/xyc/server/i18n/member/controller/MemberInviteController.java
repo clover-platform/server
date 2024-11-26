@@ -97,15 +97,4 @@ public class MemberInviteController {
         return memberInviteService.detail(user != null ? user.getId() : null, token);
     }
 
-    @PostMapping("/accept")
-    @Operation(summary = "接受邀请")
-    public Long accept(
-            @CurrentUser @Parameter(hidden = true) SessionUser user,
-            @RequestBody MemberInviteAcceptRequest request,
-            @Parameter(description = "模块标识") @PathVariable String moduleName
-    ) {
-        request.setId(user.getId());
-        return memberInviteService.accept(request);
-    }
-
 }

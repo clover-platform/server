@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "动态查询")
 public class ActivityListRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "用户ID", hidden = true)
     private Long userId;
