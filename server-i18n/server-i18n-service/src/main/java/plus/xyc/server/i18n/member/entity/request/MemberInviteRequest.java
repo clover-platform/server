@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "邀请链接查询")
 public class MemberInviteRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
 
 }

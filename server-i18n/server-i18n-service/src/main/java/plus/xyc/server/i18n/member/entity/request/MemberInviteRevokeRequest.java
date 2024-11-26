@@ -9,7 +9,7 @@ import java.util.List;
 @Schema(description = "撤销邀请链接")
 public class MemberInviteRevokeRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "邀请链接ID")
     private Long id;

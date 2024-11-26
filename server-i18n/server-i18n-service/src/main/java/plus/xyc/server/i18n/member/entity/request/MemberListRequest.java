@@ -7,7 +7,7 @@ import lombok.Data;
 @Schema(description = "成员")
 public class MemberListRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
 
     @Schema(description = "类型 all-全部,manager-管理员,translator-成员,proofreader-校对员")

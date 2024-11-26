@@ -9,7 +9,7 @@ import java.util.List;
 @Schema(description = "生成邀请链接")
 public class MemberInviteGenerateRequest {
 
-    @Schema(description = "模块ID")
+    @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "角色")
     private List<Integer> roles;
