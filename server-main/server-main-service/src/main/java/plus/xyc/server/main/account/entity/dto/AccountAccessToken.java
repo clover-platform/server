@@ -1,4 +1,4 @@
-package plus.xyc.server.main.team.entity.dto;
+package plus.xyc.server.main.account.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -11,31 +11,34 @@ import lombok.Data;
 
 /**
  * <p>
- * 团队成员
+ * 
  * </p>
  *
  * @author generator
  * @since 2024-11-27
  */
 @Data
-@TableName("team_member")
-@Schema(name = "TeamMember", description = "团队成员")
-public class TeamMember implements Serializable {
+@TableName("account_access_token")
+@Schema(name = "AccountAccessToken", description = "")
+public class AccountAccessToken implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "团队ID")
-    private Long teamId;
-
-    @Schema(description = "成员ID")
+    @Schema(description = "账号ID")
     private Long accountId;
 
-    @Schema(description = "加入时间")
-    private Date joinTime;
+    @Schema(description = "名称")
+    private String name;
 
-    @Schema(description = "类型 0:普通成员 1:管理员 2:创建者")
-    private Integer type;
+    @Schema(description = "令牌")
+    private String token;
+
+    @Schema(description = "创建时间")
+    private Date createTime;
+
+    @Schema(description = "过期时间")
+    private Date expirationTime;
 }
