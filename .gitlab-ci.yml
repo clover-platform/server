@@ -129,7 +129,7 @@ deploy-wiki:
         - docker compose up -d
 
 deploy-i18n-maven-plugin:
-    stage: prepare
+    stage: deploy
     only:
         - /^i18n-maven-plugin-.*$/
     tags:
