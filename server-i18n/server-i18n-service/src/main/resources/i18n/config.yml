@@ -1,0 +1,8 @@
+module: server-i18n-service
+files:
+  - i18n/messages
+languages:
+  - code: zh-CN
+  - code: en-US
+  - code: zh-TW
+    i18n: zh-HK

@@ -127,3 +127,15 @@ deploy-wiki:
         - cd ~/server/clover/server-wiki
         - docker compose down
         - docker compose up -d
+
+deploy-i18n-maven-plugin:
+    stage: prepare
+    only:
+        - /^i18n-maven-plugin-.*$/
+    tags:
+        - dev
+    script:
+        - cd i18n-maven-plugin
+        - java -version
+        - mvn -v
+        - mvn clean deploy -U -s ../settings.xml

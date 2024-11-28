@@ -19,6 +19,7 @@
         <module>server-main</module>
         <module>server-i18n</module>
         <module>server-wiki</module>
+        <module>i18n-maven-plugin</module>
     </modules>
 
     <dependencies>
