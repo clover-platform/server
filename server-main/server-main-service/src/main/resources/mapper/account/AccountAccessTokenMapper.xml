@@ -10,18 +10,27 @@
         <result column="token" property="token" />
         <result column="create_time" property="createTime" />
         <result column="expiration_time" property="expirationTime" />
+        <result column="scopes" property="scopes" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, account_id, name, token, create_time, expiration_time
+        id, account_id, name, token, create_time, expiration_time, scopes
     </sql>
+
     <select id="findByAccountId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from account_access_token
         where
         account_id = #{accountId,jdbcType=NUMERIC}
+    </select>
+
+    <select id="countByAccountIdAndName" resultType="int">
+        select count(*)
+        from account_access_token
+        where account_id = #{accountId,jdbcType=NUMERIC}
+          AND name = #{name,jdbcType=VARCHAR}
     </select>
 
 </mapper>

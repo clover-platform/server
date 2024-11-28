@@ -16,5 +16,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 public interface AccountAccessTokenMapper extends BaseMapper<AccountAccessToken> {
 
     List<AccountAccessToken> findByAccountId(@Param("accountId") Long accountId);
+    int countByAccountIdAndName(@Param("accountId") Long accountId, @Param("name") String name);
 
 }

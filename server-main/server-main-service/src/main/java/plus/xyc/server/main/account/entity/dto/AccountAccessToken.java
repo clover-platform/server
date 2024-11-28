@@ -11,15 +11,15 @@ import lombok.Data;
 
 /**
  * <p>
- * 
+ * 个人令牌
  * </p>
  *
  * @author generator
- * @since 2024-11-27
+ * @since 2024-11-28
  */
 @Data
 @TableName("account_access_token")
-@Schema(name = "AccountAccessToken", description = "")
+@Schema(name = "AccountAccessToken", description = "个人令牌")
 public class AccountAccessToken implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -41,4 +41,8 @@ public class AccountAccessToken implements Serializable {
 
     @Schema(description = "过期时间")
     private Date expirationTime;
+
+    @Schema(description = "范围")
+    @TableField(typeHandler = Fastjson2TypeHandler.class)
+    private Object scopes;
 }
