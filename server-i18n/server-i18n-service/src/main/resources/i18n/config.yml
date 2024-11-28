@@ -1,6 +1,7 @@
 module: server-i18n-service
+domain: http://localhost:3000
 files:
-  - i18n/messages
+  - src/main/resources/i18n/messages
 languages:
   - code: zh-CN
   - code: en-US

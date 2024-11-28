@@ -8,6 +8,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import plus.xyc.maven.plugin.i18n.client.entity.Language;
 import plus.xyc.maven.plugin.i18n.utils.GitUtils;
+import plus.xyc.maven.plugin.i18n.utils.LogUtils;
 
 import java.io.File;
 import java.io.InputStream;
@@ -24,9 +25,10 @@ public class ClientConfig {
     private List<String> files;
     private List<Language> languages;
     private String branch;
+    private String domain = "https://xyc.plus";
 
     public static ClientConfig parse(String basedir, String configPath) {
-        SystemStreamLog log = new SystemStreamLog();
+        Log log = LogUtils.get();
         ClientConfig config = new ClientConfig();
         String token = System.getenv("I18N_TOKEN");
         try{

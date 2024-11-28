@@ -1,6 +1,6 @@
 package plus.xyc.maven.plugin.i18n.utils;
 
-import org.apache.maven.plugin.logging.SystemStreamLog;
+import org.apache.maven.plugin.logging.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,7 +10,7 @@ import java.io.InputStreamReader;
 public class GitUtils {
 
     public static String getCurrentBranch() {
-        SystemStreamLog log = new SystemStreamLog();
+        Log log = LogUtils.get();
         try {
             Process process = Runtime.getRuntime().exec("git branch --show-current");
             InputStream inputStream = process.getInputStream();
