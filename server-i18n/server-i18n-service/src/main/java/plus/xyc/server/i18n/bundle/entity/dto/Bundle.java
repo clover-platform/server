@@ -14,7 +14,7 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-11-26
+ * @since 2024-11-28
  */
 @Data
 @Schema(name = "Bundle", description = "文件包")

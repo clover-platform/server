@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.i18n.branch.mapper.BranchCommitMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.branch.entity.dto.BranchCommit">
+        <id column="id" property="id" />
+        <result column="branch_id" property="branchId" />
+        <result column="create_time" property="createTime" />
+        <result column="create_user" property="createUser" />
+        <result column="current" property="current" />
+        <result column="message" property="message" />
+        <result column="added_size" property="addedSize" />
+        <result column="updated_size" property="updatedSize" />
+        <result column="deleted_size" property="deletedSize" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, branch_id, create_time, create_user, current, message, added_size, updated_size, deleted_size
+    </sql>
+
+</mapper>

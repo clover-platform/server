@@ -22,6 +22,8 @@ modules:
   - name: branch
     tables:
       - branch
+      - branch_commit
+      - branch_commit_change
   - name: bundle
     tables:
       - bundle
