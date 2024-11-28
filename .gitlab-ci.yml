@@ -131,7 +131,7 @@ deploy-wiki:
 deploy-i18n-maven-plugin:
     stage: deploy
     only:
-        - /^i18n-maven-plugin-.*$/
+        - /^maven-plugin-.*$/
     tags:
         - dev
     script:
