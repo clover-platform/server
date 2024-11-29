@@ -5,7 +5,7 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.branch.entity.dto.BranchRevisionCommit">
         <id column="id" property="id" />
-        <result column="commit_id" property="commitId" />
+        <result column="revision_id" property="revisionId" />
         <result column="action" property="action" />
         <result column="entry_id" property="entryId" />
         <result column="origin" property="origin" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
@@ -14,7 +14,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, commit_id, action, entry_id, origin, current
+        id, revision_id, action, entry_id, origin, current
     </sql>
 
 </mapper>

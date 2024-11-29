@@ -24,18 +24,18 @@ import java.util.List;
  */
 public interface EntryService extends IService<Entry> {
 
-    // int wordCount(Long moduleId);
     PageResult<EntryWithStateResponse> query(PageRequest page, EntryListRequest request);
     EntryCountResponse count(EntryCountRequest request);
     List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId);
     void cloneEntriesBySourceId(Long sourceId, Long targetId);
     void cloneEntries(List<EntryWithResultResponse> sources, Long targetId);
     void create(EntryCreateRequest request);
-    List<Entry> getByModuleId(Long moduleId);
     void edit(EntryEditRequest request);
     EntryWithStateResponse detail(Long id, String language);
     void remove(Long id, Long userId);
     List<Entry> getByBranchId(Long branchId);
     Entry findById(Long id);
+    int countByBranchId(Long branchId);
+    List<Long> findIdByBranchId(Long branchId);
 
 }

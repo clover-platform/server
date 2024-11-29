@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface BranchRevisionService extends IService<BranchRevision> {
 
+    void init(Long branchId, Long userId);
+
 }

@@ -8,6 +8,7 @@ import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -18,6 +19,7 @@ import lombok.Data;
  * @since 2024-11-29
  */
 @Data
+@Accessors(chain = true)
 @TableName("entry_result")
 @Schema(name = "EntryResult", description = "翻译结果")
 public class EntryResult implements Serializable {

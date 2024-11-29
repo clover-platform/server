@@ -226,11 +226,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public List<Entry> getByModuleId(Long moduleId) {
-        return baseMapper.findByModuleId(moduleId);
-    }
-
-    @Override
     @Transactional
     @DistributedLock("'i18n:entry:'+#request.id")
     @Caching(evict = {
@@ -287,5 +282,15 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Cacheable(value = "i18n:entry", key = "#id")
     public Entry findById(Long id) {
         return getById(id);
+    }
+
+    @Override
+    public int countByBranchId(Long branchId) {
+        return baseMapper.countByBranchIdAndDeleted(branchId, false);
+    }
+
+    @Override
+    public List<Long> findIdByBranchId(Long branchId) {
+        return baseMapper.findIdByBranchIdAndDeleted(branchId, false).stream().map(Entry::getId).toList();
     }
 }

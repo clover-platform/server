@@ -27,5 +27,7 @@ public interface EntryMapper extends BaseMapper<Entry> {
     Long countTotal(@Param("request") EntryCountRequest request);
     List<Entry> findByBranchId(@Param("branchId") Long branchId);
     int countByModuleIdAndBranchIdAndIdentifier(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("identifier") String identifier);
+    int countByBranchIdAndDeleted(@Param("branchId") Long branchId, @Param("deleted") Boolean deleted);
+    List<Entry> findIdByBranchIdAndDeleted(@Param("branchId") Long branchId, @Param("deleted") Boolean deleted);
 
 }

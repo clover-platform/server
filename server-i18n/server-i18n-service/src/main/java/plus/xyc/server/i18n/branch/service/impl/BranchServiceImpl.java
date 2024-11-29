@@ -19,6 +19,7 @@ import plus.xyc.server.i18n.branch.entity.response.BranchMergeEntriesResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
 import plus.xyc.server.i18n.branch.mapper.BranchMapper;
+import plus.xyc.server.i18n.branch.service.BranchRevisionService;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -49,20 +50,13 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
     private ActivityService activityService;
     @Resource
     private EntryService entryService;
+    @Resource
+    private BranchRevisionService branchRevisionService;
 
     private final static Map<String, Integer> BRANCH_TYPE = Map.of(
         "clone", 1,
         "empty", 0
     );
-
-    @Override
-    public void createDefault(Long moduleId) {
-        Branch branch = new Branch();
-        branch.setModuleId(moduleId);
-        branch.setName("main");
-        branch.setIsDefault(true);
-        save(branch);
-    }
 
     @Override
     public List<BranchResponse> all(BranchAllRequest request) {
@@ -75,6 +69,18 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
             baseMapper.list(request);
             return PageResult.of(page);
         }
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock("'i18n:branch:create:'+#moduleId")
+    public void createDefault(Long moduleId, Long userId) {
+        Branch branch = new Branch();
+        branch.setModuleId(moduleId);
+        branch.setName("main");
+        branch.setIsDefault(true);
+        save(branch);
+        branchRevisionService.init(branch.getId(), userId);
     }
 
     @Override
@@ -94,6 +100,8 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
             Branch defaultBranch = getDefault(request.getModuleId());
             entryService.cloneEntriesBySourceId(defaultBranch.getId(), branch.getId());
         }
+
+        branchRevisionService.init(branch.getId(), request.getUserId());
 
         activityService.branch(request.getModuleId(), ActivityOperate.ADD.code, branch);
     }

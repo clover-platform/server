@@ -7,6 +7,7 @@ import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -17,6 +18,7 @@ import lombok.Data;
  * @since 2024-11-29
  */
 @Data
+@Accessors(chain = true)
 @TableName("module_count")
 @Schema(name = "ModuleCount", description = "模块统计")
 public class ModuleCount implements Serializable {

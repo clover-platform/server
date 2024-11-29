@@ -13,5 +13,7 @@ public class BranchCreateRequest {
     private String type;
     @Schema(description = "分支名称")
     private String name;
+    @Schema(description = "用户ID", hidden = true)
+    private Long userId;
 
 }

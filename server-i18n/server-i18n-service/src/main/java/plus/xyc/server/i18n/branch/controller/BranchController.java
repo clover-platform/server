@@ -8,6 +8,8 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
+import org.zkit.support.starter.security.annotation.CurrentUser;
+import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import plus.xyc.server.i18n.branch.entity.request.*;
 import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
@@ -64,9 +66,11 @@ public class BranchController {
     public void create(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @RequestBody BranchCreateRequest request,
-            @PathInject PathRequest pathRequest
+            @PathInject PathRequest pathRequest,
+            @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         request.setModuleId(pathRequest.getModule().getId());
+        request.setUserId(user.getId());
         branchService.create(request);
     }
 

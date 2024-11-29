@@ -134,7 +134,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         memberService.addModuleOwner(module.getId(), module.getOwner());
 
         // 创建默认分支
-        branchService.createDefault(module.getId());
+        branchService.createDefault(module.getId(), request.getOwner());
 
         // 记录日志
         activityService.module(module.getId(), ActivityOperate.ADD.code, module);

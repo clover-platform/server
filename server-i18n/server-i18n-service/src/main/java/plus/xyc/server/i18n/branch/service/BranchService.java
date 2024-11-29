@@ -21,9 +21,9 @@ import java.util.List;
  */
 public interface BranchService extends IService<Branch> {
 
-    void createDefault(Long moduleId);
     List<BranchResponse> all(BranchAllRequest request);
     PageResult<Branch> list(PageRequest page, BranchListRequest request);
+    void createDefault(Long moduleId, Long userId);
     void create(BranchCreateRequest request);
     Branch getDefault(Long moduleId);
     List<Branch> getByNames(Long moduleId, List<String> names);

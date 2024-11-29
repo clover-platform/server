@@ -7,6 +7,7 @@ import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -17,6 +18,7 @@ import lombok.Data;
  * @since 2024-11-29
  */
 @Data
+@Accessors(chain = true)
 @TableName("branch_revision_commit")
 @Schema(name = "BranchRevisionCommit", description = "变更详情")
 public class BranchRevisionCommit implements Serializable {
@@ -26,8 +28,8 @@ public class BranchRevisionCommit implements Serializable {
     @Schema(description = "ID")
     private Long id;
 
-    @Schema(description = "提交ID")
-    private Long commitId;
+    @Schema(description = "变更ID")
+    private Long revisionId;
 
     @Schema(description = "操作 1 新增 2 删除 3 变更")
     private Integer action;
