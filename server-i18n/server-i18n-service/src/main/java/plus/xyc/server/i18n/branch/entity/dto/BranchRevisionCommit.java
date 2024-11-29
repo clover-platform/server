@@ -14,12 +14,12 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-11-28
+ * @since 2024-11-29
  */
 @Data
-@TableName("branch_commit_change")
-@Schema(name = "BranchCommitChange", description = "变更详情")
-public class BranchCommitChange implements Serializable {
+@TableName("branch_revision_commit")
+@Schema(name = "BranchRevisionCommit", description = "变更详情")
+public class BranchRevisionCommit implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 

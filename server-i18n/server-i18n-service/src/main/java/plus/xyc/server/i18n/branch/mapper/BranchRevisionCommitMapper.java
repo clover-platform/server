@@ -1,6 +1,6 @@
 package plus.xyc.server.i18n.branch.mapper;
 
-import plus.xyc.server.i18n.branch.entity.dto.BranchCommitChange;
+import plus.xyc.server.i18n.branch.entity.dto.BranchRevisionCommit;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author generator
- * @since 2024-11-28
+ * @since 2024-11-29
  */
-public interface BranchCommitChangeMapper extends BaseMapper<BranchCommitChange> {
+public interface BranchRevisionCommitMapper extends BaseMapper<BranchRevisionCommit> {
 
 }

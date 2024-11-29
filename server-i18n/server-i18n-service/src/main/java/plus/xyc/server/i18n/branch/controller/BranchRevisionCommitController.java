@@ -5,14 +5,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * <p>
- * 变更 前端控制器
+ * 变更详情 前端控制器
  * </p>
  *
  * @author generator
- * @since 2024-11-28
+ * @since 2024-11-29
  */
 @RestController
-@RequestMapping("/branch/branchCommit")
-public class BranchCommitController {
+@RequestMapping("/branch/branchRevisionCommit")
+public class BranchRevisionCommitController {
 
 }
