@@ -17,5 +17,6 @@ public interface AccountAccessTokenMapper extends BaseMapper<AccountAccessToken>
 
     List<AccountAccessToken> findByAccountId(@Param("accountId") Long accountId);
     int countByAccountIdAndName(@Param("accountId") Long accountId, @Param("name") String name);
+    AccountAccessToken findOneByToken(@Param("token") String token);
 
 }

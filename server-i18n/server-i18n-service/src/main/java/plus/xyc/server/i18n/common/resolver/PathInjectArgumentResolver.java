@@ -9,10 +9,14 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
+import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.MessageUtils;
 import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.entity.PathRequest;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.entry.service.EntryService;
+import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.service.ModuleService;
 
 import java.util.Map;
@@ -71,6 +75,9 @@ public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver
         String branchName = path.get("branchName");
         String entryId = path.get("entryId");
         if(moduleName != null) {
+            Module module = moduleService.findByIdentifier(moduleName);
+            if(module == null)
+                throw new ResultException(I18nCode.MODULE_NOT_FOUND.code, MessageUtils.get(I18nCode.MODULE_NOT_FOUND.key));
             pathRequest.setModule(moduleService.findByIdentifier(moduleName));
         }
         if(branchName != null && !"-".equals(branchName)) {

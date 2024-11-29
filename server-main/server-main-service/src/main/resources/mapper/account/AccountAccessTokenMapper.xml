@@ -32,5 +32,12 @@
         where account_id = #{accountId,jdbcType=NUMERIC}
           AND name = #{name,jdbcType=VARCHAR}
     </select>
+    <select id="findOneByToken" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from account_access_token
+        where
+        token = #{token,jdbcType=VARCHAR}
+    </select>
 
 </mapper>
