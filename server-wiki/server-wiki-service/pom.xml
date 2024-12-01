@@ -47,6 +47,11 @@
                 <version>0.0.1-SNAPSHOT</version>
             </plugin>
             <plugin>
+                <groupId>plus.xyc</groupId>
+                <artifactId>i18n-maven-plugin</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>3.3.5</version>
