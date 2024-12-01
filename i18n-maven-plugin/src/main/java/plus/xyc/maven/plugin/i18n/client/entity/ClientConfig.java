@@ -39,7 +39,8 @@ public class ClientConfig {
             log.error("init error: " + e.getMessage(), e);
         }
         config.setBasedir(basedir);
-        config.setToken(token);
+        if(config.getToken() == null)
+            config.setToken(token);
         config.setBranch(GitUtils.getCurrentBranch());
         return config;
     }

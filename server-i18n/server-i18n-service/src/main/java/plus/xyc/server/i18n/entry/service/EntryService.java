@@ -1,5 +1,6 @@
 package plus.xyc.server.i18n.entry.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
@@ -11,6 +12,7 @@ import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
+import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 import java.util.List;
@@ -39,5 +41,6 @@ public interface EntryService extends IService<Entry> {
     int countByBranchId(Long branchId);
     List<Long> findIdByBranchId(Long branchId);
     void push(OpenEntryPushRequest request);
+    JSONObject pull(OpenEntryPullRequest request);
 
 }

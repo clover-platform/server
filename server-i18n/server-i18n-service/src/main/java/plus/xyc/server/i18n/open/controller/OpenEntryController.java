@@ -13,6 +13,7 @@ import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.open.annotation.OpenUser;
+import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 @RestController
@@ -40,6 +41,21 @@ public class OpenEntryController {
         request.setContent(content);
         request.setUserId(user.getId());
         entryService.push(request);
+    }
+
+    @PostMapping("/pull")
+    @Operation(summary = "获取翻译")
+    public JSONObject pull(
+            @RequestBody OpenEntryPullRequest request,
+            @OpenUser @Parameter(hidden = true) SessionUser user,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(description = "分支名称") @PathVariable String branchName,
+            @PathInject PathRequest pathRequest
+    ) {
+        request.setModuleId(pathRequest.getModule().getId());
+        request.setBranchId(pathRequest.getBranch().getId());
+        request.setUserId(user.getId());
+        return entryService.pull(request);
     }
 
 }

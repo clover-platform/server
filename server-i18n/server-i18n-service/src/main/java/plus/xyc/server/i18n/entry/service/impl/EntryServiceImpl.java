@@ -1,5 +1,6 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -46,6 +47,7 @@ import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
+import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 import java.text.SimpleDateFormat;
@@ -382,4 +384,25 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         }
     }
 
+    @Override
+    public JSONObject pull(OpenEntryPullRequest request) {
+        int count = this.countByBranchId(request.getBranchId());
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPage(1);
+        pageRequest.setSize(count);
+        EntryListRequest queryRequest = new EntryListRequest();
+        queryRequest.setModuleId(request.getModuleId());
+        queryRequest.setBranchId(request.getBranchId());
+        queryRequest.setLanguage(request.getLanguage());
+        PageResult<EntryWithStateResponse> result = this.query(pageRequest, queryRequest);
+        JSONObject response = new JSONObject();
+        result.getData().forEach(entry -> {
+            if(entry.getTranslated()) {
+                response.put(entry.getIdentifier(), entry.getTranslation().getContent());
+            }else{
+                response.put(entry.getIdentifier(), entry.getValue());
+            }
+        });
+        return response;
+    }
 }

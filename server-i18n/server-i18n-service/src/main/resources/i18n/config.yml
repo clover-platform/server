@@ -1,10 +1,13 @@
-debug: true
+debug: false
 module: server-i18n-service
 domain: http://localhost:3000
 files:
   - src/main/resources/i18n/messages
 languages:
-  - code: zh-CN
-  - code: en-US
-  - code: zh-TW
-    i18n: zh-HK
+  - code: zh_CN
+    i18n: zh-CN
+    source: true
+  - code: en_US
+    i18n: en-US
+  - code: zh_TW
+    i18n: zh-TW
