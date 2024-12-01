@@ -1,3 +1,4 @@
+debug: true
 module: server-i18n-service
 domain: http://localhost:3000
 files:

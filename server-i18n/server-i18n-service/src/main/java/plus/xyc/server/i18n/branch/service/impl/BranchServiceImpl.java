@@ -4,8 +4,10 @@ import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.AopUtils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
@@ -27,6 +29,7 @@ import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
+import plus.xyc.server.i18n.open.entity.request.OpenBranchCreateRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -225,5 +228,20 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
     @Cacheable(value = "i18n:branch", key = "#moduleId + ':' + #name")
     public Branch findByName(Long moduleId, String name) {
         return baseMapper.findOneByModuleIdAndNameAndDeleted(moduleId, name, false);
+    }
+
+    @Override
+    public void createIfNotExist(OpenBranchCreateRequest request) {
+        log.info("createIfNotExist: {}", request);
+        Branch branch = baseMapper.findOneByModuleIdAndNameAndDeleted(request.getModuleId(), request.getName(), false);
+        if(branch == null) {
+            BranchCreateRequest createRequest = new BranchCreateRequest();
+            createRequest.setModuleId(request.getModuleId());
+            createRequest.setName(request.getName());
+            createRequest.setType("empty");
+            createRequest.setUserId(request.getUserId());
+            BranchService self = AopUtils.current(BranchService.class);
+            self.create(createRequest);
+        }
     }
 }

@@ -8,6 +8,7 @@ import plus.xyc.server.i18n.branch.entity.request.*;
 import plus.xyc.server.i18n.branch.entity.response.BranchMergeEntriesResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchMergeOverviewResponse;
 import plus.xyc.server.i18n.branch.entity.response.BranchResponse;
+import plus.xyc.server.i18n.open.entity.request.OpenBranchCreateRequest;
 
 import java.util.List;
 
@@ -33,5 +34,6 @@ public interface BranchService extends IService<Branch> {
     BranchMergeEntriesResponse getMergeEntries(Long id);
     void merge(BranchMergeRequest request);
     Branch findByName(Long moduleId, String name);
+    void createIfNotExist(OpenBranchCreateRequest request);
 
 }

@@ -1,12 +1,10 @@
-package plus.xyc.maven.plugin.i18n.client;
+package plus.xyc.maven.plugin.i18n.client.entity;
 
 import lombok.Data;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import plus.xyc.maven.plugin.i18n.client.entity.Language;
 import plus.xyc.maven.plugin.i18n.utils.GitUtils;
 import plus.xyc.maven.plugin.i18n.utils.LogUtils;
 
@@ -26,6 +24,7 @@ public class ClientConfig {
     private List<Language> languages;
     private String branch;
     private String domain = "https://xyc.plus";
+    private Boolean debug = false;
 
     public static ClientConfig parse(String basedir, String configPath) {
         Log log = LogUtils.get();

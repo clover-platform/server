@@ -8,6 +8,7 @@ import plus.xyc.server.i18n.branch.mapper.BranchRevisionCommitMapper;
 import plus.xyc.server.i18n.branch.service.BranchRevisionCommitService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.i18n.entry.entity.dto.Entry;
 
 import java.util.List;
 
@@ -31,6 +32,35 @@ public class BranchRevisionCommitServiceImpl extends ServiceImpl<BranchRevisionC
                         .setRevisionId(revisionId).setEntryId(entryId)
                         .setAction(CommitAction.ADD.value())
                 ).toList();
+        BranchRevisionCommitService self = (BranchRevisionCommitService) AopContext.currentProxy();
+        self.saveBatch(commits);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long revisionId, List<Long> entries) {
+        // 批量插入
+        List<BranchRevisionCommit> commits = entries.stream()
+                .map(entryId -> new BranchRevisionCommit()
+                        .setRevisionId(revisionId).setEntryId(entryId)
+                        .setAction(CommitAction.DELETE.value())
+                ).toList();
+        BranchRevisionCommitService self = (BranchRevisionCommitService) AopContext.currentProxy();
+        self.saveBatch(commits);
+    }
+
+    @Override
+    public void update(Long revisionId, List<Entry> entries, List<Entry> origins) {
+        List<BranchRevisionCommit> commits = entries.stream()
+                .map(entry -> {
+                    BranchRevisionCommit commit = new BranchRevisionCommit()
+                            .setRevisionId(revisionId).setEntryId(entry.getId());
+                    Entry origin = origins.stream().filter(o -> o.getId().equals(entry.getId())).findFirst().orElse(null);
+                    commit.setAction(CommitAction.UPDATE.value())
+                            .setOrigin(origin)
+                            .setCurrent(entry);
+                    return commit;
+                }).toList();
         BranchRevisionCommitService self = (BranchRevisionCommitService) AopContext.currentProxy();
         self.saveBatch(commits);
     }

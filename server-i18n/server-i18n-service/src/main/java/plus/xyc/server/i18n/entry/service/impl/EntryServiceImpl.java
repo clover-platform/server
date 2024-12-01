@@ -8,7 +8,9 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Lazy;
 import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.AopUtils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
@@ -17,7 +19,9 @@ import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
+import plus.xyc.server.i18n.branch.entity.request.NewRevisionRequest;
 import plus.xyc.server.i18n.branch.mapper.BranchMapper;
+import plus.xyc.server.i18n.branch.service.BranchRevisionService;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
@@ -42,7 +46,9 @@ import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
+import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -75,6 +81,9 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
     @Resource
     private EntryStateService entryStateService;
+    @Lazy
+    @Resource
+    private BranchRevisionService branchRevisionService;
 
     @Override
     public PageResult<EntryWithStateResponse> query(PageRequest query, EntryListRequest request) {
@@ -293,4 +302,84 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public List<Long> findIdByBranchId(Long branchId) {
         return baseMapper.findIdByBranchIdAndDeleted(branchId, false).stream().map(Entry::getId).toList();
     }
+
+    @Override
+    @Transactional
+    @DistributedLock("'i18n:entry:push:'+#request.moduleId")
+    public void push(OpenEntryPushRequest request) {
+        EntryService self = AopUtils.current(EntryService.class);
+        Branch branch = branchMapper.selectById(request.getBranchId());
+
+        // 当前所有的词条
+        List<Entry> entries = baseMapper.findByBranchId(request.getBranchId());
+
+        log.info("entries: {}", entries);
+
+        List<Entry> addList = new ArrayList<>();
+        List<Entry> updateList = new ArrayList<>();
+        List<Entry> deleteList = new ArrayList<>();
+
+        // 新增的 和 需要更新的
+        request.getContent().forEach((key, v) -> {
+            String value = (String) v;
+            Entry entry = entries.stream().filter(item -> item.getIdentifier().equals(key)).findFirst().orElse(null);
+            if(entry == null) {
+                Entry newEntry = new Entry();
+                newEntry.setModuleId(request.getModuleId());
+                newEntry.setBranchId(request.getBranchId());
+                newEntry.setIdentifier(key);
+                newEntry.setValue(value);
+                newEntry.setCreateUserId(request.getUserId());
+                addList.add(newEntry);
+            } else if(!v.equals(entry.getValue())) {
+                entry.setValue(value);
+                entry.setUpdateUserId(request.getUserId());
+                updateList.add(entry);
+            }
+        });
+
+        // 需要删除的
+        entries.forEach(entry -> {
+            if(!request.getContent().containsKey(entry.getIdentifier())) {
+                deleteList.add(entry);
+            }
+        });
+
+        // 如果都是空的，直接返回
+        if(addList.isEmpty() && updateList.isEmpty() && deleteList.isEmpty()) {
+            return;
+        }
+
+        log.info("push entry addList: {}, updateList: {}, deleteList: {}", addList.size(), updateList.size(), deleteList.size());
+
+        // 新版本
+        NewRevisionRequest newRevisionRequest = new NewRevisionRequest();
+        newRevisionRequest.setBranchId(request.getBranchId());
+        newRevisionRequest.setUserId(request.getUserId());
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        newRevisionRequest.setMessage(MessageUtils.get("branch.revision.push.message", branch.getName(), time));
+        Long revisionId = branchRevisionService.newRevision(newRevisionRequest);
+
+        // 新增
+        if(!addList.isEmpty()) {
+            self.saveBatch(addList);
+            List<Long> entryIds = addList.stream().map(Entry::getId).toList();
+            branchRevisionService.add(revisionId, entryIds);
+        }
+
+        // 更新
+        if(!updateList.isEmpty()) {
+            self.updateBatchById(updateList);
+            List<Entry> updateOriginEntries = entries.stream().filter(item -> updateList.stream().map(Entry::getId).toList().contains(item.getId())).toList();
+            branchRevisionService.update(revisionId, updateList, updateOriginEntries);
+        }
+
+        // 删除
+        if(!deleteList.isEmpty()) {
+            List<Long> entryIds = deleteList.stream().map(Entry::getId).toList();
+            lambdaUpdate().set(Entry::getDeleted, true).in(Entry::getId, entryIds).update();
+            branchRevisionService.delete(revisionId, entryIds);
+        }
+    }
+
 }

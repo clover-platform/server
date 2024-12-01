@@ -11,6 +11,7 @@ import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
+import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 import java.util.List;
 
@@ -37,5 +38,6 @@ public interface EntryService extends IService<Entry> {
     Entry findById(Long id);
     int countByBranchId(Long branchId);
     List<Long> findIdByBranchId(Long branchId);
+    void push(OpenEntryPushRequest request);
 
 }
