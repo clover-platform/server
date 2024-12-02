@@ -35,8 +35,12 @@
         e.*
         from entry as e
         left join branch as b on e.branch_id = b.id
+        left join entry_state as es on e.id = es.entry_id
         where
         e.deleted = false and b.deleted = false
+        <if test="query.language != null">
+            and (es.language = #{query.language,jdbcType=NUMERIC} or es.language is null)
+        </if>
         <if test="query.branchId != null">
             and e.branch_id = #{query.branchId,jdbcType=NUMERIC}
         </if>
@@ -46,6 +50,7 @@
         <if test="keyword != null and keyword != ''">
             and (e.identifier like concat('%', #{keyword,jdbcType=VARCHAR}, '%') or e.value like concat('%', #{keyword,jdbcType=VARCHAR}, '%'))
         </if>
+        order by es.translated is not null, es.translated asc, e.update_time desc
     </select>
 
     <select id="countTotal" resultType="long">
