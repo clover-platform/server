@@ -35,12 +35,9 @@
         e.*
         from entry as e
         left join branch as b on e.branch_id = b.id
-        left join entry_state as es on e.id = es.entry_id
+        left join entry_state as es on e.id = es.entry_id and (#{query.language} is null or es.language = #{query.language})
         where
         e.deleted = false and b.deleted = false
-        <if test="query.language != null">
-            and (es.language = #{query.language,jdbcType=NUMERIC} or es.language is null)
-        </if>
         <if test="query.branchId != null">
             and e.branch_id = #{query.branchId,jdbcType=NUMERIC}
         </if>
