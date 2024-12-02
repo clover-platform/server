@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.common.annotation.PathInject;
@@ -43,10 +44,10 @@ public class OpenEntryController {
         entryService.push(request);
     }
 
-    @PostMapping("/pull")
+    @GetMapping("/pull")
     @Operation(summary = "获取翻译")
     public JSONObject pull(
-            @RequestBody OpenEntryPullRequest request,
+            @ParameterObject @ModelAttribute OpenEntryPullRequest request,
             @OpenUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(description = "分支名称") @PathVariable String branchName,

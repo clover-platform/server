@@ -217,7 +217,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     }
 
     @Override
-    @Cacheable(value = "i18n:module", key = "#identifier")
+    @Cacheable(value = "i18n:module", key = "#identifier", unless = "#result == null")
     public Module findByIdentifier(String identifier) {
         return baseMapper.findOneByIdentifier(identifier);
     }

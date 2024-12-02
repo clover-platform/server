@@ -112,13 +112,10 @@ public class Client {
             return;
         }
         log.info("pull result from server: " + language.getI18n());
-        JSONObject data = new JSONObject();
-        data.put("language", language.getI18n());
-        RequestBody body = RequestBody.create(data.toJSONString(), TYPE);
         Request request = new Request.Builder()
-                .url(config.getDomain() + "/api/i18n/open/" + config.getModule() + "/branch/" + config.getBranch() + "/entry/pull")
+                .url(config.getDomain() + "/api/i18n/open/" + config.getModule() + "/branch/" + config.getBranch() + "/entry/pull?language=" + language.getI18n())
                 .header("Authorization", "Bearer " + config.getToken())
-                .post(body).build();
+                .get().build();
         Response response = httpClient.newCall(request).execute();
         Result<JSONObject> result = JSON.parseObject(Objects.requireNonNull(response.body()).string(), new TypeReference<Result<JSONObject>>(){});
         response.close();
