@@ -114,6 +114,15 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
+    public PageResult<EntryWithStateResponse> all(EntryListRequest request) {
+        int count = baseMapper.countByModuleIdAndBranchId(request.getModuleId(), request.getBranchId());
+        PageRequest pageRequest = new PageRequest();
+        pageRequest.setPage(1);
+        pageRequest.setSize(count);
+        return this.query(pageRequest, request);
+    }
+
+    @Override
     public EntryCountResponse count(EntryCountRequest request) {
         EntryCountResponse response = new EntryCountResponse();
         List<ModuleCount> counts = moduleCountMapper.findByCountRequest(request);

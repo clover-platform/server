@@ -92,6 +92,7 @@
         AND branch_id = #{branchId,jdbcType=NUMERIC}
         and deleted = false
     </select>
+
     <select id="countByBranchIdAndDeleted" resultType="int">
         select count(*)
         from entry
@@ -104,6 +105,15 @@
         from entry
         where branch_id = #{branchId,jdbcType=NUMERIC}
           AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
+    <select id="countByModuleIdAndBranchId" resultType="int">
+        select count(*)
+        from entry
+        where module_id = #{moduleId,jdbcType=NUMERIC}
+          <if test="branchId != null">
+            AND branch_id = #{branchId,jdbcType=NUMERIC}
+          </if>
+          and deleted = false
     </select>
 
 </mapper>

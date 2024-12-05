@@ -108,6 +108,20 @@ public class EntryController {
         return entryService.query(page, request);
     }
 
+    @GetMapping("/all")
+    @Operation(summary = "查询全部词条")
+    public PageResult<EntryWithStateResponse> all(
+            @ParameterObject @ModelAttribute EntryListRequest request,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @PathInject PathRequest pathRequest
+    ) {
+        request.setModuleId(pathRequest.getModule().getId());
+        if(pathRequest.getBranch() != null)
+            request.setBranchId(pathRequest.getBranch().getId());
+        return entryService.all(request);
+    }
+
     @GetMapping("/count")
     @Operation(summary = "统计词条")
     public EntryCountResponse count(
