@@ -16,4 +16,7 @@ public class OpenBranchCreateRequest {
     @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
 
+    @Schema(description = "是否克隆")
+    private Boolean clone;
+
 }

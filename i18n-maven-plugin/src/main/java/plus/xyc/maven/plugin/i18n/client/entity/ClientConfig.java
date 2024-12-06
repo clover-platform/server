@@ -25,6 +25,7 @@ public class ClientConfig {
     private String branch;
     private String domain = "https://xyc.plus";
     private Boolean debug = false;
+    private String main = "main";
 
     public static ClientConfig parse(String basedir, String configPath) {
         Log log = LogUtils.get();

@@ -238,7 +238,7 @@ public class BranchServiceImpl extends ServiceImpl<BranchMapper, Branch> impleme
             BranchCreateRequest createRequest = new BranchCreateRequest();
             createRequest.setModuleId(request.getModuleId());
             createRequest.setName(request.getName());
-            createRequest.setType("empty");
+            createRequest.setType(request.getClone() ? "clone" : "empty");
             createRequest.setUserId(request.getUserId());
             BranchService self = AopUtils.current(BranchService.class);
             self.create(createRequest);

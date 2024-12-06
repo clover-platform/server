@@ -89,6 +89,7 @@ public class Client {
         log.info("create branch if not exists, branch: " + branch);
         JSONObject data = new JSONObject();
         data.put("name", branch);
+        data.put("clone", !config.getMain().equals(branch));
         RequestBody body = RequestBody.create(data.toJSONString(), TYPE);
         Request request = new Request.Builder()
                 .url(config.getDomain() + "/api/i18n/open/" + config.getModule() + "/branch/create/if/not/exist")
