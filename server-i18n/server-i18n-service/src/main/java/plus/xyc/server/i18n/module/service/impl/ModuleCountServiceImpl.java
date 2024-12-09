@@ -103,6 +103,8 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
 
     @Override
     public List<ModuleCountResponse> getCounts(List<Long> moduleIds) {
+        if(moduleIds == null || moduleIds.isEmpty())
+            return List.of();
         List<ModuleCount> counts = baseMapper.findByModuleIdIn(moduleIds);
         return moduleIds.stream().map(id -> {
             ModuleCountResponse response = new ModuleCountResponse();
