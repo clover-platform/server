@@ -16,11 +16,35 @@
         id, name, owner_id, create_time, team_id
     </sql>
 
-    <select id="findMy" resultMap="BaseResultMap">
-        select p.*
+    <select id="findJoin" resultMap="BaseResultMap">
+        select distinct p.*
         from project as p
         left join project_member as pm on p.id = pm.project_id
         where pm.account_id = #{userId}
+        <if test="teamId != null">
+            and p.team_id = #{teamId}
+        </if>
+    </select>
+
+    <select id="findAllByUserId" resultMap="BaseResultMap">
+        select distinct p.*
+        from project p, project_member pm
+        where
+        p.id = pm.project_id
+        and (pm.account_id = #{userId} or p.owner_id = #{userId})
+        <if test="teamId != null">
+            and p.team_id = #{teamId}
+        </if>
+    </select>
+
+    <select id="findMy" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from project
+        where owner_id = #{userId}
+        <if test="teamId != null">
+            and p.team_id = #{teamId}
+        </if>
     </select>
 
 </mapper>

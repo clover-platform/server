@@ -1,5 +1,6 @@
 package plus.xyc.server.main.project.mapper;
 
+import org.springframework.data.repository.query.Param;
 import plus.xyc.server.main.project.entity.dto.Project;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -15,6 +16,8 @@ import java.util.List;
  */
 public interface ProjectMapper extends BaseMapper<Project> {
 
-    List<Project> findMy(Long userId);
+    List<Project> findJoin(@Param("userId") Long userId, @Param("teamId") Long teamId);
+    List<Project> findAllByUserId(@Param("userId") Long userId, @Param("teamId") Long teamId);
+    List<Project> findMy(@Param("userId") Long userId, @Param("teamId") Long teamId);
 
 }

@@ -1,16 +1,19 @@
 package plus.xyc.server.main.project.service.impl;
 
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
 import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
 import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.dto.ProjectMember;
+import plus.xyc.server.main.project.entity.request.ProjectListRequest;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
 import plus.xyc.server.main.project.mapper.ProjectMemberMapper;
 import plus.xyc.server.main.project.service.ProjectService;
@@ -46,8 +49,8 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
 
     @Override
     @Cacheable(value = "account:projects#1d", key = "#userId")
-    public List<Project> my(Long userId) {
-        return baseMapper.findMy(userId);
+    public List<Project> my(Long userId, Long teamId) {
+        return baseMapper.findJoin(userId, teamId);
     }
 
     @Override
@@ -83,5 +86,20 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         setCurrentRequest.setAccountId(request.getUserId());
         accountService.setCurrent(setCurrentRequest);
         return true;
+    }
+
+    @Override
+    public PageResult<Project> list(PageRequest pr, ProjectListRequest request) {
+        log.info("list page: {}", pr);
+        log.info("list project: {}", request);
+        try(Page<Project> page = pr.start()) {
+            String type = request.getType();
+            switch (type) {
+                case "all" -> baseMapper.findAllByUserId(request.getUserId(), request.getTeamId());
+                case "create" -> baseMapper.findMy(request.getUserId(), request.getTeamId());
+                case "join" -> baseMapper.findJoin(request.getUserId(), request.getTeamId());
+            };
+            return PageResult.of(page);
+        }
     }
 }
