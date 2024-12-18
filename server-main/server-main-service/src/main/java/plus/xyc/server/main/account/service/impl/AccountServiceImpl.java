@@ -10,7 +10,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.account.api.entity.request.*;
 import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
-import org.zkit.support.server.mail.api.EmailCodeService;
+import org.zkit.support.server.mail.api.entity.request.CheckCodeRequest;
+import org.zkit.support.server.mail.api.entity.request.SendCodeRequest;
+import org.zkit.support.server.mail.api.rest.MailRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -47,7 +49,7 @@ import java.util.List;
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
     @Resource
-    private EmailCodeService emailCodeService;
+    private MailRestApi mailRestApi;
     @Resource
     private AuthAccountRestApi authAccountRestApi;
     @Resource
@@ -60,15 +62,22 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     public void sendRegisterEmail(String email) {
-        emailCodeService.send(email, "register");
+        SendCodeRequest request = new SendCodeRequest();
+        request.setEmail(email);
+        request.setAction("register");
+        mailRestApi.send(request);
     }
 
     @Override
     @DistributedLock(value = "account", el = false)
     public TokenResponse checkRegisterEmail(CheckRegisterEmailRequest request) {
         // 验证码是否正确
-        boolean checked = emailCodeService.check(request.getEmail(), request.getCode(), "register");
-        if(!checked) {
+        CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
+        checkCodeRequest.setEmail(request.getEmail());
+        checkCodeRequest.setCode(request.getCode());
+        checkCodeRequest.setAction("register");
+        Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
+        if(!checkResult.isSuccess() || !checkResult.getData()) {
             throw new ResultException(AccountCode.REGISTER_CODE.code, MessageUtils.get(AccountCode.REGISTER_CODE.key));
         }
         Account account = new Account();
@@ -178,14 +187,21 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     public void sendResetEmail(String email) {
-        emailCodeService.send(email, "reset");
+        SendCodeRequest request = new SendCodeRequest();
+        request.setEmail(email);
+        request.setAction("reset");
+        mailRestApi.send(request);
     }
 
     @Override
     public TokenResponse checkResetEmail(CheckResetEmailRequest request) {
         // 验证码是否正确
-        boolean checked = emailCodeService.check(request.getEmail(), request.getCode(), "reset");
-        if(!checked) {
+        CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
+        checkCodeRequest.setEmail(request.getEmail());
+        checkCodeRequest.setCode(request.getCode());
+        checkCodeRequest.setAction("reset");
+        Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
+        if(!checkResult.isSuccess() || !checkResult.getData()) {
             throw new ResultException(AccountCode.RESET_CODE.code, MessageUtils.get(AccountCode.RESET_CODE.key));
         }
         Account account = baseMapper.findOneByEmail(request.getEmail());
