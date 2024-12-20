@@ -5,8 +5,8 @@ import com.alibaba.fastjson2.TypeReference;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.zkit.support.server.mail.api.ServerMailApi;
-import org.zkit.support.server.mail.api.entity.MailSendRequest;
+import org.zkit.support.server.mail.api.entity.request.SendMailRequest;
+import org.zkit.support.server.mail.api.rest.MailRestApi;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MD5Utils;
@@ -49,7 +49,7 @@ import java.util.stream.Stream;
 public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, MemberInvite> implements MemberInviteService {
 
     @Resource
-    private ServerMailApi serverMailApi;
+    private MailRestApi mailRestApi;
     @Resource
     private MainRestApi mainRestApi;
     @Resource
@@ -85,7 +85,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         log.info("send invite: {}", request);
         String token = this.generate(struct.toMemberInviteGenerateRequest(request));
         String url = configuration.getBase() + token;
-        MailSendRequest mail = new MailSendRequest();
+        SendMailRequest mail = new SendMailRequest();
         mail.setTemplate("i18n/invite");
         mail.setLanguage(MessageUtils.getLocale());
         Map<String, Object> data = new HashMap<>();
@@ -94,7 +94,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         mail.setData(data);
         Stream.of(request.getEmails().split(",")).forEach(email -> {
             mail.setTo(email);
-            serverMailApi.send(mail);
+            mailRestApi.send(mail);
         });
     }
 

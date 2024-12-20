@@ -65,7 +65,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(email);
         request.setAction("register");
-        mailRestApi.send(request);
+        mailRestApi.sendCode(request);
     }
 
     @Override
@@ -190,7 +190,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(email);
         request.setAction("reset");
-        mailRestApi.send(request);
+        mailRestApi.sendCode(request);
     }
 
     @Override
