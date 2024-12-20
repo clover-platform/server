@@ -11,6 +11,7 @@ package-gateway:
     script:
         - java -version
         - mvn -v
+        - mvn install -Dmaven.test.skip=true
         - cd server-gateway
         - mvn clean package deploy -U -s ../settings.xml -Dmaven.test.skip=true
         - docker login -u $DOCKER_USER --password $DOCKER_TOKEN $CI_REGISTRY
@@ -30,6 +31,7 @@ package-main:
     script:
         - java -version
         - mvn -v
+        - mvn install -Dmaven.test.skip=true
         - cd server-main/server-main-api
         - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
         - cd ../../server-main/server-main-service
@@ -51,6 +53,7 @@ package-i18n:
     script:
         - java -version
         - mvn -v
+        - mvn install -Dmaven.test.skip=true
         - cd server-i18n/server-i18n-api
         - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
         - cd ../../server-i18n/server-i18n-service
@@ -72,6 +75,7 @@ package-wiki:
     script:
         - java -version
         - mvn -v
+        - mvn install -Dmaven.test.skip=true
         - cd server-wiki/server-wiki-service
         - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
         - cd ../../server-wiki/server-wiki-service

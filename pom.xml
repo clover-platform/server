@@ -5,7 +5,6 @@
         <groupId>org.zkit.support</groupId>
         <artifactId>boot-dependencies</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-        <relativePath/>
     </parent>
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
