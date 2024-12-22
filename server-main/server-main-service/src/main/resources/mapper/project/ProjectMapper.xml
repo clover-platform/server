@@ -9,11 +9,12 @@
         <result column="owner_id" property="ownerId" />
         <result column="create_time" property="createTime" />
         <result column="team_id" property="teamId" />
+        <result column="key" property="key" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, owner_id, create_time, team_id
+        id, name, owner_id, create_time, team_id, key
     </sql>
 
     <select id="findJoin" resultMap="BaseResultMap">

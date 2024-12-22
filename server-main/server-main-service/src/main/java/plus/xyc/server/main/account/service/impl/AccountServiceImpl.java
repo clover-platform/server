@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.account.api.entity.request.*;
+import org.zkit.support.server.account.api.entity.response.TokenWithAccountResponse;
 import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
 import org.zkit.support.server.mail.api.entity.request.CheckCodeRequest;
 import org.zkit.support.server.mail.api.entity.request.SendCodeRequest;
@@ -26,6 +28,7 @@ import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
+import plus.xyc.server.main.account.entity.request.RegisterRequest;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
@@ -69,8 +72,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @DistributedLock(value = "account", el = false)
-    public TokenResponse checkRegisterEmail(CheckRegisterEmailRequest request) {
+    public Boolean checkRegisterEmail(CheckRegisterEmailRequest request) {
+        int size = baseMapper.countByEmail(request.getEmail());
+        if(size > 0) {
+            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+        }
         // 验证码是否正确
         CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
         checkCodeRequest.setEmail(request.getEmail());
@@ -80,24 +86,23 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(!checkResult.isSuccess() || !checkResult.getData()) {
             throw new ResultException(AccountCode.REGISTER_CODE.code, MessageUtils.get(AccountCode.REGISTER_CODE.key));
         }
-        Account account = new Account();
-        account.setEmail(request.getEmail());
-        account.setUsername(request.getUsername());
-        account = this.add(account);
-        return createTempToken(account.getId());
+        return checkResult.getData();
+    }
+
+    private void check(String email, String username) {
+        if(this.hasUsername(username)) {
+            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+        }
+        if(this.hasEmail(email)) {
+            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+        }
     }
 
     @Override
     @DistributedLock(value = "account", el = false)
+    @Transactional
     public Account add(Account account) {
-        boolean has = this.hasUsername(account.getUsername());
-        if(has) {
-            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
-        }
-        has = this.hasEmail(account.getEmail());
-        if(has) {
-            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
-        }
+        this.check(account.getEmail(), account.getUsername());
         AccountAddRequest request = new AccountAddRequest();
         request.setUsername(account.getUsername());
         Result<AccountResponse> result = authAccountRestApi.addOrGet(request);
@@ -111,16 +116,17 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @CacheEvict(value = "account", key = "#request.id")
-    @DistributedLock(value = "'account:'+#request.id")
-    public TokenResponse setPassword(SetPasswordRequest request) {
-        Result<TokenResponse> result = authAccountRestApi.setPassword(request);
+    @DistributedLock(value = "account", el = false)
+    @Transactional
+    public TokenResponse register(RegisterRequest request) {
+        this.check(request.getEmail(), request.getUsername());
+        Result<TokenWithAccountResponse> result = authAccountRestApi.register(accountMapStruct.toAccountRegisterRequestFromRegisterRequest(request));
         if(result.isSuccess()) {
-            // 更新用户信息
-            UpdateWrapper<Account> update = new UpdateWrapper<>();
-            update.eq("id",request.getId());
-            update.set("active", 1);
-            this.update(update);
+            Account account = new Account();
+            account.setId(result.getData().getAccountId());
+            account.setUsername(request.getUsername());
+            account.setEmail(request.getEmail());
+            this.save(account);
         }else{
             throw new ResultException(result.getCode(),result.getMessage());
         }

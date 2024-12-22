@@ -22,6 +22,7 @@ import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
+import plus.xyc.server.main.account.entity.request.RegisterRequest;
 import plus.xyc.server.main.account.entity.request.SendEmailCodeRequest;
 import plus.xyc.server.main.account.entity.response.AccountProfileResponse;
 import plus.xyc.server.main.account.service.AccountService;
@@ -59,7 +60,7 @@ public class AccountController {
     @PublicRequest
     @PostMapping("/register/email/check")
     @Operation(summary = "校验邮件")
-    public TokenResponse checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
+    public Boolean checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
         return this.accountService.checkRegisterEmail(request);
     }
 
@@ -78,22 +79,19 @@ public class AccountController {
         return this.accountService.checkResetEmail(request);
     }
 
+    @PublicRequest
     @GetMapping("/otp/secret")
     @Operation(summary = "获取秘钥")
-    public OTPResponse otpSecret(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
-        log.info("AccountController otpSecret {}", user);
-        Result<OTPResponse> response = authAccountRestApi.otpSecret(user.getId());
+    public OTPResponse otpSecret(@RequestParam("username") String username) {
+        Result<OTPResponse> response = authAccountRestApi.otpSecret(username);
         return response.getData();
     }
 
-    @PostMapping("/register/password/set")
-    @Operation(summary = "注册设置密码")
-    public TokenResponse setPassword(
-            @CurrentUser() @Parameter(hidden = true) SessionUser user,
-            @RequestBody SetPasswordRequest request
-    ) {
-        request.setId(user.getId());
-        return this.accountService.setPassword(request);
+    @PublicRequest
+    @PostMapping("/register")
+    @Operation(summary = "注册")
+    public TokenResponse register(@RequestBody RegisterRequest request) {
+        return this.accountService.register(request);
     }
 
     @PostMapping("/reset/password")

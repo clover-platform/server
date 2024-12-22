@@ -8,6 +8,7 @@ import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -15,9 +16,10 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-11-28
+ * @since 2024-12-22
  */
 @Data
+@Accessors(chain = true)
 @TableName("account_access_token")
 @Schema(name = "AccountAccessToken", description = "个人令牌")
 public class AccountAccessToken implements Serializable {
