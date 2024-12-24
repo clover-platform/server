@@ -23,7 +23,6 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
-import plus.xyc.server.main.account.entity.enums.AccountCode;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
@@ -36,6 +35,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
+import plus.xyc.server.main.enums.MainCode;
 
 import java.util.List;
 
@@ -75,7 +75,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     public Boolean checkRegisterEmail(CheckRegisterEmailRequest request) {
         int size = baseMapper.countByEmail(request.getEmail());
         if(size > 0) {
-            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+            throw new ResultException(MainCode.REGISTER_HAS.code, MessageUtils.get(MainCode.REGISTER_HAS.key));
         }
         // 验证码是否正确
         CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
@@ -84,17 +84,17 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         checkCodeRequest.setAction("register");
         Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
         if(!checkResult.isSuccess() || !checkResult.getData()) {
-            throw new ResultException(AccountCode.REGISTER_CODE.code, MessageUtils.get(AccountCode.REGISTER_CODE.key));
+            throw new ResultException(MainCode.REGISTER_CODE.code, MessageUtils.get(MainCode.REGISTER_CODE.key));
         }
         return checkResult.getData();
     }
 
     private void check(String email, String username) {
         if(this.hasUsername(username)) {
-            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+            throw new ResultException(MainCode.REGISTER_HAS.code, MessageUtils.get(MainCode.REGISTER_HAS.key));
         }
         if(this.hasEmail(email)) {
-            throw new ResultException(AccountCode.REGISTER_HAS.code, MessageUtils.get(AccountCode.REGISTER_HAS.key));
+            throw new ResultException(MainCode.REGISTER_HAS.code, MessageUtils.get(MainCode.REGISTER_HAS.key));
         }
     }
 
@@ -156,7 +156,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
                 .eq("enable", true);
         account = this.getOne(query);
         if(account == null) {
-            throw new ResultException(AccountCode.LOGIN_NOT_EXIST.code, MessageUtils.get(AccountCode.LOGIN_NOT_EXIST.key));
+            throw new ResultException(MainCode.LOGIN_NOT_EXIST.code, MessageUtils.get(MainCode.LOGIN_NOT_EXIST.key));
         }
         Result<TokenResponse> result = authAccountRestApi.login(request);
         if(!result.isSuccess()) {
@@ -208,11 +208,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         checkCodeRequest.setAction("reset");
         Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
         if(!checkResult.isSuccess() || !checkResult.getData()) {
-            throw new ResultException(AccountCode.RESET_CODE.code, MessageUtils.get(AccountCode.RESET_CODE.key));
+            throw new ResultException(MainCode.RESET_CODE.code, MessageUtils.get(MainCode.RESET_CODE.key));
         }
         Account account = baseMapper.findOneByEmail(request.getEmail());
         if(account == null) {
-            throw new ResultException(AccountCode.ACCOUNT_NOT_EXIST.code, MessageUtils.get(AccountCode.ACCOUNT_NOT_EXIST.key));
+            throw new ResultException(MainCode.ACCOUNT_NOT_EXIST.code, MessageUtils.get(MainCode.ACCOUNT_NOT_EXIST.key));
         }
         return createTempToken(account.getId());
     }

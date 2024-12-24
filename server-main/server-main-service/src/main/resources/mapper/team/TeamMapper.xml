@@ -8,12 +8,13 @@
         <result column="name" property="name" />
         <result column="owner_id" property="ownerId" />
         <result column="create_time" property="createTime" />
-        <result column="key" property="key" />
+        <result column="team_key" property="teamKey" />
+        <result column="deleted" property="deleted" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, owner_id, create_time, key
+        id, name, owner_id, create_time, team_key, deleted
     </sql>
 
     <select id="findMy" resultType="plus.xyc.server.main.team.entity.dto.Team">
@@ -21,6 +22,14 @@
         from team as t
         left join team_member as tm on t.id = tm.team_id
         where tm.account_id = #{userId}
+    </select>
+
+    <select id="countByTeamKeyAndDeleted" resultType="int">
+        select count(*)
+        from team
+        where
+            team_key = #{teamKey,jdbcType=VARCHAR}
+          AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
 </mapper>

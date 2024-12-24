@@ -5,14 +5,18 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
 import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
+import plus.xyc.server.main.enums.MainCode;
 import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.dto.ProjectMember;
+import plus.xyc.server.main.project.entity.enums.ProjectMemberType;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
 import plus.xyc.server.main.project.mapper.ProjectMemberMapper;
@@ -101,5 +105,20 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             };
             return PageResult.of(page);
         }
+    }
+
+    @Override
+    public void checkAndSave(Project project) {
+        int size = baseMapper.countByProjectKeyAndDeleted(project.getProjectKey(), false);
+        if (size > 0) {
+            throw new ResultException(MainCode.PROJECT_REPEATED.code, MessageUtils.get(MainCode.PROJECT_REPEATED.key));
+        }
+        save(project);
+        // 保存项目成员
+        ProjectMember projectMember = new ProjectMember();
+        projectMember.setProjectId(project.getId());
+        projectMember.setAccountId(project.getOwnerId());
+        projectMember.setType(ProjectMemberType.OWNER.code);
+        projectMemberMapper.insert(projectMember);
     }
 }

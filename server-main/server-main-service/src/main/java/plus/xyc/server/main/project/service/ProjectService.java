@@ -22,5 +22,6 @@ public interface ProjectService extends IService<Project> {
     List<Project> my(Long userId, Long teamId);
     boolean join(JoinProjectRequest request);
     PageResult<Project> list(PageRequest page, ProjectListRequest request);
+    void checkAndSave(Project project);
 
 }
