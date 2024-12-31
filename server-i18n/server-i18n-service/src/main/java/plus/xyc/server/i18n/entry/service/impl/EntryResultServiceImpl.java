@@ -1,11 +1,15 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
-import org.zkit.support.server.ai.api.entity.TranslatorRequest;
-import org.zkit.support.server.ai.api.rest.AIRestApi;
+import org.zkit.support.server.ai.api.entity.Document;
+import org.zkit.support.server.ai.api.entity.InvokeRequest;
+import org.zkit.support.server.ai.api.service.AIAPIService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -17,6 +21,7 @@ import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
+import plus.xyc.server.i18n.entry.entity.dto.EntryState;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryResultMapStruct;
 import plus.xyc.server.i18n.entry.entity.request.EntryAIResultRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryResultListRequest;
@@ -24,6 +29,7 @@ import plus.xyc.server.i18n.entry.entity.request.EntryResultSaveRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryResultResponse;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryResultMapper;
+import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -46,6 +52,7 @@ import java.util.*;
  * @since 2024-05-13
  */
 @Service
+@Slf4j
 public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, EntryResult> implements EntryResultService {
 
     @Resource
@@ -59,9 +66,11 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @Resource
     private EntryMapper entryMapper;
     @Resource
-    private AIRestApi aiRestApi;
+    private AIAPIService aiapiService;
     @Resource
     private LanguageService languageService;
+    @Resource
+    private EntryStateMapper entryStateMapper;
 
     @Override
     public List<EntryResult> getLastResults(List<Long> ids, String language) {
@@ -128,6 +137,32 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         // 记录日志
         activityService.entity(request.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.ADD.code, result);
+
+        syncDocument(request.getEntryId(), request.getLanguage());
+    }
+
+    private void syncDocument(Long entityId, String language) {
+        List<EntryState> states = entryStateMapper.findByEntryIdInAndLanguage(List.of(entityId), language);
+        List<Long> resultIds = states.stream().map(EntryState::getResultId).toList();
+        List<EntryResult> results = this.getResults(resultIds, language);
+        log.info("results: {}", results);
+        if(results.isEmpty()) { // 删除
+            log.info("remove {}", entityId + "-" + language);
+            aiapiService.removeDocuments(List.of(entityId + "-" + language));
+            return;
+        }
+        results.stream().findFirst().ifPresent(last -> {
+            log.info("last {}", last);
+            Entry entry = entryMapper.selectById(entityId);
+            Document document = new Document();
+            document.setId(entry.getId().toString() + "-" + language);
+            document.setPage_content("source:["+entry.getValue() + "], result:[" + last.getContent()+"]");
+            JSONObject meta = new JSONObject();
+            meta.put("source", "i18n");
+            meta.put("language", language);
+            document.setMetadata(meta);
+            aiapiService.addDocuments(List.of(document));
+        });
     }
 
     @Override
@@ -145,6 +180,8 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         // 记录日志
         activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.DELETE.code, result);
+
+        syncDocument(entryId, result.getLanguage());
     }
 
     @Override
@@ -180,14 +217,21 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     public List<String> ai(EntryAIResultRequest request) {
         Entry entry = entryMapper.selectById(request.getEntryId());
         LanguageResponse response = languageService.getByCode(request.getLanguage());
-        TranslatorRequest tr = new TranslatorRequest();
-        tr.setMessage(entry.getValue());
-        tr.setTarget(response.getName());
-        Result<List<String>> result = aiRestApi.translator(tr);
-        if(!result.getSuccess()) {
-            throw new ResultException(result.getCode(), result.getMessage());
+        String content = "请将 " + entry.getValue() + " 翻译为 " + response.getName();
+        InvokeRequest invokeRequest = new InvokeRequest();
+        invokeRequest.setContent(content);
+        JSONArray metadata = new JSONArray();
+        metadata.add(new JSONObject().fluentPut("source", "i18n"));
+        metadata.add(new JSONObject().fluentPut("language", request.getLanguage()));
+        JSONObject filter = new JSONObject();
+        filter.put("$and", metadata);
+        invokeRequest.setFilter(filter);
+        Result<String> result = aiapiService.invoke(invokeRequest);
+        log.info("{}", result);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
         }
-        return result.getData();
+        return JSONArray.parseArray(result.getData(), String.class).stream().map(String::trim).distinct().toList();
     }
 
     @Override

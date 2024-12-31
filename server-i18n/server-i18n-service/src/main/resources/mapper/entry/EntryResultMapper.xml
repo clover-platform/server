@@ -53,6 +53,7 @@
             #{id}
         </foreach>
         AND language = #{language}
+        and deleted = 0
     </select>
 
     <select id="query" resultMap="BaseResultMap">

@@ -10,6 +10,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.context.annotation.Lazy;
+import org.zkit.support.server.ai.api.entity.Document;
+import org.zkit.support.server.ai.api.service.AIAPIService;
+import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.AopUtils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -86,6 +89,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Lazy
     @Resource
     private BranchRevisionService branchRevisionService;
+    @Resource
+    private AIAPIService aiapiService;
 
     @Override
     public PageResult<EntryWithStateResponse> query(PageRequest query, EntryListRequest request) {
@@ -120,6 +125,26 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         pageRequest.setPage(1);
         pageRequest.setSize(count);
         return this.query(pageRequest, request);
+    }
+
+    @Override
+    public void sync(EntryListRequest request) {
+        PageResult<EntryWithStateResponse> all = this.all(request);
+        List<EntryWithStateResponse> entries = all.getData();
+        List<Document> documents = entries.stream().filter(EntryWithStateResponse::getTranslated).map(entry -> {
+            Document document = new Document();
+            document.setId(entry.getId().toString() + "-" + request.getLanguage());
+            document.setPage_content("source:["+entry.getValue() + "], result:[" + entry.getTranslation().getContent()+"]");
+            JSONObject meta = new JSONObject();
+            meta.put("source", "i18n");
+            meta.put("language", request.getLanguage());
+            document.setMetadata(meta);
+            return document;
+        }).toList();
+        Result<?> r = aiapiService.addDocuments(documents);
+        if(!r.isSuccess()) {
+            throw ResultException.internal();
+        }
     }
 
     @Override

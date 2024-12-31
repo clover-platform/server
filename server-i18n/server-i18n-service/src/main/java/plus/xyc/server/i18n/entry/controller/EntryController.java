@@ -122,6 +122,20 @@ public class EntryController {
         return entryService.all(request);
     }
 
+    @GetMapping("/sync")
+    @Operation(summary = "同步已翻译数据到向量库")
+    public void sync(
+            @ParameterObject @ModelAttribute EntryListRequest request,
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @PathInject PathRequest pathRequest
+    ) {
+        request.setModuleId(pathRequest.getModule().getId());
+        if(pathRequest.getBranch() != null)
+            request.setBranchId(pathRequest.getBranch().getId());
+        entryService.sync(request);
+    }
+
     @GetMapping("/count")
     @Operation(summary = "统计词条")
     public EntryCountResponse count(
