@@ -217,9 +217,9 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     public List<String> ai(EntryAIResultRequest request) {
         Entry entry = entryMapper.selectById(request.getEntryId());
         LanguageResponse response = languageService.getByCode(request.getLanguage());
-        String content = "请将 " + entry.getValue() + " 翻译为 " + response.getName();
         InvokeRequest invokeRequest = new InvokeRequest();
-        invokeRequest.setContent(content);
+        invokeRequest.setMessages(List.of("请将接下来的文案翻译为 " + response.getName()));
+        invokeRequest.setContent(entry.getValue());
         JSONArray metadata = new JSONArray();
         metadata.add(new JSONObject().fluentPut("source", "i18n"));
         metadata.add(new JSONObject().fluentPut("language", request.getLanguage()));

@@ -1,5 +1,7 @@
 package plus.xyc.server.wiki.page.service.impl;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -7,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.zkit.support.server.ai.api.entity.Document;
+import org.zkit.support.server.ai.api.service.AIAPIService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -66,6 +70,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private PageCacheService pageCacheService;
+    @Resource
+    private AIAPIService aiapiService;
 
     @Override
     @Transactional
@@ -190,11 +196,30 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
             Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
             // 其他的重置为非当前版本
             pageContentService.resetCurrent(request.getId(), newPageId);
+            syncDocument(request.getId());
             return lastVersion + 1;
         }else{
             pageContentService.updateContent(request.getId(), request.getUpdateUser(), request.getContent());
         }
+
+        syncDocument(request.getId());
         return lastVersion;
+    }
+
+    private void syncDocument(Long pageId) {
+        PageDetailResponse detail = detail(pageId, null);
+        Document document = new Document();
+        document.setId(pageId.toString());
+        JSONObject pageContent = new JSONObject();
+        pageContent.put("title", detail.getTitle());
+        pageContent.put("content", JSON.parse(detail.getContent()));
+        pageContent.put("url", "http://localhost:3703/wiki/book/ai-demo/page/" + pageId);
+        document.setPage_content(JSON.toJSONString(pageContent));
+        JSONObject meta = new JSONObject();
+        meta.put("source", "wiki");
+        document.setMetadata(meta);
+        log.info("addDocuments {}", document);
+        aiapiService.addDocuments(List.of(document));
     }
 
     private CatalogResponse findById(Long id, List<CatalogResponse> catalog) {
