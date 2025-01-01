@@ -188,9 +188,11 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
             // 保存新版本
             PageContent content = pageContentMapper.findOneByPageIdAndCurrent(request.getId(), true);
             if(request.getContent() == null) {
+                syncDocument(request.getId());
                 return lastVersion;
             }
             if(request.getContent().equals(content.getContent())) {
+                syncDocument(request.getId());
                 return lastVersion;
             }
             Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
