@@ -18,6 +18,8 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.wiki.book.entity.dto.Book;
+import plus.xyc.server.wiki.book.mapper.BookMapper;
 import plus.xyc.server.wiki.collect.entity.dto.Collect;
 import plus.xyc.server.wiki.collect.mapper.CollectMapper;
 import plus.xyc.server.wiki.page.entity.dto.Page;
@@ -72,6 +74,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private PageCacheService pageCacheService;
     @Resource
     private AIAPIService aiapiService;
+    @Resource
+    private BookMapper bookMapper;
 
     @Override
     @Transactional
@@ -210,12 +214,13 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
 
     private void syncDocument(Long pageId) {
         PageDetailResponse detail = detail(pageId, null);
+        Book book = bookMapper.selectById(detail.getBookId());
         Document document = new Document();
         document.setId(pageId.toString());
         JSONObject pageContent = new JSONObject();
         pageContent.put("title", detail.getTitle());
         pageContent.put("content", JSON.parse(detail.getContent()));
-        pageContent.put("url", "http://localhost:3703/wiki/book/ai-demo/page/" + pageId);
+        pageContent.put("url", "/wiki/book/"+book.getPath()+"/page/" + pageId);
         document.setPage_content(JSON.toJSONString(pageContent));
         JSONObject meta = new JSONObject();
         meta.put("source", "wiki");
