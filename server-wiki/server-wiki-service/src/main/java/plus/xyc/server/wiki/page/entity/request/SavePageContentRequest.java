@@ -16,6 +16,9 @@ public class SavePageContentRequest {
     @Schema(description = "内容")
     private String content;
 
+    @Schema(description = "HTML 内容")
+    private String html;
+
     @Schema(description = "更新人", hidden = true)
     private Long updateUser;
 

@@ -22,6 +22,7 @@ import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.book.mapper.BookMapper;
 import plus.xyc.server.wiki.collect.entity.dto.Collect;
 import plus.xyc.server.wiki.collect.mapper.CollectMapper;
+import plus.xyc.server.wiki.configuration.AppConfiguration;
 import plus.xyc.server.wiki.page.entity.dto.Page;
 import plus.xyc.server.wiki.page.entity.dto.PageContent;
 import plus.xyc.server.wiki.page.entity.mapstruct.PageStruct;
@@ -76,6 +77,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private AIAPIService aiapiService;
     @Resource
     private BookMapper bookMapper;
+    @Resource
+    private AppConfiguration configuration;
 
     @Override
     @Transactional
@@ -192,35 +195,35 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
             // 保存新版本
             PageContent content = pageContentMapper.findOneByPageIdAndCurrent(request.getId(), true);
             if(request.getContent() == null) {
-                syncDocument(request.getId());
+                syncDocument(request.getId(), request.getHtml());
                 return lastVersion;
             }
             if(request.getContent().equals(content.getContent())) {
-                syncDocument(request.getId());
+                syncDocument(request.getId(), request.getHtml());
                 return lastVersion;
             }
             Long newPageId = pageContentService.newVersion(request.getId(), request.getUpdateUser(), request.getContent());
             // 其他的重置为非当前版本
             pageContentService.resetCurrent(request.getId(), newPageId);
-            syncDocument(request.getId());
+            syncDocument(request.getId(), request.getHtml());
             return lastVersion + 1;
         }else{
             pageContentService.updateContent(request.getId(), request.getUpdateUser(), request.getContent());
         }
 
-        syncDocument(request.getId());
+        syncDocument(request.getId(), request.getHtml());
         return lastVersion;
     }
 
-    private void syncDocument(Long pageId) {
+    private void syncDocument(Long pageId, String html) {
         PageDetailResponse detail = detail(pageId, null);
         Book book = bookMapper.selectById(detail.getBookId());
         Document document = new Document();
         document.setId(pageId.toString());
         JSONObject pageContent = new JSONObject();
         pageContent.put("title", detail.getTitle());
-        pageContent.put("content", JSON.parse(detail.getContent()));
-        pageContent.put("url", "/wiki/book/"+book.getPath()+"/page/" + pageId);
+        pageContent.put("content", html);
+        pageContent.put("url", configuration.getBaseUrl() + "/wiki/book/"+book.getPath()+"/page/" + pageId);
         document.setPage_content(JSON.toJSONString(pageContent));
         JSONObject meta = new JSONObject();
         meta.put("source", "wiki");
