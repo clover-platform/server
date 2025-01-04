@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.service.AIAPIService;
@@ -136,12 +138,14 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     }
 
     @Override
+    @CacheEvict(value = "wiki:book:page:detail", key = "#request.id")
     public void changeCatalogParent(CatalogParentRequest request) {
         log.info("changeCatalogParent {}", request);
         getBaseMapper().updateParentIdById(request.getParentId(), request.getId());
     }
 
     @Override
+    @Cacheable(value = "wiki:book:page:detail#1h", key = "#id")
     public PageDetailResponse detail(Long id, Long currentUserId) {
         String key = "wiki:book:page:" + id;
         if(currentUserId != null) {
@@ -185,6 +189,7 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
 
     @Override
     @Transactional
+    @CacheEvict(value = "wiki:book:page:detail", key = "#request.id")
     public Long saveContent(SavePageContentRequest request) {
         // 清空缓存
         pageCacheService.clearCache(request.getId());
@@ -216,7 +221,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     }
 
     private void syncDocument(Long pageId, String html) {
-        PageDetailResponse detail = detail(pageId, null);
+        PageService self = (PageService) AopContext.currentProxy();
+        PageDetailResponse detail = self.detail(pageId, null);
         Book book = bookMapper.selectById(detail.getBookId());
         Document document = new Document();
         document.setId(pageId.toString());
@@ -309,7 +315,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     @Override
     public CatalogResponse copy(Long pageId, Long userId) {
         // 获取文章详情
-        PageDetailResponse detail = detail(pageId, null);
+        PageService self = (PageService) AopContext.currentProxy();
+        PageDetailResponse detail = self.detail(pageId, null);
         // 创建文章
         CreatePageRequest createPageRequest = new CreatePageRequest();
         createPageRequest.setBookId(detail.getBookId());
