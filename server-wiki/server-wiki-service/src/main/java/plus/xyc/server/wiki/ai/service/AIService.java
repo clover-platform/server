@@ -23,11 +23,17 @@ public class AIService {
         filter.put("source", "wiki");
         request.setFilter(filter);
         request.setMessages(List.of());
-        Result<String> result = aiapiService.invoke(request);
-        if(!result.isSuccess()) {
-            throw ResultException.internal();
+        try {
+            aiapiService.stream(request);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
-        return result.getData();
+//        Result<String> result = aiapiService.invoke(request);
+//        if(!result.isSuccess()) {
+//            throw ResultException.internal();
+//        }
+//        return result.getData();
+        return "ok";
     }
 
 }
