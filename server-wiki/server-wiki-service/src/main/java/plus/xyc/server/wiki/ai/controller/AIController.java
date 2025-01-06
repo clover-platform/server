@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.wiki.ai.entity.AIChatRequest;
@@ -18,7 +19,7 @@ public class AIController {
 
     @PostMapping("/chat")
     @Operation(summary = "复制页面")
-    public String chat(
+    public SseEmitter chat(
             @RequestBody AIChatRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
