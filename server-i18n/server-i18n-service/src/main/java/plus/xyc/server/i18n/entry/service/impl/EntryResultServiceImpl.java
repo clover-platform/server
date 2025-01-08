@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.entity.InvokeRequest;
+import org.zkit.support.server.ai.api.entity.Message;
 import org.zkit.support.server.ai.api.service.AIAPIService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
@@ -19,6 +20,7 @@ import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
+import plus.xyc.server.i18n.configuration.AppConfiguration;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
@@ -71,6 +73,8 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     private LanguageService languageService;
     @Resource
     private EntryStateMapper entryStateMapper;
+    @Resource
+    private AppConfiguration configuration;
 
     @Override
     public List<EntryResult> getLastResults(List<Long> ids, String language) {
@@ -218,7 +222,12 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         Entry entry = entryMapper.selectById(request.getEntryId());
         LanguageResponse response = languageService.getByCode(request.getLanguage());
         InvokeRequest invokeRequest = new InvokeRequest();
-        invokeRequest.setMessages(List.of("请将接下来的文案翻译为 " + response.getName()));
+        List<Message> messages = new ArrayList<>(configuration.getPrompts());
+        Message message = new Message();
+        message.setRole("user");
+        message.setContent("请将接下来的文案翻译为 " + response.getName());
+        messages.add(message);
+        invokeRequest.setMessages(messages);
         invokeRequest.setContent(entry.getValue());
         JSONArray metadata = new JSONArray();
         metadata.add(new JSONObject().fluentPut("source", "i18n"));
