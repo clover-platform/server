@@ -23,7 +23,7 @@ public class AIController {
             @RequestBody AIChatRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
-        return aiService.chat(request.getContent());
+        return aiService.chat(request);
     }
 
 }
