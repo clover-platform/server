@@ -227,6 +227,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         message.setRole("user");
         message.setContent("请将接下来的文案翻译为 " + response.getName());
         messages.add(message);
+        invokeRequest.setUseVector(true);
         invokeRequest.setMessages(messages);
         invokeRequest.setContent(entry.getValue());
         JSONArray metadata = new JSONArray();
