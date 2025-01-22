@@ -1,0 +1,14 @@
+# 基础包名
+basePackage: plus.xyc.server.qa
+mapperPackage: src/main/resources/mapper
+# 数据源
+datasource:
+  url: jdbc:mysql://mysql:7307/clover_qa
+# 激活的模块
+actives:
+  - api
+# 模块配置
+modules:
+  - name: api
+    tables:
+      - api_path
