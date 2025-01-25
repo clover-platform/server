@@ -12,3 +12,4 @@ modules:
   - name: api
     tables:
       - api_path
+      - api_group
