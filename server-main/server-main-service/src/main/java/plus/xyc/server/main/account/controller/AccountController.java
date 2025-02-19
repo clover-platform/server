@@ -58,10 +58,10 @@ public class AccountController {
     }
 
     @PublicRequest
-    @PostMapping("/register/email/check")
-    @Operation(summary = "校验邮件")
-    public Boolean checkRegisterEmail(@RequestBody CheckRegisterEmailRequest request) {
-        return this.accountService.checkRegisterEmail(request);
+    @PostMapping("/register")
+    @Operation(summary = "注册")
+    public TokenResponse register(@RequestBody RegisterRequest request) {
+        return this.accountService.register(request);
     }
 
     @PublicRequest
@@ -85,13 +85,6 @@ public class AccountController {
     public OTPResponse otpSecret(@RequestParam("username") String username) {
         Result<OTPResponse> response = authAccountRestApi.otpSecret(username);
         return response.getData();
-    }
-
-    @PublicRequest
-    @PostMapping("/register")
-    @Operation(summary = "注册")
-    public TokenResponse register(@RequestBody RegisterRequest request) {
-        return this.accountService.register(request);
     }
 
     @PostMapping("/reset/password")

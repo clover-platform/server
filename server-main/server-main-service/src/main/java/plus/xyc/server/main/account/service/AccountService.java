@@ -25,7 +25,6 @@ public interface AccountService extends IService<Account> {
 
     Account findById(Long id);
     void sendRegisterEmail(String email);
-    Boolean checkRegisterEmail(CheckRegisterEmailRequest request);
     Account add(Account account);
     TokenResponse register(RegisterRequest request);
     TokenResponse login(AccountLoginRequest request);

@@ -71,24 +71,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         mailRestApi.sendCode(request);
     }
 
-    @Override
-    public Boolean checkRegisterEmail(CheckRegisterEmailRequest request) {
-        int size = baseMapper.countByEmail(request.getEmail());
-        if(size > 0) {
-            throw new ResultException(MainCode.REGISTER_HAS.code, MessageUtils.get(MainCode.REGISTER_HAS.key));
-        }
-        // 验证码是否正确
-        CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
-        checkCodeRequest.setEmail(request.getEmail());
-        checkCodeRequest.setCode(request.getCode());
-        checkCodeRequest.setAction("register");
-        Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
-        if(!checkResult.isSuccess() || !checkResult.getData()) {
-            throw new ResultException(MainCode.REGISTER_CODE.code, MessageUtils.get(MainCode.REGISTER_CODE.key));
-        }
-        return checkResult.getData();
-    }
-
     private void check(String email, String username) {
         if(this.hasUsername(username)) {
             throw new ResultException(MainCode.REGISTER_HAS.code, MessageUtils.get(MainCode.REGISTER_HAS.key));
@@ -116,10 +98,19 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @DistributedLock(value = "account", el = false)
+    @DistributedLock(value = "'account:register:' + #request.email")
     @Transactional
     public TokenResponse register(RegisterRequest request) {
         this.check(request.getEmail(), request.getUsername());
+        // 验证码是否正确
+        CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
+        checkCodeRequest.setEmail(request.getEmail());
+        checkCodeRequest.setCode(request.getCode());
+        checkCodeRequest.setAction("register");
+        Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
+        if(!checkResult.isSuccess() || !checkResult.getData()) {
+            throw new ResultException(MainCode.REGISTER_CODE.code, MessageUtils.get(MainCode.REGISTER_CODE.key));
+        }
         Result<TokenWithAccountResponse> result = authAccountRestApi.register(accountMapStruct.toAccountRegisterRequestFromRegisterRequest(request));
         if(result.isSuccess()) {
             Account account = new Account();
