@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.main.config.mapper.ConfigAppMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.main.config.entity.dto.ConfigApp">
+        <id column="id" property="id" />
+        <result column="app_id" property="appId" />
+        <result column="name_key" property="nameKey" />
+        <result column="description_key" property="descriptionKey" />
+        <result column="href" property="href" />
+        <result column="icon" property="icon" />
+        <result column="icon_url" property="iconUrl" />
+        <result column="enable" property="enable" />
+        <result column="sort" property="sort" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, app_id, name_key, description_key, href, icon, icon_url, enable, sort
+    </sql>
+
+    <select id="findByEnable" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_app
+        where
+        enable = #{enable,jdbcType=BOOLEAN}
+        order by sort
+    </select>
+
+</mapper>

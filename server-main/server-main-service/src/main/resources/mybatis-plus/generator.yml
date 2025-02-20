@@ -9,6 +9,7 @@ actives:
   - account
   - project
   - team
+  - config
 # 模块配置
 modules:
   - name: account
@@ -23,3 +24,6 @@ modules:
     tables:
       - team
       - team_member
+  - name: config
+    tables:
+      - config_app
