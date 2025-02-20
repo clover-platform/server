@@ -30,4 +30,10 @@ public class AccountProfileResponse {
     @Schema(description = "当前项目id")
     private Long currentProjectId;
 
+    @Schema(description = "是否已绑定")
+    private Boolean otpBind;
+
+    @Schema(description = "是否需要二次验证")
+    private Boolean requireOtp;
+
 }

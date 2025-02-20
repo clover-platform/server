@@ -97,12 +97,15 @@ public class AccountController {
         return this.accountService.resetPassword(request);
     }
 
+    @PublicRequest
     @GetMapping("/profile")
     @Operation(summary = "当前用户信息")
     public AccountProfileResponse profile(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
         Account account = accountService.findById(user.getId());
         AccountProfileResponse response = accountMapStruct.toAccountProfileResponse(account);
         response.setAuthorities(user.getAuthorities());
+        response.setOtpBind(user.getOtpBind());
+        response.setRequireOtp(user.getRequireOtp());
         return response;
     }
 
