@@ -135,20 +135,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
     @Override
     public TokenResponse login(AccountLoginRequest request) {
-        Account account = null;
         String username = request.getUsername();
-        if(StringUtils.isEmail(username)) {
-            account = baseMapper.findOneByEmail(username);
-            username = account.getUsername();
+        if(!StringUtils.isEmail(username)) {
+            Account account = baseMapper.findOneByUsername(username);
+            username = account.getEmail();
         }
-        account = null;
-        QueryWrapper<Account> query = new QueryWrapper<>();
-        query.eq("username", username)
-                .eq("enable", true);
-        account = this.getOne(query);
-        if(account == null) {
-            throw new ResultException(MainCode.LOGIN_NOT_EXIST.code, MessageUtils.get(MainCode.LOGIN_NOT_EXIST.key));
-        }
+        request.setUsername(username);
         Result<TokenResponse> result = authAccountRestApi.login(request);
         if(!result.isSuccess()) {
             throw new ResultException(result.getCode(), result.getMessage());
