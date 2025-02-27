@@ -36,5 +36,6 @@ public interface AccountService extends IService<Account> {
     TokenResponse checkResetEmail(CheckResetEmailRequest request);
     TokenResponse resetPassword(ResetPasswordRequest request);
     void changePassword(ChangePasswordRequest request, String token);
+    void sendEmailCode(Long accountId, String action);
 
 }

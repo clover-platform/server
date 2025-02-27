@@ -10,4 +10,7 @@ public class SendEmailCodeRequest {
     @Schema(description = "邮箱")
     private String email;
 
+    @Schema(description = "操作")
+    private String action;
+
 }

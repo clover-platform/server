@@ -229,4 +229,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
         authAccountRestApi.logout(token);
     }
+
+    @Override
+    public void sendEmailCode(Long accountId, String action) {
+        Account account = this.getById(accountId);
+        SendCodeRequest request = new SendCodeRequest();
+        request.setEmail(account.getEmail());
+        request.setAction(action);
+        mailRestApi.sendCode(request);
+    }
 }

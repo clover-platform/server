@@ -10,9 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
 import org.zkit.support.server.account.api.entity.request.ChangePasswordRequest;
 import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
-import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
-import org.zkit.support.starter.boot.entity.Result;
-import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.annotation.PublicRequest;
@@ -44,8 +41,6 @@ public class AccountController {
     @Resource
     private AccountService accountService;
     @Resource
-    private AuthAccountRestApi authAccountRestApi;
-    @Resource
     private AccountMapStruct accountMapStruct;
 
     @PublicRequest
@@ -76,14 +71,6 @@ public class AccountController {
     @Operation(summary = "重置密码验证码校验")
     public TokenResponse checkResetEmail(@RequestBody CheckResetEmailRequest request) {
         return this.accountService.checkResetEmail(request);
-    }
-
-    @PublicRequest
-    @GetMapping("/otp/secret")
-    @Operation(summary = "获取秘钥")
-    public OTPResponse otpSecret(@RequestParam("username") String username) {
-        Result<OTPResponse> response = authAccountRestApi.otpSecret(username);
-        return response.getData();
     }
 
     @PostMapping("/reset/password")
@@ -130,6 +117,16 @@ public class AccountController {
     ) {
         request.setId(user.getId());
         this.accountService.changePassword(request, token.replaceAll("Bearer ", ""));
+    }
+
+    @PostMapping("/email/code/send")
+    @Operation(summary = "发送邮件验证码")
+    @Throttler(value = "email.code.send", limit = 5)
+    public void sendEmailCode(
+            @CurrentUser() @Parameter(hidden = true) SessionUser user,
+            @RequestBody SendEmailCodeRequest request
+    ) {
+        this.accountService.sendEmailCode(user.getId(), request.getAction());
     }
 
 }
