@@ -1,6 +1,7 @@
 package plus.xyc.server.main.account.service;
 
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
+import org.zkit.support.server.account.api.entity.request.ChangePasswordRequest;
 import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.starter.mybatis.entity.PageResult;
@@ -34,5 +35,6 @@ public interface AccountService extends IService<Account> {
     void sendResetEmail(String email);
     TokenResponse checkResetEmail(CheckResetEmailRequest request);
     TokenResponse resetPassword(ResetPasswordRequest request);
+    void changePassword(ChangePasswordRequest request, String token);
 
 }

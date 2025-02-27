@@ -55,10 +55,10 @@ public class AccountAccessTokenController {
     @DeleteMapping("/{id}/revoke")
     @Operation(summary = "撤销令牌")
     public void revoke(
-            @RequestBody AccountAccessTokenRevokeRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "令牌 ID") @PathVariable Long id
     ) {
+        AccountAccessTokenRevokeRequest request = new AccountAccessTokenRevokeRequest();
         request.setAccountId(user.getId());
         request.setTokenId(id);
         accountAccessTokenService.revoke(request);

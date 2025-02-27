@@ -219,4 +219,14 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         }
         return result.getData();
     }
+
+    @Override
+    @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#request.id")
+    public void changePassword(ChangePasswordRequest request, String token) {
+        Result<?> result = authAccountRestApi.changePassword(request);
+        if(!result.isSuccess()) {
+            throw ResultException.internal();
+        }
+        authAccountRestApi.logout(token);
+    }
 }

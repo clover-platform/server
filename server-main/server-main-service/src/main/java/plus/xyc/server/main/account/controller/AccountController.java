@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
+import org.zkit.support.server.account.api.entity.request.ChangePasswordRequest;
 import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
 import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
 import org.zkit.support.starter.boot.entity.Result;
-import org.zkit.support.server.account.api.entity.request.SetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.starter.security.annotation.CurrentUser;
@@ -20,7 +20,6 @@ import org.zkit.support.starter.security.entity.SessionUser;
 import org.zkit.support.starter.throttler.annotation.Throttler;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
-import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
 import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
 import plus.xyc.server.main.account.entity.request.RegisterRequest;
 import plus.xyc.server.main.account.entity.request.SendEmailCodeRequest;
@@ -121,4 +120,16 @@ public class AccountController {
     ) {
         accountService.logout(token.replaceAll("Bearer ", ""), user.getId());
     }
+
+    @PostMapping("/password/change")
+    @Operation(summary = "修改密码")
+    public void changePassword(
+            @CurrentUser() @Parameter(hidden = true) SessionUser user,
+            @RequestBody ChangePasswordRequest request,
+            @RequestHeader("Authorization") String token
+    ) {
+        request.setId(user.getId());
+        this.accountService.changePassword(request, token.replaceAll("Bearer ", ""));
+    }
+
 }
