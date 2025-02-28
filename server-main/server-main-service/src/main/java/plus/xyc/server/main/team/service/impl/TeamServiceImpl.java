@@ -3,6 +3,7 @@ package plus.xyc.server.main.team.service.impl;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -15,6 +16,7 @@ import plus.xyc.server.main.project.service.ProjectService;
 import plus.xyc.server.main.team.entity.dto.Team;
 import plus.xyc.server.main.team.entity.dto.TeamMember;
 import plus.xyc.server.main.team.entity.enums.TeamMemberType;
+import plus.xyc.server.main.team.entity.request.CreateTeamRequest;
 import plus.xyc.server.main.team.entity.request.InitTeamRequest;
 import plus.xyc.server.main.team.entity.response.InitTeamResponse;
 import plus.xyc.server.main.team.mapper.TeamMapper;
@@ -96,5 +98,25 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         response.setTeamId(team.getId());
         response.setProjectId(project.getId());
         return response;
+    }
+
+    @Override
+    @Transactional
+    @DistributedLock({"'team'"})
+    @CacheEvict(value = "account:teams#1d", key = "#request.ownerId")
+    public void create(CreateTeamRequest request) {
+        // 保存团队
+        Team team = new Team();
+        team.setName(request.getName());
+        team.setOwnerId(request.getOwnerId());
+        team.setTeamKey(request.getTeamKey());
+        checkAndSave(team);
+
+        // 保存团队成员
+        TeamMember teamMember = new TeamMember();
+        teamMember.setTeamId(team.getId());
+        teamMember.setAccountId(request.getOwnerId());
+        teamMember.setType(TeamMemberType.OWNER.code);
+        teamMemberMapper.insert(teamMember);
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.main.team.entity.dto.Team;
+import plus.xyc.server.main.team.entity.request.CreateTeamRequest;
 import plus.xyc.server.main.team.entity.request.InitTeamRequest;
 import plus.xyc.server.main.team.entity.response.InitTeamResponse;
 import plus.xyc.server.main.team.service.TeamService;
@@ -35,19 +36,29 @@ public class TeamController {
     }
 
     @GetMapping("/my")
-    @Operation(summary = "我的项目")
+    @Operation(summary = "我的团队")
     public List<Team> my(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
         return teamService.my(user.getId());
     }
 
     @PostMapping("/init")
-    @Operation(summary = "初始化项目")
+    @Operation(summary = "初始化团队")
     public InitTeamResponse init(
             @RequestBody InitTeamRequest request,
             @CurrentUser() @Parameter(hidden = true) SessionUser user
     ) {
         request.setOwnerId(user.getId());
         return teamService.init(request);
+    }
+
+    @PostMapping("/create")
+    @Operation(summary = "创建团队")
+    public void create(
+            @RequestBody CreateTeamRequest request,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        request.setOwnerId(user.getId());
+        teamService.create(request);
     }
 
 }
