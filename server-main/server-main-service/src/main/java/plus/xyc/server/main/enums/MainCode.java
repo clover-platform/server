@@ -14,7 +14,9 @@ public enum MainCode {
 
     TEAM_REPEATED(20002000, "team.key.repeated"),
 
-    PROJECT_REPEATED(20003001, "project.key.repeated"),;
+    PROJECT_REPEATED(20003001, "project.key.repeated"),
+
+    EMAIL_CODE(20004001, "account.email.code.fail");
 
     public final int code;
     public final String key;

@@ -7,10 +7,13 @@ import com.github.pagehelper.PageHelper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.account.api.entity.request.*;
 import org.zkit.support.server.account.api.entity.response.TokenWithAccountResponse;
+import org.zkit.support.server.account.api.rest.AuthAccountOTPRestApi;
 import org.zkit.support.server.account.api.rest.AuthAccountRestApi;
 import org.zkit.support.server.mail.api.entity.request.CheckCodeRequest;
 import org.zkit.support.server.mail.api.entity.request.SendCodeRequest;
@@ -25,10 +28,9 @@ import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
-import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
-import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
-import plus.xyc.server.main.account.entity.request.RegisterRequest;
-import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
+import plus.xyc.server.main.account.entity.request.*;
+import plus.xyc.server.main.account.entity.request.OTPBindRequest;
+import plus.xyc.server.main.account.entity.request.OTPDisableRequest;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import plus.xyc.server.main.account.service.AccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -57,6 +59,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AuthAccountRestApi authAccountRestApi;
     @Resource
     private AccountMapStruct accountMapStruct;
+    @Qualifier("org.zkit.support.server.account.api.rest.AuthAccountOTPRestApi")
+    @Autowired
+    private AuthAccountOTPRestApi authAccountOTPRestApi;
 
     @Override
     @Cacheable(value = "account#1d", key = "#id")
@@ -237,5 +242,47 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         request.setEmail(account.getEmail());
         request.setAction(action);
         mailRestApi.sendCode(request);
+    }
+
+    private void checkEmailCode(CheckCodeRequest request) {
+        Result<Boolean> checkResult = mailRestApi.check(request);
+        if(!checkResult.isSuccess() || !checkResult.getData()) {
+            throw new ResultException(MainCode.EMAIL_CODE.code, MessageUtils.get(MainCode.EMAIL_CODE.key));
+        }
+    }
+
+    @Override
+    public void bindOTP(OTPBindRequest request) {
+        Account account = this.getById(request.getAccountId());
+        CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
+        checkCodeRequest.setEmail(account.getEmail());
+        checkCodeRequest.setCode(request.getCode());
+        checkCodeRequest.setAction("otp-enable");
+        checkEmailCode(checkCodeRequest);
+
+        org.zkit.support.server.account.api.entity.request.OTPBindRequest bindRequest = new org.zkit.support.server.account.api.entity.request.OTPBindRequest();
+        bindRequest.setId(request.getAccountId());
+        bindRequest.setCode(request.getOtpCode());
+        Result<?> result = authAccountOTPRestApi.bind(bindRequest);
+        if(!result.isSuccess()) {
+            throw new ResultException(result.getCode(), result.getMessage());
+        }
+    }
+
+    @Override
+    public void disableOTP(OTPDisableRequest request) {
+        Account account = this.getById(request.getAccountId());
+        CheckCodeRequest checkCodeRequest = new CheckCodeRequest();
+        checkCodeRequest.setEmail(account.getEmail());
+        checkCodeRequest.setCode(request.getCode());
+        checkCodeRequest.setAction("otp-disable");
+        checkEmailCode(checkCodeRequest);
+
+        org.zkit.support.server.account.api.entity.request.OTPDisableRequest disableRequest = new org.zkit.support.server.account.api.entity.request.OTPDisableRequest();
+        disableRequest.setId(request.getAccountId());
+        Result<?> result = authAccountOTPRestApi.disable(disableRequest);
+        if(!result.isSuccess()) {
+            throw new ResultException(result.getCode(), result.getMessage());
+        }
     }
 }

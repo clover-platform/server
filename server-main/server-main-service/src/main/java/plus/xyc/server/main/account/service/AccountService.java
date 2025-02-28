@@ -7,10 +7,7 @@ import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.account.entity.dto.Account;
 import com.baomidou.mybatisplus.extension.service.IService;
-import plus.xyc.server.main.account.entity.request.CheckRegisterEmailRequest;
-import plus.xyc.server.main.account.entity.request.CheckResetEmailRequest;
-import plus.xyc.server.main.account.entity.request.RegisterRequest;
-import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
+import plus.xyc.server.main.account.entity.request.*;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
@@ -37,5 +34,7 @@ public interface AccountService extends IService<Account> {
     TokenResponse resetPassword(ResetPasswordRequest request);
     void changePassword(ChangePasswordRequest request, String token);
     void sendEmailCode(Long accountId, String action);
+    void bindOTP(OTPBindRequest request);
+    void disableOTP(OTPDisableRequest request);
 
 }
