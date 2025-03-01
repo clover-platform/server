@@ -2,6 +2,7 @@ package plus.xyc.server.main.project.entity.dto;
 
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,7 +12,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 项目
+ * 收藏的项目
  * </p>
  *
  * @author generator
@@ -19,29 +20,21 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@Schema(name = "Project", description = "项目")
-public class Project implements Serializable {
+@TableName("project_collect")
+@Schema(name = "ProjectCollect", description = "收藏的项目")
+public class ProjectCollect implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "项目名称")
-    private String name;
+    @Schema(description = "用户ID")
+    private Long userId;
 
-    @Schema(description = "创建人")
-    private Long ownerId;
+    @Schema(description = "项目ID")
+    private Long projectId;
 
-    @Schema(description = "创建时间")
+    @Schema(description = "收藏时间")
     private Date createTime;
-
-    @Schema(description = "团队ID")
-    private Long teamId;
-
-    @Schema(description = "唯一标识")
-    private String projectKey;
-
-    @Schema(description = "是否已删除")
-    private Boolean deleted;
 }

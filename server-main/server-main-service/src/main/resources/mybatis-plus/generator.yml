@@ -20,10 +20,12 @@ modules:
     tables:
       - project
       - project_member
+      - project_collect
   - name: team
     tables:
       - team
       - team_member
+      - team_collect
   - name: config
     tables:
       - config_app

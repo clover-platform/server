@@ -3,13 +3,18 @@ package plus.xyc.server.main.team.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.Resource;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
-import plus.xyc.server.main.team.entity.dto.Team;
 import plus.xyc.server.main.team.entity.request.CreateTeamRequest;
 import plus.xyc.server.main.team.entity.request.InitTeamRequest;
+import plus.xyc.server.main.team.entity.request.TeamListRequest;
 import plus.xyc.server.main.team.entity.response.InitTeamResponse;
+import plus.xyc.server.main.team.entity.response.TeamListResponse;
 import plus.xyc.server.main.team.service.TeamService;
 
 import java.util.List;
@@ -24,20 +29,15 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/team")
-@Tag(name = "team", description = "团队")
+@Tag(name = "TeamController", description = "团队")
 public class TeamController {
 
-    private final TeamService teamService;
-
-    TeamController(
-            TeamService teamService
-    ) {
-        this.teamService = teamService;
-    }
+    @Resource
+    private TeamService teamService;
 
     @GetMapping("/my")
     @Operation(summary = "我的团队")
-    public List<Team> my(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
+    public List<TeamListResponse> my(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
         return teamService.my(user.getId());
     }
 
@@ -59,6 +59,17 @@ public class TeamController {
     ) {
         request.setOwnerId(user.getId());
         teamService.create(request);
+    }
+
+    @GetMapping("/list")
+    @Operation(summary = "我的项目")
+    public PageResult<TeamListResponse> list(
+            @ParameterObject @ModelAttribute PageRequest page,
+            @ParameterObject @ModelAttribute TeamListRequest request,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        request.setUserId(user.getId());
+        return teamService.list(page, request);
     }
 
 }

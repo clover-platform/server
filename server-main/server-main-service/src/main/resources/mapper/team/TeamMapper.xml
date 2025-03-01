@@ -17,11 +17,18 @@
         id, name, owner_id, create_time, team_key, deleted
     </sql>
 
-    <select id="findMy" resultType="plus.xyc.server.main.team.entity.dto.Team">
-        select t.*
+    <select id="findMy" resultType="plus.xyc.server.main.team.entity.response.TeamListResponse">
+        select t.*, tm.type as member_type
         from team as t
         left join team_member as tm on t.id = tm.team_id
-        where tm.account_id = #{userId}
+        <where>
+            tm.account_id = #{userId}
+            and t.deleted = false
+            and (tm.type in (2))
+            <if test="keyword != null and keyword != ''">
+                and ( t.name like concat('%', #{keyword}, '%') or t.team_key like concat('%', #{keyword}, '%') )
+            </if>
+        </where>
     </select>
 
     <select id="countByTeamKeyAndDeleted" resultType="int">
@@ -30,6 +37,34 @@
         where
             team_key = #{teamKey,jdbcType=VARCHAR}
           AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
+
+    <select id="findAllByUserId" resultType="plus.xyc.server.main.team.entity.response.TeamListResponse">
+        select t.*, tm.type as member_type
+        from team as t
+        left join team_member as tm on t.id = tm.team_id
+        <where>
+            tm.account_id = #{userId}
+            and t.deleted = false
+            and (tm.type in (0, 1, 2))
+            <if test="keyword != null and keyword != ''">
+                and ( t.name like concat('%', #{keyword}, '%') or t.team_key like concat('%', #{keyword}, '%') )
+            </if>
+        </where>
+    </select>
+
+    <select id="findJoin" resultType="plus.xyc.server.main.team.entity.response.TeamListResponse">
+        select t.*, tm.type as member_type
+        from team as t
+        left join team_member as tm on t.id = tm.team_id
+        <where>
+            tm.account_id = #{userId}
+            and t.deleted = false
+            and (tm.type in (0, 1))
+            <if test="keyword != null and keyword != ''">
+                and ( t.name like concat('%', #{keyword}, '%') or t.team_key like concat('%', #{keyword}, '%') )
+            </if>
+        </where>
     </select>
 
 </mapper>

@@ -1,5 +1,6 @@
 package plus.xyc.server.main.team.service.impl;
 
+import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
+import org.zkit.support.starter.mybatis.entity.PageRequest;
+import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
@@ -14,13 +17,17 @@ import plus.xyc.server.main.enums.MainCode;
 import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.service.ProjectService;
 import plus.xyc.server.main.team.entity.dto.Team;
+import plus.xyc.server.main.team.entity.dto.TeamCollect;
 import plus.xyc.server.main.team.entity.dto.TeamMember;
 import plus.xyc.server.main.team.entity.enums.TeamMemberType;
 import plus.xyc.server.main.team.entity.request.CreateTeamRequest;
 import plus.xyc.server.main.team.entity.request.InitTeamRequest;
+import plus.xyc.server.main.team.entity.request.TeamListRequest;
 import plus.xyc.server.main.team.entity.response.InitTeamResponse;
+import plus.xyc.server.main.team.entity.response.TeamListResponse;
 import plus.xyc.server.main.team.mapper.TeamMapper;
 import plus.xyc.server.main.team.mapper.TeamMemberMapper;
+import plus.xyc.server.main.team.service.TeamCollectService;
 import plus.xyc.server.main.team.service.TeamService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -45,11 +52,13 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     private AccountService accountService;
     @Resource
     private ProjectService projectService;
+    @Resource
+    private TeamCollectService teamCollectService;
 
     @Override
     @Cacheable(value = "account:teams#1d", key = "#userId")
-    public List<Team> my(Long userId) {
-        return baseMapper.findMy(userId);
+    public List<TeamListResponse> my(Long userId) {
+        return baseMapper.findMy(userId, null);
     }
 
     private void checkAndSave(Team team) {
@@ -118,5 +127,23 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         teamMember.setAccountId(request.getOwnerId());
         teamMember.setType(TeamMemberType.OWNER.code);
         teamMemberMapper.insert(teamMember);
+    }
+
+    @Override
+    public PageResult<TeamListResponse> list(PageRequest pr, TeamListRequest request) {
+        try(Page<TeamListResponse> page = pr.start()) {
+            String type = request.getType();
+            switch (type) {
+                case "all" -> baseMapper.findAllByUserId(request.getUserId(), pr.getKeyword());
+                case "create" -> baseMapper.findMy(request.getUserId(), pr.getKeyword());
+                case "join" -> baseMapper.findJoin(request.getUserId(), pr.getKeyword());
+            }
+            List<Long> teamIds = page.getResult().stream().map(TeamListResponse::getId).toList();
+            List<TeamCollect> teamCollects = teamCollectService.findByTeamIdsAndUserId(teamIds, request.getUserId());
+            page.getResult().forEach(item -> {
+                item.setIsCollect(teamCollects.stream().anyMatch(collect -> collect.getTeamId().equals(item.getId())));
+            });
+            return PageResult.of(page);
+        }
     }
 }
