@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/{moduleName}/branch")
-@Tag(name = "branch", description = "分支")
+@Tag(name = "BranchController", description = "分支")
 public class BranchController {
 
     @Resource

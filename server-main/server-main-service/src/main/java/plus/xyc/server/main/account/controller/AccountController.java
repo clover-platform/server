@@ -35,7 +35,7 @@ import plus.xyc.server.main.account.service.AccountService;
 @RequestMapping("/account")
 @Slf4j
 @Validated
-@Tag(name = "account", description = "用户账户")
+@Tag(name = "AccountController", description = "用户账户")
 public class AccountController {
 
     @Resource

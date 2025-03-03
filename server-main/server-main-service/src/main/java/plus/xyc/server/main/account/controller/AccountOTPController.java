@@ -21,7 +21,7 @@ import plus.xyc.server.main.account.service.AccountService;
 @RequestMapping("/account/otp")
 @Slf4j
 @Validated
-@Tag(name = "account", description = "用户账户")
+@Tag(name = "AccountOTPController", description = "用户OTP设置")
 public class AccountOTPController {
 
     @Resource

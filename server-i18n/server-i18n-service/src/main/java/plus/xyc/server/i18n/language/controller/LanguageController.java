@@ -22,7 +22,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/language")
-@Tag(name = "language", description = "语言")
+@Tag(name = "LanguageController", description = "语言")
 public class LanguageController {
 
     @Resource

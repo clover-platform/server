@@ -14,7 +14,7 @@ import plus.xyc.server.main.api.constant.MainApiRoute;
 
 @RestController
 @Slf4j
-@Tag(name = "internal-access-token", description = "[内部接口]访问令牌")
+@Tag(name = "InternalAccessTokenController", description = "访问令牌")
 public class InternalAccessTokenController {
 
     @Resource

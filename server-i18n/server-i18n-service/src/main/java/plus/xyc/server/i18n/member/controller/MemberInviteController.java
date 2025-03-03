@@ -29,7 +29,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/{moduleName}/member/invite")
-@Tag(name = "memberInvite", description = "成员邀请")
+@Tag(name = "MemberInviteController", description = "成员邀请")
 @Slf4j
 public class MemberInviteController {
 

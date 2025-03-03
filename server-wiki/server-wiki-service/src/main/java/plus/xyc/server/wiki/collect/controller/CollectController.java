@@ -23,7 +23,7 @@ import plus.xyc.server.wiki.collect.service.CollectService;
  */
 @RestController
 @RequestMapping("/book/{bookPath}")
-@Tag(name = "page", description = "收藏")
+@Tag(name = "CollectController", description = "收藏")
 public class CollectController {
 
     @Resource

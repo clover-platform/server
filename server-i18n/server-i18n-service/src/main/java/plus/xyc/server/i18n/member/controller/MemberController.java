@@ -28,7 +28,7 @@ import plus.xyc.server.i18n.member.service.MemberService;
  */
 @RestController
 @RequestMapping("/{moduleName}/member")
-@Tag(name = "member", description = "成员")
+@Tag(name = "MemberController", description = "成员")
 public class MemberController {
 
     @Resource

@@ -27,7 +27,7 @@ import plus.xyc.server.wiki.book.service.BookHomePageService;
  */
 @RestController
 @RequestMapping("/book/{bookPath}/home/page")
-@Tag(name = "bookHomePage", description = "知识库首页")
+@Tag(name = "BookHomePageController", description = "知识库首页")
 public class BookHomePageController {
 
     @Resource

@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
-@Tag(name = "internal-account", description = "[内部接口]用户账户")
+@Tag(name = "InternalAccountController", description = "用户账户")
 public class InternalAccountController {
 
     @Resource

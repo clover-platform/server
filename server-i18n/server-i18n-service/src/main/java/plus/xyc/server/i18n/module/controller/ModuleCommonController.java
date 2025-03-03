@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/module")
-@Tag(name = "moduleCommon", description = "模块")
+@Tag(name = "ModuleCommonController", description = "模块")
 @Slf4j
 public class ModuleCommonController {
 

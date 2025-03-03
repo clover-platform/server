@@ -15,7 +15,7 @@ import plus.xyc.server.i18n.open.entity.request.OpenBranchCreateRequest;
 
 @RestController
 @RequestMapping("/open/{moduleName}/branch")
-@Tag(name = "Branch Open API", description = "下载包")
+@Tag(name = "OpenBranchController", description = "分支接口")
 @Slf4j
 public class OpenBranchController {
 

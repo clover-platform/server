@@ -26,7 +26,7 @@ import plus.xyc.server.main.account.service.AccountAccessTokenService;
  */
 @RestController
 @RequestMapping("/account/access/token")
-@Tag(name = "accountAccessToken", description = "访问令牌")
+@Tag(name = "AccountAccessTokenController", description = "访问令牌")
 @Slf4j
 public class AccountAccessTokenController {
 

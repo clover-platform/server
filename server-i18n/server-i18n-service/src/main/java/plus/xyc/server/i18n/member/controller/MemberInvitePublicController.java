@@ -23,7 +23,7 @@ import plus.xyc.server.i18n.member.service.MemberInviteService;
  */
 @RestController
 @RequestMapping("/member/invite")
-@Tag(name = "memberInvitePublic", description = "成员邀请信息")
+@Tag(name = "MemberInvitePublicController", description = "成员邀请信息")
 @Slf4j
 public class MemberInvitePublicController {
 

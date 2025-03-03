@@ -23,7 +23,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/team/collect")
-@Tag(name = "TeamController", description = "团队收藏")
+@Tag(name = "TeamCollectController", description = "团队收藏")
 public class TeamCollectController {
 
     @Resource

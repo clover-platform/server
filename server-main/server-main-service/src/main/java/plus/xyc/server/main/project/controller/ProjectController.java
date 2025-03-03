@@ -26,7 +26,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/project")
-@Tag(name = "project", description = "项目")
+@Tag(name = "ProjectController", description = "项目")
 public class ProjectController {
 
     @Resource

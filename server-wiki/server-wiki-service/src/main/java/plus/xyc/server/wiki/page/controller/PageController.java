@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/book/{bookPath}/page")
-@Tag(name = "page", description = "页面")
+@Tag(name = "PageController", description = "页面")
 public class PageController {
 
     @Resource

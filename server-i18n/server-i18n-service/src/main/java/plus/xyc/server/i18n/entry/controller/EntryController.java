@@ -31,7 +31,7 @@ import plus.xyc.server.i18n.entry.service.EntryService;
  */
 @RestController
 @RequestMapping("/{moduleName}/branch/{branchName}/entry")
-@Tag(name = "entry", description = "词条")
+@Tag(name = "EntryController", description = "词条")
 public class EntryController {
 
     @Resource

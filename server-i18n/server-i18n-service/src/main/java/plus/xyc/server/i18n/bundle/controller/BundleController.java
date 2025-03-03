@@ -27,7 +27,7 @@ import plus.xyc.server.i18n.common.entity.PathRequest;
  */
 @RestController
 @RequestMapping("/{moduleName}/bundle")
-@Tag(name = "bundle", description = "下载包")
+@Tag(name = "BundleController", description = "下载包")
 public class BundleController {
 
     @Resource

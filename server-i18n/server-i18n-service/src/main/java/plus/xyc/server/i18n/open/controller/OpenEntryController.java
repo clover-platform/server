@@ -19,7 +19,7 @@ import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 @RestController
 @RequestMapping("/open/{moduleName}/branch/{branchName}/entry")
-@Tag(name = "Branch Open API", description = "下载包")
+@Tag(name = "OpenEntryController", description = "词条接口")
 @Slf4j
 public class OpenEntryController {
 

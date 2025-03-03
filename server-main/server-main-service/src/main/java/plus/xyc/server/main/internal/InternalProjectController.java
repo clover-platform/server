@@ -11,7 +11,7 @@ import plus.xyc.server.main.project.service.ProjectService;
 
 @RestController
 @Slf4j
-@Tag(name = "internal-project", description = "[内部接口]项目")
+@Tag(name = "InternalProjectController", description = "项目")
 public class InternalProjectController {
 
     @Resource

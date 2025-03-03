@@ -31,7 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/{moduleName}/branch/{branchName}/entry/{entryId}/result")
-@Tag(name = "entryResult", description = "词条翻译结果")
+@Tag(name = "EntryResultController", description = "词条翻译结果")
 public class EntryResultController {
 
     @Resource

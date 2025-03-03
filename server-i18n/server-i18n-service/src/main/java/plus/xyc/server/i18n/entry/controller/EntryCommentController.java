@@ -27,7 +27,7 @@ import plus.xyc.server.i18n.entry.service.EntryCommentService;
  */
 @RestController
 @RequestMapping("/{moduleName}/branch/{branchName}/entry/{entryId}/comment")
-@Tag(name = "entryComment", description = "词条评论")
+@Tag(name = "EntryCommentController", description = "词条评论")
 public class EntryCommentController {
 
     @Resource

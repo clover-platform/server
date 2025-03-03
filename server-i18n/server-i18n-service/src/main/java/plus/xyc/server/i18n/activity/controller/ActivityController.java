@@ -26,7 +26,7 @@ import plus.xyc.server.i18n.common.entity.PathRequest;
  */
 @RestController
 @RequestMapping("/{moduleName}/activity")
-@Tag(name = "activity", description = "活动记录")
+@Tag(name = "ActivityController", description = "活动记录")
 public class ActivityController {
 
     @Resource

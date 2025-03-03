@@ -28,7 +28,7 @@ import plus.xyc.server.wiki.book.service.BookService;
  */
 @RestController
 @RequestMapping("/book")
-@Tag(name = "book", description = "知识库")
+@Tag(name = "BookController", description = "知识库")
 @Slf4j
 public class BookController {
 
