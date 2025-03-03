@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-03-01
+ * @since 2025-03-03
  */
 @Data
 @Accessors(chain = true)
@@ -44,4 +44,7 @@ public class Project implements Serializable {
 
     @Schema(description = "是否已删除")
     private Boolean deleted;
+
+    @Schema(description = "封面")
+    private String cover;
 }
