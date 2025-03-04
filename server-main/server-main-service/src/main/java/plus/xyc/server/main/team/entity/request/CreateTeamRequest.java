@@ -7,7 +7,10 @@ import lombok.Data;
 @Schema(description = "初始化团队")
 public class CreateTeamRequest {
 
-     @Schema(description = "团队名称")
+    @Schema(description = "团队封面")
+    private String cover;
+
+    @Schema(description = "团队名称")
     private String name;
 
     @Schema(description = "团队标识")

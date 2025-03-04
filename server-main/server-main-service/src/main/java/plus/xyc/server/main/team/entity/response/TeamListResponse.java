@@ -2,6 +2,7 @@ package plus.xyc.server.main.team.entity.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 import java.util.Date;
 
@@ -17,6 +18,9 @@ public class TeamListResponse {
 
     @Schema(description = "创建人")
     private Long ownerId;
+
+    @Schema(description = "所有者")
+    private ApiAccountResponse owner;
 
     @Schema(description = "创建时间")
     private Date createTime;

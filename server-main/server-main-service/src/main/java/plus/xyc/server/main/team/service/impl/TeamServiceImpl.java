@@ -1,5 +1,6 @@
 package plus.xyc.server.main.team.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -7,12 +8,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.MD5Utils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.enums.MainCode;
 import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.service.ProjectService;
@@ -33,6 +37,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * <p>
@@ -116,10 +121,19 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     public void create(CreateTeamRequest request) {
         // 保存团队
         Team team = new Team();
+        team.setCover(request.getCover());
         team.setName(request.getName());
         team.setOwnerId(request.getOwnerId());
         team.setTeamKey(request.getTeamKey());
         checkAndSave(team);
+
+        // 保存项目信息
+        Project project = new Project();
+        project.setTeamId(team.getId());
+        project.setName(MessageUtils.get("default.project.name"));
+        project.setOwnerId(request.getOwnerId());
+        project.setProjectKey("default"+ team.getId());
+        projectService.checkAndSave(project);
 
         // 保存团队成员
         TeamMember teamMember = new TeamMember();
@@ -140,10 +154,34 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
             }
             List<Long> teamIds = page.getResult().stream().map(TeamListResponse::getId).toList();
             List<TeamCollect> teamCollects = teamCollectService.findByTeamIdsAndUserId(teamIds, request.getUserId());
+            List<Long> ownerIds = page.getResult().stream().map(TeamListResponse::getOwnerId).toList();
+            ApiAccountListRequest apiAccountListRequest = new ApiAccountListRequest();
+            apiAccountListRequest.setIds(ownerIds);
+            PageResult<ApiAccountResponse> result = accountService.query(apiAccountListRequest);
+            List<ApiAccountResponse> accounts = result.getData();
             page.getResult().forEach(item -> {
                 item.setIsCollect(teamCollects.stream().anyMatch(collect -> collect.getTeamId().equals(item.getId())));
+                item.setOwner(accounts.stream().filter(account -> account.getId().equals(item.getOwnerId())).findFirst().orElse(null));
             });
             return PageResult.of(page);
         }
+    }
+
+    @Override
+    @CacheEvict(value = {"account:teams#1d", "account:projects#1d"}, key = "#userId")
+    public void delete(Long id, Long userId) {
+        int size = baseMapper.countByIdAndOwnerId(id, userId);
+        if (size == 0) {
+            throw new ResultException(MainCode.ACCESS_DENIED.code, MessageUtils.get(MainCode.ACCESS_DENIED.key));
+        }
+        UpdateWrapper<Team> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
+        updateWrapper.set("deleted", true);
+        update(updateWrapper);
+
+        UpdateWrapper<Project> projectUpdateWrapper = new UpdateWrapper<>();
+        projectUpdateWrapper.eq("team_id", id);
+        projectUpdateWrapper.set("deleted", true);
+        projectService.update(projectUpdateWrapper);
     }
 }

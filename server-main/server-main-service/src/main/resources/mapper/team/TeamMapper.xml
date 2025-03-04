@@ -67,4 +67,11 @@
         </where>
     </select>
 
+    <select id="countByIdAndOwnerId" resultType="int">
+        select count(*)
+        from team
+        where id = #{id,jdbcType=NUMERIC}
+          AND owner_id = #{ownerId,jdbcType=NUMERIC}
+    </select>
+
 </mapper>

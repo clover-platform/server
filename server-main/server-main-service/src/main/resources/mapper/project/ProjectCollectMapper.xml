@@ -14,5 +14,23 @@
     <sql id="Base_Column_List">
         id, user_id, project_id, create_time
     </sql>
+    <select id="findByTeamIdInAndUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from project_collect
+        where
+
+    </select>
+    <select id="findByProjectIdInAndUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from project_collect
+        where
+        project_id in
+        <foreach collection="projectIdList" item="item" open="(" close=")" separator=",">
+            #{item,jdbcType=NUMERIC}
+        </foreach>
+        AND user_id = #{userId,jdbcType=NUMERIC}
+    </select>
 
 </mapper>

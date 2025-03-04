@@ -2,6 +2,8 @@ package plus.xyc.server.main.enums;
 
 public enum MainCode {
 
+    ACCESS_DENIED(9000, "access.denied"),
+
     ACCESS_TOKEN_NAME_EXISTS(10000, "access.token.name.exists"),
     ACCESS_TOKEN_REJECT(10001, "access.token.reject"),
 

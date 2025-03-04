@@ -6,6 +6,7 @@ import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
 import plus.xyc.server.main.project.entity.dto.Project;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
+import plus.xyc.server.main.project.entity.response.ProjectResponse;
 
 import java.util.List;
 
@@ -19,9 +20,9 @@ import java.util.List;
  */
 public interface ProjectService extends IService<Project> {
 
-    List<Project> my(Long userId, Long teamId);
+    List<ProjectResponse> my(Long userId, Long teamId);
     boolean join(JoinProjectRequest request);
-    PageResult<Project> list(PageRequest page, ProjectListRequest request);
+    PageResult<ProjectResponse> list(PageRequest page, ProjectListRequest request);
     void checkAndSave(Project project);
 
 }

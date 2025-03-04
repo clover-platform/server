@@ -12,19 +12,27 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
+import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.enums.MainCode;
 import plus.xyc.server.main.project.entity.dto.Project;
+import plus.xyc.server.main.project.entity.dto.ProjectCollect;
 import plus.xyc.server.main.project.entity.dto.ProjectMember;
 import plus.xyc.server.main.project.entity.enums.ProjectMemberType;
+import plus.xyc.server.main.project.entity.mapstruct.ProjectMapStruct;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
+import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
 import plus.xyc.server.main.project.mapper.ProjectMemberMapper;
+import plus.xyc.server.main.project.service.ProjectCollectService;
 import plus.xyc.server.main.project.service.ProjectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.main.team.entity.dto.Team;
+import plus.xyc.server.main.team.entity.dto.TeamCollect;
 import plus.xyc.server.main.team.entity.dto.TeamMember;
+import plus.xyc.server.main.team.entity.response.TeamListResponse;
 import plus.xyc.server.main.team.mapper.TeamMapper;
 import plus.xyc.server.main.team.mapper.TeamMemberMapper;
 
@@ -50,11 +58,15 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private ProjectMemberMapper projectMemberMapper;
     @Resource
     private AccountService accountService;
+    @Resource
+    private ProjectMapStruct projectMapStruct;
+    @Resource
+    private ProjectCollectService projectCollectService;
 
     @Override
     @Cacheable(value = "account:projects#1d", key = "#userId")
-    public List<Project> my(Long userId, Long teamId) {
-        return baseMapper.findJoin(userId, teamId);
+    public List<ProjectResponse> my(Long userId, Long teamId) {
+        return baseMapper.findJoin(userId, teamId, null);
     }
 
     @Override
@@ -93,17 +105,37 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     }
 
     @Override
-    public PageResult<Project> list(PageRequest pr, ProjectListRequest request) {
+    public PageResult<ProjectResponse> list(PageRequest pr, ProjectListRequest request) {
         log.info("list page: {}", pr);
         log.info("list project: {}", request);
-        try(Page<Project> page = pr.start()) {
+        try(Page<ProjectResponse> page = pr.start()) {
             String type = request.getType();
             switch (type) {
-                case "all" -> baseMapper.findAllByUserId(request.getUserId(), request.getTeamId());
-                case "create" -> baseMapper.findMy(request.getUserId(), request.getTeamId());
-                case "join" -> baseMapper.findJoin(request.getUserId(), request.getTeamId());
-            };
-            return PageResult.of(page);
+                case "all" -> baseMapper.findAllByUserId(request.getUserId(), request.getTeamId(), pr.getKeyword());
+                case "create" -> baseMapper.findMy(request.getUserId(), request.getTeamId(), pr.getKeyword());
+                case "join" -> baseMapper.findJoin(request.getUserId(), request.getTeamId(), pr.getKeyword());
+            }
+            List<ProjectResponse> responses = page.getResult();
+            List<Long> projectIds = responses.stream().map(ProjectResponse::getId).toList();
+            List<ProjectCollect> projectCollects = projectCollectService.findByProjectIdsAndUserId(projectIds, request.getUserId());
+            List<Long> ownerIds = responses.stream().map(ProjectResponse::getOwnerId).toList();
+            ApiAccountListRequest apiAccountListRequest = new ApiAccountListRequest();
+            apiAccountListRequest.setIds(ownerIds);
+            PageResult<ApiAccountResponse> result = accountService.query(apiAccountListRequest);
+            List<ApiAccountResponse> accounts = result.getData();
+            List<Long> teamIds = responses.stream().map(ProjectResponse::getTeamId).toList();
+            List<Team> teams;
+            if(!teamIds.isEmpty()) {
+                teams = teamMapper.selectBatchIds(teamIds);
+            } else {
+                teams = List.of();
+            }
+            responses.forEach(item -> {
+                item.setIsCollect(projectCollects.stream().anyMatch(collect -> collect.getProjectId().equals(item.getId())));
+                item.setOwner(accounts.stream().filter(account -> account.getId().equals(item.getOwnerId())).findFirst().orElse(null));
+                item.setTeam(teams.stream().filter(team -> team.getId().equals(item.getTeamId())).findFirst().orElse(null));
+            });
+            return PageResult.of(page.getTotal(), responses);
         }
     }
 

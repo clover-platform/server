@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema(name = "AccountResponse", description = "用户信息")
+@Schema(name = "ApiAccountResponse", description = "用户信息")
 public class ApiAccountResponse {
 
 

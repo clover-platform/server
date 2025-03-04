@@ -12,6 +12,7 @@ import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
+import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.service.ProjectService;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class ProjectController {
 
     @GetMapping("/my")
     @Operation(summary = "我的项目")
-    public List<Project> my(
+    public List<ProjectResponse> my(
             @RequestParam(required = false) Long teamId,
             @CurrentUser() @Parameter(hidden = true) SessionUser user
     ) {
@@ -43,7 +44,7 @@ public class ProjectController {
 
     @GetMapping("/list")
     @Operation(summary = "我的项目")
-    public PageResult<Project> list(
+    public PageResult<ProjectResponse> list(
             @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute ProjectListRequest request,
             @CurrentUser() @Parameter(hidden = true) SessionUser user

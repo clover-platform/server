@@ -3,6 +3,7 @@ import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.main.project.entity.dto.Project;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import plus.xyc.server.main.project.entity.response.ProjectResponse;
 
 import java.util.List;
 
@@ -16,9 +17,9 @@ import java.util.List;
  */
 public interface ProjectMapper extends BaseMapper<Project> {
 
-    List<Project> findJoin(@Param("userId") Long userId, @Param("teamId") Long teamId);
-    List<Project> findAllByUserId(@Param("userId") Long userId, @Param("teamId") Long teamId);
-    List<Project> findMy(@Param("userId") Long userId, @Param("teamId") Long teamId);
+    List<ProjectResponse> findJoin(@Param("userId") Long userId, @Param("teamId") Long teamId, @Param("keyword") String keyword);
+    List<ProjectResponse> findAllByUserId(@Param("userId") Long userId, @Param("teamId") Long teamId, @Param("keyword") String keyword);
+    List<ProjectResponse> findMy(@Param("userId") Long userId, @Param("teamId") Long teamId, @Param("keyword") String keyword);
     int countByProjectKeyAndDeleted(@Param("projectKey") String projectKey, @Param("deleted") Boolean deleted);
 
 }

@@ -18,36 +18,57 @@
         id, name, owner_id, create_time, team_id, project_key, deleted
     </sql>
 
-    <select id="findJoin" resultMap="BaseResultMap">
-        select distinct p.*
+    <select id="findJoin" resultType="plus.xyc.server.main.project.entity.response.ProjectResponse">
+        select distinct p.*, pm.type as memberType
         from project as p
         left join project_member as pm on p.id = pm.project_id
-        where pm.account_id = #{userId}
-        <if test="teamId != null">
-            and p.team_id = #{teamId}
-        </if>
+        <where>
+            pm.account_id = #{userId}
+            and p.deleted = false
+            and (pm.type in (0, 1))
+            <if test="teamId != null">
+                and p.team_id = #{teamId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and ( p.name like concat('%', #{keyword}, '%') or p.project_key like concat('%', #{keyword}, '%') )
+            </if>
+        </where>
     </select>
 
-    <select id="findAllByUserId" resultMap="BaseResultMap">
-        select distinct p.*
-        from project p, project_member pm
-        where
-        p.id = pm.project_id
-        and (pm.account_id = #{userId} or p.owner_id = #{userId})
-        <if test="teamId != null">
-            and p.team_id = #{teamId}
-        </if>
+    <select id="findAllByUserId" resultType="plus.xyc.server.main.project.entity.response.ProjectResponse">
+        select distinct p.*, pm.type as memberType
+        from project as p
+        left join project_member as pm on p.id = pm.project_id
+        <where>
+            pm.account_id = #{userId}
+            and p.deleted = false
+            and (pm.type in (0, 1, 2))
+            <if test="teamId != null">
+                and p.team_id = #{teamId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and ( p.name like concat('%', #{keyword}, '%') or p.project_key like concat('%', #{keyword}, '%') )
+            </if>
+        </where>
     </select>
 
-    <select id="findMy" resultMap="BaseResultMap">
-        select
-        <include refid="Base_Column_List"/>
-        from project
-        where owner_id = #{userId}
-        <if test="teamId != null">
-            and p.team_id = #{teamId}
-        </if>
+    <select id="findMy" resultType="plus.xyc.server.main.project.entity.response.ProjectResponse">
+        select distinct p.*, pm.type as memberType
+        from project as p
+        left join project_member as pm on p.id = pm.project_id
+        <where>
+            pm.account_id = #{userId}
+            and p.deleted = false
+            and (pm.type in (2))
+            <if test="teamId != null">
+                and p.team_id = #{teamId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and ( p.name like concat('%', #{keyword}, '%') or p.project_key like concat('%', #{keyword}, '%') )
+            </if>
+        </where>
     </select>
+
     <select id="countByProjectKeyAndDeleted" resultType="int">
         select count(*)
         from project

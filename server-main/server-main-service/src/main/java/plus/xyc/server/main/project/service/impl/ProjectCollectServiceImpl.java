@@ -5,6 +5,9 @@ import plus.xyc.server.main.project.mapper.ProjectCollectMapper;
 import plus.xyc.server.main.project.service.ProjectCollectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
+import plus.xyc.server.main.team.entity.dto.TeamCollect;
+
+import java.util.List;
 
 /**
  * <p>
@@ -16,5 +19,13 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper, ProjectCollect> implements ProjectCollectService {
+
+    @Override
+    public List<ProjectCollect> findByProjectIdsAndUserId(List<Long> teamIds, Long userId) {
+        if(teamIds != null && !teamIds.isEmpty()) {
+            return baseMapper.findByProjectIdInAndUserId(teamIds, userId);
+        }
+        return List.of();
+    }
 
 }

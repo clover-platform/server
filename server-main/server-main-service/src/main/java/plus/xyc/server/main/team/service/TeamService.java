@@ -26,5 +26,6 @@ public interface TeamService extends IService<Team> {
     InitTeamResponse init(InitTeamRequest request);
     void create(CreateTeamRequest request);
     PageResult<TeamListResponse> list(PageRequest pr, TeamListRequest request);
+    void delete(Long id, Long userId);
 
 }

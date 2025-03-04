@@ -62,7 +62,7 @@ public class TeamController {
     }
 
     @GetMapping("/list")
-    @Operation(summary = "我的项目")
+    @Operation(summary = "我的团队")
     public PageResult<TeamListResponse> list(
             @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute TeamListRequest request,
@@ -70,6 +70,15 @@ public class TeamController {
     ) {
         request.setUserId(user.getId());
         return teamService.list(page, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除团队")
+    public void delete(
+            @Parameter(description = "团队 ID") @PathVariable Long id,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        teamService.delete(id, user.getId());
     }
 
 }
