@@ -10,6 +10,7 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
+import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
@@ -20,7 +21,6 @@ import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.dto.ProjectCollect;
 import plus.xyc.server.main.project.entity.dto.ProjectMember;
 import plus.xyc.server.main.project.entity.enums.ProjectMemberType;
-import plus.xyc.server.main.project.entity.mapstruct.ProjectMapStruct;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
@@ -30,9 +30,7 @@ import plus.xyc.server.main.project.service.ProjectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.main.team.entity.dto.Team;
-import plus.xyc.server.main.team.entity.dto.TeamCollect;
 import plus.xyc.server.main.team.entity.dto.TeamMember;
-import plus.xyc.server.main.team.entity.response.TeamListResponse;
 import plus.xyc.server.main.team.mapper.TeamMapper;
 import plus.xyc.server.main.team.mapper.TeamMemberMapper;
 
@@ -59,14 +57,18 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Resource
     private AccountService accountService;
     @Resource
-    private ProjectMapStruct projectMapStruct;
-    @Resource
     private ProjectCollectService projectCollectService;
 
     @Override
     @Cacheable(value = "account:projects#1d", key = "#userId")
+    public List<ProjectResponse> my(Long userId) {
+        Account account = accountService.findById(userId);
+        return baseMapper.findMy(userId, account.getCurrentTeamId(), null);
+    }
+
+    @Override
     public List<ProjectResponse> my(Long userId, Long teamId) {
-        return baseMapper.findJoin(userId, teamId, null);
+        return baseMapper.findMy(userId, teamId, null);
     }
 
     @Override

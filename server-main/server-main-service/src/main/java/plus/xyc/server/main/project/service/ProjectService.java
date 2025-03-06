@@ -20,6 +20,7 @@ import java.util.List;
  */
 public interface ProjectService extends IService<Project> {
 
+    List<ProjectResponse> my(Long userId);
     List<ProjectResponse> my(Long userId, Long teamId);
     boolean join(JoinProjectRequest request);
     PageResult<ProjectResponse> list(PageRequest page, ProjectListRequest request);

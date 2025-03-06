@@ -10,6 +10,8 @@ import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.main.project.entity.response.ProjectResponse;
+import plus.xyc.server.main.project.service.ProjectService;
 import plus.xyc.server.main.team.entity.request.CreateTeamRequest;
 import plus.xyc.server.main.team.entity.request.InitTeamRequest;
 import plus.xyc.server.main.team.entity.request.TeamListRequest;
@@ -34,6 +36,8 @@ public class TeamController {
 
     @Resource
     private TeamService teamService;
+    @Resource
+    private ProjectService projectService;
 
     @GetMapping("/my")
     @Operation(summary = "我的团队")
@@ -79,6 +83,15 @@ public class TeamController {
             @CurrentUser() @Parameter(hidden = true) SessionUser user
     ) {
         teamService.delete(id, user.getId());
+    }
+
+    @GetMapping("/{id}/projects")
+    @Operation(summary = "我的团队")
+    public List<ProjectResponse> projects(
+            @Parameter(description = "团队 ID") @PathVariable Long id,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        return projectService.my(user.getId(), id);
     }
 
 }

@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
-import org.zkit.support.starter.boot.utils.MD5Utils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
@@ -37,7 +36,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * <p>
@@ -95,9 +93,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         // 保存项目信息
         Project project = new Project();
         project.setTeamId(team.getId());
-        project.setName(request.getProjectName());
+        project.setName(MessageUtils.get("default.project.name"));
         project.setOwnerId(request.getOwnerId());
-        project.setProjectKey(request.getProjectKey());
+        project.setProjectKey("default"+ team.getId());
         projectService.checkAndSave(project);
 
         // 设置为当前

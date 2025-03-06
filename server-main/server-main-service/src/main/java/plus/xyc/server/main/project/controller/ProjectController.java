@@ -36,10 +36,9 @@ public class ProjectController {
     @GetMapping("/my")
     @Operation(summary = "我的项目")
     public List<ProjectResponse> my(
-            @RequestParam(required = false) Long teamId,
             @CurrentUser() @Parameter(hidden = true) SessionUser user
     ) {
-        return projectService.my(user.getId(), teamId);
+        return projectService.my(user.getId());
     }
 
     @GetMapping("/list")
