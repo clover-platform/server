@@ -10,6 +10,7 @@ import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.service.ProjectService;
 import plus.xyc.server.main.team.entity.request.CreateTeamRequest;
@@ -53,6 +54,16 @@ public class TeamController {
     ) {
         request.setOwnerId(user.getId());
         return teamService.init(request);
+    }
+
+    @PutMapping("/change")
+    @Operation(summary = "切换团队")
+    public void change(
+            @RequestBody SetCurrentRequest request,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        request.setAccountId(user.getId());
+        teamService.change(request);
     }
 
     @PostMapping("/create")

@@ -182,4 +182,9 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         projectUpdateWrapper.set("deleted", true);
         projectService.update(projectUpdateWrapper);
     }
+
+    @Override
+    public void change(SetCurrentRequest request) {
+        accountService.setCurrent(request);
+    }
 }

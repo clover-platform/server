@@ -59,8 +59,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AuthAccountRestApi authAccountRestApi;
     @Resource
     private AccountMapStruct accountMapStruct;
-    @Qualifier("org.zkit.support.server.account.api.rest.AuthAccountOTPRestApi")
-    @Autowired
+    @Resource
     private AuthAccountOTPRestApi authAccountOTPRestApi;
 
     @Override
