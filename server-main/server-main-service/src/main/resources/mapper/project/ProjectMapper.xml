@@ -77,4 +77,17 @@
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
+    <select id="countByIdAndOwnerId" resultType="int">
+        select count(*)
+        from project
+        where id = #{id,jdbcType=NUMERIC}
+          AND owner_id = #{ownerId,jdbcType=NUMERIC}
+    </select>
+    <select id="countByTeamIdAndDeleted" resultType="int">
+        select count(*)
+        from project
+        where team_id = #{teamId,jdbcType=NUMERIC}
+          AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
+
 </mapper>

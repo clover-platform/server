@@ -73,5 +73,11 @@
         where id = #{id,jdbcType=NUMERIC}
           AND owner_id = #{ownerId,jdbcType=NUMERIC}
     </select>
+    <select id="countByOwnerIdAndDeleted" resultType="int">
+        select count(*)
+        from team
+        where owner_id = #{ownerId,jdbcType=NUMERIC}
+          AND deleted = #{deleted,jdbcType=BOOLEAN}
+    </select>
 
 </mapper>

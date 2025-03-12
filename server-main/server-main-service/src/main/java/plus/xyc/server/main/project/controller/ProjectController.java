@@ -11,6 +11,7 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.main.project.entity.dto.Project;
+import plus.xyc.server.main.project.entity.request.CreateProjectRequest;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.service.ProjectService;
@@ -50,6 +51,25 @@ public class ProjectController {
     ) {
         request.setUserId(user.getId());
         return projectService.list(page, request);
+    }
+
+    @PostMapping("/create")
+    @Operation(summary = "创建项目")
+    public void create(
+            @RequestBody CreateProjectRequest request,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        request.setOwnerId(user.getId());
+        projectService.create(request);
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "删除项目")
+    public void delete(
+            @Parameter(description = "项目 ID") @PathVariable Long id,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        projectService.delete(id, user.getId());
     }
 
 }

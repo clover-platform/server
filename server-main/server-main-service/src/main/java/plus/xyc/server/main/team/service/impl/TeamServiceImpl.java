@@ -12,6 +12,7 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
+import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
@@ -168,15 +169,24 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     @Override
     @CacheEvict(value = {"account:teams#1d", "account:projects#1d"}, key = "#userId")
     public void delete(Long id, Long userId) {
+        Account account = accountService.findById(userId);
+        if(account.getCurrentTeamId().equals(id)) {
+            throw new ResultException(MainCode.CURRENT_TEAM_DELETE.code, MessageUtils.get(MainCode.CURRENT_TEAM_DELETE.key));
+        }
         int size = baseMapper.countByIdAndOwnerId(id, userId);
         if (size == 0) {
             throw new ResultException(MainCode.ACCESS_DENIED.code, MessageUtils.get(MainCode.ACCESS_DENIED.key));
+        }
+        int count = baseMapper.countByOwnerIdAndDeleted(userId, false);
+        if(count == 1) {
+            throw new ResultException(MainCode.TEAM_DELETE_LAST.code, MessageUtils.get(MainCode.TEAM_DELETE_LAST.key));
         }
         UpdateWrapper<Team> updateWrapper = new UpdateWrapper<>();
         updateWrapper.eq("id", id);
         updateWrapper.set("deleted", true);
         update(updateWrapper);
 
+        // 删除所有项目
         UpdateWrapper<Project> projectUpdateWrapper = new UpdateWrapper<>();
         projectUpdateWrapper.eq("team_id", id);
         projectUpdateWrapper.set("deleted", true);

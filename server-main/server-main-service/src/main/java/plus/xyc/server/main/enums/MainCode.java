@@ -15,8 +15,12 @@ public enum MainCode {
     RESET_CODE(20001004, "account.reset.code.fail"),
 
     TEAM_REPEATED(20002000, "team.key.repeated"),
+    CURRENT_TEAM_DELETE(20002001, "team.current.delete"),
+    TEAM_DELETE_LAST(20002002, "team.last.delete"),
 
     PROJECT_REPEATED(20003001, "project.key.repeated"),
+    CURRENT_PROJECT(20003002, "project.current.delete"),
+    PROJECT_LAST(20003003, "project.last.delete"),
 
     EMAIL_CODE(20004001, "account.email.code.fail");
 

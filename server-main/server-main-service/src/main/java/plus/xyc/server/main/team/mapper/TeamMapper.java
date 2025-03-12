@@ -22,5 +22,6 @@ public interface TeamMapper extends BaseMapper<Team> {
     List<TeamListResponse> findAllByUserId(@Param("userId") Long userId, @Param("keyword") String keyword);
     List<TeamListResponse> findJoin(@Param("userId") Long userId, @Param("keyword") String keyword);
     int countByIdAndOwnerId(@Param("id") Long id, @Param("ownerId") Long ownerId);
+    int countByOwnerIdAndDeleted(@Param("ownerId") Long ownerId, @Param("deleted") Boolean deleted);
 
 }

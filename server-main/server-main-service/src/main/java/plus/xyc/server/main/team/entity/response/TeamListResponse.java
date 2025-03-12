@@ -16,6 +16,9 @@ public class TeamListResponse {
     @Schema(description = "团队名称")
     private String name;
 
+    @Schema(description = "团队封面")
+    private String cover;
+
     @Schema(description = "创建人")
     private Long ownerId;
 

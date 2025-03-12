@@ -21,5 +21,7 @@ public interface ProjectMapper extends BaseMapper<Project> {
     List<ProjectResponse> findAllByUserId(@Param("userId") Long userId, @Param("teamId") Long teamId, @Param("keyword") String keyword);
     List<ProjectResponse> findMy(@Param("userId") Long userId, @Param("teamId") Long teamId, @Param("keyword") String keyword);
     int countByProjectKeyAndDeleted(@Param("projectKey") String projectKey, @Param("deleted") Boolean deleted);
+    int countByIdAndOwnerId(@Param("id") Long id, @Param("ownerId") Long ownerId);
+    int countByTeamIdAndDeleted(@Param("teamId") Long teamId, @Param("deleted") Boolean deleted);
 
 }

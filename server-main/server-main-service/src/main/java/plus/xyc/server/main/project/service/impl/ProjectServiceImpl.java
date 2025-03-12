@@ -1,9 +1,11 @@
 package plus.xyc.server.main.project.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -21,6 +23,8 @@ import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.dto.ProjectCollect;
 import plus.xyc.server.main.project.entity.dto.ProjectMember;
 import plus.xyc.server.main.project.entity.enums.ProjectMemberType;
+import plus.xyc.server.main.project.entity.mapstruct.ProjectMapStruct;
+import plus.xyc.server.main.project.entity.request.CreateProjectRequest;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
@@ -58,6 +62,8 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private AccountService accountService;
     @Resource
     private ProjectCollectService projectCollectService;
+    @Resource
+    private ProjectMapStruct projectMapStruct;
 
     @Override
     @Cacheable(value = "account:projects#1d", key = "#userId")
@@ -154,5 +160,44 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         projectMember.setAccountId(project.getOwnerId());
         projectMember.setType(ProjectMemberType.OWNER.code);
         projectMemberMapper.insert(projectMember);
+    }
+
+    @Override
+    public void create(CreateProjectRequest request) {
+        int size = baseMapper.countByProjectKeyAndDeleted(request.getProjectKey(), false);
+        if (size > 0) {
+            throw new ResultException(MainCode.PROJECT_REPEATED.code, MessageUtils.get(MainCode.PROJECT_REPEATED.key));
+        }
+        Project project = projectMapStruct.toProject(request);
+        save(project);
+        // 保存项目成员
+        ProjectMember projectMember = new ProjectMember();
+        projectMember.setProjectId(project.getId());
+        projectMember.setAccountId(project.getOwnerId());
+        projectMember.setType(ProjectMemberType.OWNER.code);
+        projectMemberMapper.insert(projectMember);
+    }
+
+    @Override
+    @CacheEvict(value = {"account:projects#1d"}, key = "#userId")
+    public void delete(Long id, Long userId) {
+        Account account = accountService.findById(userId);
+        if(account.getCurrentProjectId().equals(id)) {
+            throw new ResultException(MainCode.CURRENT_PROJECT.code, MessageUtils.get(MainCode.CURRENT_PROJECT.key));
+        }
+        int size = baseMapper.countByIdAndOwnerId(id, userId);
+        if (size == 0) {
+            throw new ResultException(MainCode.ACCESS_DENIED.code, MessageUtils.get(MainCode.ACCESS_DENIED.key));
+        }
+        Project project = getById(id);
+        int count = baseMapper.countByTeamIdAndDeleted(project.getTeamId(), false);
+        if(count == 1) {
+            throw new ResultException(MainCode.PROJECT_LAST.code, MessageUtils.get(MainCode.PROJECT_LAST.key));
+        }
+
+        UpdateWrapper<Project> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id);
+        updateWrapper.set("deleted", true);
+        update(updateWrapper);
     }
 }
