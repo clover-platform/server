@@ -1,8 +1,9 @@
 package plus.xyc.server.main.project.service;
 
+import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.dto.ProjectCollect;
 import com.baomidou.mybatisplus.extension.service.IService;
-import plus.xyc.server.main.team.entity.dto.TeamCollect;
+import plus.xyc.server.main.project.entity.request.ProjectCollectRequest;
 
 import java.util.List;
 
@@ -17,5 +18,8 @@ import java.util.List;
 public interface ProjectCollectService extends IService<ProjectCollect> {
 
     List<ProjectCollect> findByProjectIdsAndUserId(List<Long> projectIds, Long userId);
+    void add(ProjectCollectRequest request);
+    void cancel(ProjectCollectRequest request);
+    List<Project> my(Long userId);
 
 }

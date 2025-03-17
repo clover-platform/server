@@ -3,6 +3,7 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Collection;
 import java.util.List;
 
+import plus.xyc.server.main.project.entity.dto.Project;
 import plus.xyc.server.main.project.entity.dto.ProjectCollect;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ProjectCollectMapper extends BaseMapper<ProjectCollect> {
 
+    List<Project> my(@Param("userId") Long userId);
     List<ProjectCollect> findByProjectIdInAndUserId(@Param("projectIdList") Collection<Long> projectIdList, @Param("userId") Long userId);
 
 }
