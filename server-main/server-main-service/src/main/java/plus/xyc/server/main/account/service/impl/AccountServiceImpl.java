@@ -63,7 +63,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AuthAccountOTPRestApi authAccountOTPRestApi;
 
     @Override
-    @Cacheable(value = "account#1d", key = "#id")
+    @Cacheable(value = "account#1h", key = "#id")
     public Account findById(Long id) {
         return getById(id);
     }
