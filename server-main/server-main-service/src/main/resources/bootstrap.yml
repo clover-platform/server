@@ -16,3 +16,17 @@ spring:
         server-addr: ${NACOS_SERVER}
         username: ${NACOS_USERNAME}
         password: ${NACOS_PASSWORD}
+dubbo:
+  scan:
+    base-packages:
+      - org.zkit.support.server
+      - plus.xyc.server
+  application:
+    qos-enable: false
+  protocol:
+    port: 20880
+    name: dubbo
+  registry:
+    address: nacos://${NACOS_SERVER}
+    username: ${NACOS_USERNAME}
+    password: ${NACOS_PASSWORD}

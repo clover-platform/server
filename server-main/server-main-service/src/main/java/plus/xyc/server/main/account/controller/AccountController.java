@@ -5,12 +5,15 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
 import org.zkit.support.server.account.api.entity.request.ChangePasswordRequest;
 import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
+import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
+import org.zkit.support.server.account.api.service.AuthAccountApiService;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.annotation.PublicRequest;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -22,6 +25,8 @@ import plus.xyc.server.main.account.entity.request.RegisterRequest;
 import plus.xyc.server.main.account.entity.request.SendEmailCodeRequest;
 import plus.xyc.server.main.account.entity.response.AccountProfileResponse;
 import plus.xyc.server.main.account.service.AccountService;
+
+import java.util.List;
 
 /**
  * <p>
@@ -42,6 +47,8 @@ public class AccountController {
     private AccountService accountService;
     @Resource
     private AccountMapStruct accountMapStruct;
+    @DubboReference
+    private AuthAccountApiService authAccountApiService;
 
     @PublicRequest
     @PostMapping("/register/email/send")
