@@ -23,6 +23,10 @@ dubbo:
       - plus.xyc.server
   application:
     qos-enable: false
+  provider:
+    filter: dubboExceptionFilter,-exception
+  tracing:
+    enabled: true
   protocol:
     port: 20880
     name: dubbo

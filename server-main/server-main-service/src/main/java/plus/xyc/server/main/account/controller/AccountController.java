@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.request.AccountLoginRequest;
 import org.zkit.support.server.account.api.entity.request.ChangePasswordRequest;
 import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
-import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.service.AuthAccountApiService;
+import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.annotation.PublicRequest;
 import org.zkit.support.starter.security.entity.SessionUser;
@@ -25,8 +25,6 @@ import plus.xyc.server.main.account.entity.request.RegisterRequest;
 import plus.xyc.server.main.account.entity.request.SendEmailCodeRequest;
 import plus.xyc.server.main.account.entity.response.AccountProfileResponse;
 import plus.xyc.server.main.account.service.AccountService;
-
-import java.util.List;
 
 /**
  * <p>
