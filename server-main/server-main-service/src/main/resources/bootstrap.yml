@@ -25,11 +25,6 @@ dubbo:
     qos-enable: false
   provider:
     filter: dubboExceptionFilter,-exception
-  tracing:
-    enabled: true
-  protocol:
-    port: 20880
-    name: dubbo
   registry:
     address: nacos://${NACOS_SERVER}
     username: ${NACOS_USERNAME}

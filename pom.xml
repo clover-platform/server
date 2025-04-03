@@ -47,7 +47,6 @@
             <groupId>org.zkit.support</groupId>
             <artifactId>tracing-starter</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.zkit.support</groupId>
