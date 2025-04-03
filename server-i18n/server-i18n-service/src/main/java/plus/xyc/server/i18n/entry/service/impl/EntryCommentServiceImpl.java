@@ -3,6 +3,7 @@ package plus.xyc.server.i18n.entry.service.impl;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -26,7 +27,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,8 +43,8 @@ import java.util.Objects;
 @Service
 public class EntryCommentServiceImpl extends ServiceImpl<EntryCommentMapper, EntryComment> implements EntryCommentService {
 
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
     @Resource
     private EntryCommentMapStruct mapStruct;
     @Resource
@@ -61,13 +62,10 @@ public class EntryCommentServiceImpl extends ServiceImpl<EntryCommentMapper, Ent
             ApiAccountListRequest apiRequest = new ApiAccountListRequest();
             apiRequest.setSize(userIds.size());
             apiRequest.setIds(userIds);
-            Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
-            if(!r.isSuccess()) {
-                throw ResultException.internal();
-            }
+            PageResult<ApiAccountResponse> r =  mainAccountApiService.list(apiRequest);
             List<EntryCommentResponse> responses = list.stream().map(entryComment -> {
                 EntryCommentResponse response = mapStruct.toEntryCommentResponse(entryComment);
-                response.setUser(r.getData().getData().stream().filter(apiAccountResponse -> apiAccountResponse.getId().equals(entryComment.getCreateUserId())).findFirst().orElse(null));
+                response.setUser(r.getData().stream().filter(apiAccountResponse -> apiAccountResponse.getId().equals(entryComment.getCreateUserId())).findFirst().orElse(null));
                 return response;
             }).toList();
 

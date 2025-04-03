@@ -3,6 +3,7 @@ package plus.xyc.server.i18n.member.service.impl;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
@@ -19,7 +20,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.List;
 
@@ -38,8 +39,8 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
     private MemberRoleService memberRoleService;
     @Resource
     private MemberMapStruct memberMapStruct;
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
 
     @Override
     @Transactional
@@ -68,7 +69,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
         apiRequest.setIds(accountIds);
         apiRequest.setSize(accountIds.size());
         apiRequest.setPage(1);
-        Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(apiRequest);
+        PageResult<ApiAccountResponse> result = mainAccountApiService.list(apiRequest);
         return members.stream().map(member -> {
             MemberResponse response = memberMapStruct.toMemberResponse(member);
             List<Integer> memberRoles = roles.stream()
@@ -76,13 +77,11 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
                     .map(MemberRole::getRole)
                     .toList();
             response.setRoles(memberRoles);
-            if(result.isSuccess()) {
-                List<ApiAccountResponse> accounts = result.getData().getData();
+            List<ApiAccountResponse> accounts = result.getData();
                 response.setUser(accounts.stream()
                         .filter(account -> account.getId().equals(member.getAccountId()))
                         .findFirst()
                         .orElse(null));
-            }
             return response;
         }).toList();
     }
@@ -104,12 +103,9 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
             apiRequest.setSize(accountIds.size());
             apiRequest.setPage(1);
             apiRequest.setKeyword(pageRequest.getKeyword());
-            Result<PageResult<ApiAccountResponse>> result = mainAccountRestApi.list(apiRequest);
+            PageResult<ApiAccountResponse> result = mainAccountApiService.list(apiRequest);
 
-            if(!result.isSuccess())
-                return PageResult.of(0, List.of());
-
-            List<MemberResponse> responses = result.getData().getData().stream().map(account -> {
+            List<MemberResponse> responses = result.getData().stream().map(account -> {
                 Member member = members.stream()
                         .filter(m -> m.getAccountId().equals(account.getId()))
                         .findFirst()

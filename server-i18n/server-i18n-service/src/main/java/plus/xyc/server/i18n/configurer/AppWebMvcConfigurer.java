@@ -1,6 +1,7 @@
 package plus.xyc.server.i18n.configurer;
 
 import jakarta.annotation.Resource;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -10,7 +11,7 @@ import plus.xyc.server.i18n.common.resolver.PathInjectArgumentResolver;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.i18n.open.resolver.OpenUserArgumentResolver;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.List;
 
@@ -27,14 +28,14 @@ public class AppWebMvcConfigurer implements WebMvcConfigurer {
     @Resource
     private EntryService entryService;
     @Lazy
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         //注入用户信息
         argumentResolvers.add(new PathInjectArgumentResolver(moduleService, branchService, entryService));
-        argumentResolvers.add(new OpenUserArgumentResolver(mainAccountRestApi));
+        argumentResolvers.add(new OpenUserArgumentResolver(mainAccountApiService));
     }
 
 }

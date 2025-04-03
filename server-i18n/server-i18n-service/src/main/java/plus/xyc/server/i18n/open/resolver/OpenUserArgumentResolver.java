@@ -8,18 +8,17 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.RequestUtils;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.i18n.open.annotation.OpenUser;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 @Slf4j
 public class OpenUserArgumentResolver implements HandlerMethodArgumentResolver {
-    private final MainAccountRestApi mainAccountRestApi;
+    private final MainAccountApiService mainAccountRestApi;
 
-    public OpenUserArgumentResolver(MainAccountRestApi mainAccountRestApi) {
+    public OpenUserArgumentResolver(MainAccountApiService mainAccountRestApi) {
         this.mainAccountRestApi = mainAccountRestApi;
     }
 
@@ -55,9 +54,6 @@ public class OpenUserArgumentResolver implements HandlerMethodArgumentResolver {
         String token = RequestUtils.getToken(request);
         if(token == null || token.isEmpty())
             throw ResultException.unauthorized();
-        Result<SessionUser> result = mainAccountRestApi.checkAccessToken(token);
-        if(result.isSuccess())
-            return result.getData();
-        throw ResultException.unauthorized();
+        return mainAccountRestApi.checkAccessToken(token);
     }
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
@@ -17,7 +18,7 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.List;
 
@@ -37,8 +38,8 @@ public class ModuleCommonController {
 
     @Resource
     private ModuleService moduleService;
-    @Resource
-    private MainAccountRestApi accountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
 
     @GetMapping("/list")
     @Operation(summary = "列表")
@@ -58,7 +59,7 @@ public class ModuleCommonController {
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
         request.setOwner(user.getId());
-        ApiAccountResponse account = accountRestApi.getById(user.getId()).getData();
+        ApiAccountResponse account = mainAccountApiService.getById(user.getId());
         request.setProjectId(account.getCurrentProjectId());
         moduleService.create(request);
     }

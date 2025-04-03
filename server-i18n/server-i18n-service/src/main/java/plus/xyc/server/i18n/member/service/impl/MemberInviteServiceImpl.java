@@ -5,8 +5,9 @@ import com.alibaba.fastjson2.TypeReference;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.zkit.support.server.mail.api.entity.request.SendMailRequest;
-import org.zkit.support.server.mail.api.rest.MailRestApi;
+import org.zkit.support.server.mail.api.service.MailApiService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MD5Utils;
@@ -31,7 +32,7 @@ import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
-import plus.xyc.server.main.api.rest.MainRestApi;
+import plus.xyc.server.main.api.service.MainApiService;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -48,10 +49,10 @@ import java.util.stream.Stream;
 @Slf4j
 public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, MemberInvite> implements MemberInviteService {
 
-    @Resource
-    private MailRestApi mailRestApi;
-    @Resource
-    private MainRestApi mainRestApi;
+    @DubboReference
+    private MailApiService mailApiService;
+    @DubboReference
+    private MainApiService mainApiService;
     @Resource
     private InviteConfiguration configuration;
     @Resource
@@ -94,7 +95,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         mail.setData(data);
         Stream.of(request.getEmails().split(",")).forEach(email -> {
             mail.setTo(email);
-            mailRestApi.send(mail);
+            mailApiService.send(mail);
         });
     }
 
@@ -141,10 +142,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         JoinProjectRequest joinProjectRequest = new JoinProjectRequest();
         joinProjectRequest.setProjectId(module.getProjectId());
         joinProjectRequest.setUserId(request.getId());
-        Result<Boolean> result = mainRestApi.joinProject(joinProjectRequest);
-        if(!result.isSuccess()) {
-            throw new ResultException(result.getCode(), result.getMessage());
-        }
+        mainApiService.joinProject(joinProjectRequest);
         Member member = new Member();
         member.setAccountId(request.getId());
         member.setModuleId(invite.getModuleId());

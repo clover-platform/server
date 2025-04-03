@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -63,8 +64,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private BranchService branchService;
     @Resource
     private ActivityService activityService;
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
     @Resource
     private BranchMapper branchMapper;
     @Resource
@@ -152,10 +153,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         apiRequest.setIds(adminIds);
         apiRequest.setSize(adminIds.size());
         apiRequest.setPage(1);
-        Result<PageResult<ApiAccountResponse>> adminUsersResult = mainAccountRestApi.list(apiRequest);
-        if(!adminUsersResult.isSuccess()) {
-            throw ResultException.internal();
-        }
+        PageResult<ApiAccountResponse> adminUsersResult = mainAccountApiService.list(apiRequest);
 
         List<SizeResponse> targetSizes = targetSizes(List.of(module.getId()));
         List<ModuleLanguageResponse> languages = languages(id);
@@ -172,7 +170,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         countResponse.setMemberCount(members.size());
         response.setCount(countResponse);
         response.setMembers(admins.stream().map(admin -> {
-            ApiAccountResponse user = adminUsersResult.getData().getData().stream().filter(u -> u.getId().equals(admin.getAccountId())).findFirst().orElse(null);
+            ApiAccountResponse user = adminUsersResult.getData().stream().filter(u -> u.getId().equals(admin.getAccountId())).findFirst().orElse(null);
             MemberResponse member = new MemberResponse();
             member.setUser(user);
             member.setId(admin.getId());

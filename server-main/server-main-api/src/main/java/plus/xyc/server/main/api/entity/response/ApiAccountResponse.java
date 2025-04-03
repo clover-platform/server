@@ -3,9 +3,11 @@ package plus.xyc.server.main.api.entity.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
 @Schema(name = "ApiAccountResponse", description = "用户信息")
-public class ApiAccountResponse {
+public class ApiAccountResponse implements Serializable {
 
 
     @Schema(description = "ID")

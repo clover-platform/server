@@ -15,8 +15,7 @@ import org.zkit.support.server.account.api.service.AuthAccountApiService;
 import org.zkit.support.server.account.api.service.AuthAccountOTPApiService;
 import org.zkit.support.server.mail.api.entity.request.CheckCodeRequest;
 import org.zkit.support.server.mail.api.entity.request.SendCodeRequest;
-import org.zkit.support.server.mail.api.rest.MailRestApi;
-import org.zkit.support.starter.boot.entity.Result;
+import org.zkit.support.server.mail.api.service.MailApiService;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.boot.utils.StringUtils;
@@ -52,11 +51,11 @@ import java.util.List;
 public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountService {
 
     @Resource
-    private MailRestApi mailRestApi;
+    private AccountMapStruct accountMapStruct;
+    @DubboReference
+    private MailApiService mailApiService;
     @DubboReference
     private AuthAccountApiService authAccountApiService;
-    @Resource
-    private AccountMapStruct accountMapStruct;
     @DubboReference
     private AuthAccountOTPApiService authAccountOTPApiService;
 
@@ -70,7 +69,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(email);
         request.setAction("register");
-        mailRestApi.sendCode(request);
+        mailApiService.sendCode(request);
     }
 
     private void check(String email, String username) {
@@ -105,8 +104,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         checkCodeRequest.setEmail(request.getEmail());
         checkCodeRequest.setCode(request.getCode());
         checkCodeRequest.setAction("register");
-        Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
-        if(!checkResult.isSuccess() || !checkResult.getData()) {
+        Boolean checked = mailApiService.check(checkCodeRequest);
+        if(!checked) {
             throw new ResultException(MainCode.REGISTER_CODE.code, MessageUtils.get(MainCode.REGISTER_CODE.key));
         }
         TokenWithAccountResponse response = authAccountApiService.register(accountMapStruct.toAccountRegisterRequestFromRegisterRequest(request));
@@ -169,7 +168,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(email);
         request.setAction("reset");
-        mailRestApi.sendCode(request);
+        mailApiService.sendCode(request);
     }
 
     @Override
@@ -179,8 +178,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         checkCodeRequest.setEmail(request.getEmail());
         checkCodeRequest.setCode(request.getCode());
         checkCodeRequest.setAction("reset");
-        Result<Boolean> checkResult = mailRestApi.check(checkCodeRequest);
-        if(!checkResult.isSuccess() || !checkResult.getData()) {
+        Boolean checked = mailApiService.check(checkCodeRequest);
+        if(!checked) {
             throw new ResultException(MainCode.RESET_CODE.code, MessageUtils.get(MainCode.RESET_CODE.key));
         }
         Account account = baseMapper.findOneByEmail(request.getEmail());
@@ -215,12 +214,12 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(account.getEmail());
         request.setAction(action);
-        mailRestApi.sendCode(request);
+        mailApiService.sendCode(request);
     }
 
     private void checkEmailCode(CheckCodeRequest request) {
-        Result<Boolean> checkResult = mailRestApi.check(request);
-        if(!checkResult.isSuccess() || !checkResult.getData()) {
+        Boolean checked = mailApiService.check(request);
+        if(!checked) {
             throw new ResultException(MainCode.EMAIL_CODE.code, MessageUtils.get(MainCode.EMAIL_CODE.key));
         }
     }

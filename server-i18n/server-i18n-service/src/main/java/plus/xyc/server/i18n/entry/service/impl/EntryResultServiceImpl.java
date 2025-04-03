@@ -6,6 +6,7 @@ import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.CacheEvict;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.entity.InvokeRequest;
@@ -41,7 +42,7 @@ import plus.xyc.server.i18n.language.entity.response.LanguageResponse;
 import plus.xyc.server.i18n.language.service.LanguageService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.*;
 
@@ -59,8 +60,8 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
     @Resource
     private EntryResultMapStruct mapStruct;
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
     @Resource
     private ActivityService activityService;
     @Resource
@@ -106,15 +107,11 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
             ApiAccountListRequest apiRequest = new ApiAccountListRequest();
             apiRequest.setIds(uniqueIds);
             apiRequest.setSize(uniqueIds.size());
-            Result<PageResult<ApiAccountResponse>> r =  mainAccountRestApi.list(apiRequest);
-            if(!r.isSuccess()) {
-                throw ResultException.internal();
-            }
-
+            PageResult<ApiAccountResponse> r =  mainAccountApiService.list(apiRequest);
             List<EntryResultResponse> responses = list.stream().map(result -> {
                 EntryResultResponse response = mapStruct.toEntryResultResponse(result);
-                response.setTranslator(r.getData().getData().stream().filter(user -> user.getId().equals(result.getTranslatorId())).findFirst().orElse(null));
-                response.setVerifier(r.getData().getData().stream().filter(user -> user.getId().equals(result.getCheckerId())).findFirst().orElse(null));
+                response.setTranslator(r.getData().stream().filter(user -> user.getId().equals(result.getTranslatorId())).findFirst().orElse(null));
+                response.setVerifier(r.getData().stream().filter(user -> user.getId().equals(result.getCheckerId())).findFirst().orElse(null));
                 return response;
             }).toList();
             return PageResult.of(pageResult.getTotal(), responses);
