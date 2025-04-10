@@ -28,6 +28,8 @@ dubbo:
     port: 20801
   provider:
     filter: dubboExceptionFilter,-exception
+  consumer:
+    check: false
   registry:
     address: nacos://${NACOS_SERVER}
     username: ${NACOS_USERNAME}

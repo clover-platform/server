@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -13,13 +15,11 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.service.AIAPIService;
-import org.zkit.support.starter.boot.entity.Result;
-import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.book.mapper.BookMapper;
 import plus.xyc.server.wiki.collect.entity.dto.Collect;
@@ -69,8 +69,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private PageContentMapper pageContentMapper;
     @Resource
     private CollectMapper collectMapper;
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
@@ -168,11 +168,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         }
         ApiAccountListRequest request = new ApiAccountListRequest();
         request.setIds(userIdList);
-        Result<PageResult<ApiAccountResponse>> result =  mainAccountRestApi.list(request);
-        if(!result.isSuccess()) {
-            throw ResultException.internal();
-        }
-        List<PageAuthorResponse> authorList = result.getData().getData().stream()
+        PageResult<ApiAccountResponse> result =  mainAccountApiService.list(request);
+        List<PageAuthorResponse> authorList = result.getData().stream()
                 .map(account -> {
                     PageAuthorResponse author = new PageAuthorResponse();
                     author.setAccount(account);

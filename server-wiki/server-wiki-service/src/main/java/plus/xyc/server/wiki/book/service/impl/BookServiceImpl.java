@@ -5,6 +5,8 @@ import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -14,7 +16,7 @@ import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.rest.MainAccountRestApi;
+import plus.xyc.server.main.api.service.MainAccountApiService;
 import plus.xyc.server.wiki.book.entity.dto.Book;
 import plus.xyc.server.wiki.book.entity.dto.BookHomePage;
 import plus.xyc.server.wiki.book.entity.dto.BookMember;
@@ -45,8 +47,8 @@ import java.util.List;
 @Slf4j
 public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements BookService {
 
-    @Resource
-    private MainAccountRestApi mainAccountRestApi;
+    @DubboReference
+    private MainAccountApiService mainAccountApiService;
     @Resource
     private BookMapStruct struct;
     @Resource
@@ -63,7 +65,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
             throw new ResultException(WikiCode.BOOK_PATH_EXISTED.code, MessageUtils.get(WikiCode.BOOK_PATH_EXISTED.key));
         }
 
-        ApiAccountResponse account = mainAccountRestApi.getById(request.getOwnerId()).getData();
+        ApiAccountResponse account = mainAccountApiService.getById(request.getOwnerId());
         Book book = struct.toBook(request);
         book.setProjectId(account.getCurrentProjectId());
         log.info("book: {}", book);

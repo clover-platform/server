@@ -22,12 +22,15 @@ dubbo:
       - org.zkit.support.server
       - plus.xyc.server
   application:
+    name: clover-server-main-dubbo
     qos-enable: false
   protocol:
     name: dubbo
     port: 20800
   provider:
     filter: dubboExceptionFilter,-exception
+  consumer:
+    check: false
   registry:
     address: nacos://${NACOS_SERVER}
     username: ${NACOS_USERNAME}
