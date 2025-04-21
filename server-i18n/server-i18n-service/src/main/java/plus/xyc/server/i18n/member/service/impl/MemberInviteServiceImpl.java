@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.zkit.support.server.mail.api.entity.request.SendMailRequest;
 import org.zkit.support.server.mail.api.service.MailApiService;
-import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MD5Utils;
 import org.zkit.support.starter.boot.utils.MessageUtils;

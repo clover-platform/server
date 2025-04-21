@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "gateway",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "plus.xyc.server.gateway.Application",
+            "projectName": "server-gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/server-gateway/.env"
+        },
+        {
+            "type": "java",
+            "name": "main",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "plus.xyc.server.main.Application",
+            "projectName": "server-main-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/server-main/.env"
+        }
+    ]
+}
