@@ -16,8 +16,9 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-01-26
+ * @since 2025-04-22
  */
+@SuppressWarnings("unused")
 @Data
 @Accessors(chain = true)
 @TableName("api_path")

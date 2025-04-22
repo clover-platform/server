@@ -14,8 +14,9 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2024-11-29
+ * @since 2025-04-22
  */
+@SuppressWarnings("unused")
 @Data
 @Accessors(chain = true)
 @Schema(name = "Language", description = "语言")

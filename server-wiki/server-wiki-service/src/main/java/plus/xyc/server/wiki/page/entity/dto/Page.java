@@ -7,6 +7,7 @@ import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 /**
  * <p>
@@ -14,9 +15,11 @@ import lombok.Data;
  * </p>
  *
  * @author generator
- * @since 2024-11-01
+ * @since 2025-04-22
  */
+@SuppressWarnings("unused")
 @Data
+@Accessors(chain = true)
 @Schema(name = "Page", description = "目录")
 public class Page implements Serializable {
     @Serial

@@ -12,7 +12,7 @@ public class GitUtils {
     public static String getCurrentBranch() {
         Log log = LogUtils.get();
         try {
-            Process process = Runtime.getRuntime().exec("git branch --show-current");
+            Process process = new ProcessBuilder("git", "branch", "--show-current").start();
             InputStream inputStream = process.getInputStream();
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             String branch = reader.readLine();
