@@ -13,7 +13,6 @@ import org.zkit.support.server.account.api.entity.request.ChangePasswordRequest;
 import org.zkit.support.server.account.api.entity.request.ResetPasswordRequest;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import org.zkit.support.server.account.api.service.AuthAccountApiService;
-import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.annotation.PublicRequest;
 import org.zkit.support.starter.security.entity.SessionUser;

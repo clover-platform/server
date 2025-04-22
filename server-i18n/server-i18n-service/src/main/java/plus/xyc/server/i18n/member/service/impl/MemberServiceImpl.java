@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import org.apache.dubbo.config.annotation.DubboReference;
-import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.i18n.member.entity.dto.Member;

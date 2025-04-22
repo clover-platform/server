@@ -1,15 +1,12 @@
 package plus.xyc.server.i18n.entry.mapper;
 import java.util.List;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
-import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
-import plus.xyc.server.i18n.module.entity.dto.Module;
 
 /**
  * <p>

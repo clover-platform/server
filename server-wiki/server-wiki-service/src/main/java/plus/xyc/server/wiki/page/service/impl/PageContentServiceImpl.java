@@ -12,7 +12,6 @@ import plus.xyc.server.wiki.page.service.PageLastVersionService;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * <p>

@@ -1,11 +1,8 @@
 package plus.xyc.server.i18n.entry.service;
 
-import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
-
-import java.util.List;
 
 /**
  * <p>

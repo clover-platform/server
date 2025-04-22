@@ -1,5 +1,4 @@
 package plus.xyc.server.wiki.book.mapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.wiki.book.entity.dto.Book;

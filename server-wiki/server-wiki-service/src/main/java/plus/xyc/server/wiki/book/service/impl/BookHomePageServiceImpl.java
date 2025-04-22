@@ -2,7 +2,6 @@ package plus.xyc.server.wiki.book.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.wiki.book.entity.dto.BookHomePage;
 import plus.xyc.server.wiki.book.entity.request.BookHomePageSaveRequest;

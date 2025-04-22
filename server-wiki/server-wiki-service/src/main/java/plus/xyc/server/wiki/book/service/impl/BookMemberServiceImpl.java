@@ -1,6 +1,5 @@
 package plus.xyc.server.wiki.book.service.impl;
 
-import jakarta.annotation.Resource;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;

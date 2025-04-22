@@ -1,7 +1,5 @@
 package plus.xyc.server.i18n.common.annotation;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

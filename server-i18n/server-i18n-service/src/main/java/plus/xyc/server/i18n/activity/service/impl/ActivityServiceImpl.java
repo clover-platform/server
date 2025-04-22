@@ -13,8 +13,6 @@ import plus.xyc.server.i18n.activity.service.ActivityService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 /**
  * <p>
  * 项目动态 服务实现类

@@ -17,7 +17,6 @@ import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.member.entity.dto.Member;
 import plus.xyc.server.i18n.member.entity.dto.MemberInvite;
 import plus.xyc.server.i18n.member.entity.dto.MemberRole;
-import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.member.entity.mapstruct.MemberInviteMapStruct;
 import plus.xyc.server.i18n.member.entity.request.*;
 import plus.xyc.server.i18n.member.entity.response.MemberInviteDetailResponse;
@@ -70,7 +69,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
 
     @Override
     public String generate(MemberInviteGenerateRequest request) {
-        List<Integer> adminRoles = List.of(MemberRoleType.ADMIN.code, MemberRoleType.OWNER.code);
+        // List<Integer> adminRoles = List.of(MemberRoleType.ADMIN.code, MemberRoleType.OWNER.code);
         MemberInvite invite = new MemberInvite();
         invite.setToken(MD5Utils.text(UUID.randomUUID().toString()));
         invite.setModuleId(request.getModuleId());

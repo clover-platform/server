@@ -1,6 +1,5 @@
 package plus.xyc.server.i18n.entry.mapper;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

@@ -1,5 +1,5 @@
 package plus.xyc.server.main.account.mapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+
 import org.apache.ibatis.annotations.Param;
 
 import plus.xyc.server.main.account.entity.dto.Account;

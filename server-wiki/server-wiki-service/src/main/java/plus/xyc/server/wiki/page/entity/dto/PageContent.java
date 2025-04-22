@@ -17,6 +17,7 @@ import lombok.Data;
  * @author generator
  * @since 2024-10-31
  */
+@SuppressWarnings("unused")
 @Data
 @TableName("page_content")
 @Schema(name = "PageContent", description = "内容")

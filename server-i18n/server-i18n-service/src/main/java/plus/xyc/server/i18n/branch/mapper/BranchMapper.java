@@ -1,7 +1,6 @@
 package plus.xyc.server.i18n.branch.mapper;
 import java.util.Collection;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.annotations.Param;
 import plus.xyc.server.i18n.branch.entity.dto.Branch;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
