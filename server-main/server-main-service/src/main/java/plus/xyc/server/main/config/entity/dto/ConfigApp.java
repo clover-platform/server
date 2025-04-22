@@ -1,7 +1,5 @@
 package plus.xyc.server.main.config.entity.dto;
 
-import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +15,6 @@ import lombok.experimental.Accessors;
  * @author generator
  * @since 2025-04-22
  */
-@SuppressWarnings("unused")
 @Data
 @Accessors(chain = true)
 @TableName("config_app")

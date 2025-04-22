@@ -1,7 +1,5 @@
 package plus.xyc.server.main.account.entity.dto;
 
-import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
-import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
@@ -16,7 +14,6 @@ import lombok.experimental.Accessors;
  * @author generator
  * @since 2025-04-22
  */
-@SuppressWarnings("unused")
 @Data
 @Accessors(chain = true)
 @Schema(name = "Account", description = "用户信息")

@@ -1,7 +1,5 @@
 package plus.xyc.server.i18n.branch.entity.dto;
 
-import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
-import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +15,6 @@ import lombok.experimental.Accessors;
  * @author generator
  * @since 2025-04-22
  */
-@SuppressWarnings("unused")
 @Data
 @Accessors(chain = true)
 @Schema(name = "Branch", description = "分支")
