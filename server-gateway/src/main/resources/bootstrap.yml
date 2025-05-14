@@ -29,9 +29,10 @@ dubbo:
     name: dubbo
     port: 20880
   provider:
-    filter: dubboExceptionFilter,-exception
+    filter: support-exception,support-language,-exception
   consumer:
     check: false
+    filter: support-exception,support-language,-exception
   registry:
     address: nacos://${NACOS_SERVER}
     username: ${NACOS_USERNAME}
