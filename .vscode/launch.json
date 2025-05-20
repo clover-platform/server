@@ -19,6 +19,16 @@
             "projectName": "server-main-service",
             "args": "",
             "envFile": "${workspaceFolder}/server-main/.env"
+        },
+        {
+            "type": "java",
+            "name": "i18n",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "plus.xyc.server.i18n.Application",
+            "projectName": "server-i18n-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/server-i18n/.env"
         }
     ]
 }
