@@ -8,11 +8,25 @@ spring:
     nacos:
       config:
         server-addr: ${NACOS_SERVER}
-        username: ${NACOS_USERNAME}
-        password: ${NACOS_PASSWORD}
         file-extension: yaml
         refresh-enabled: true
       discovery:
         server-addr: ${NACOS_SERVER}
-        username: ${NACOS_USERNAME}
-        password: ${NACOS_PASSWORD}
+dubbo:
+  scan:
+    base-packages:
+      - org.zkit.support.server
+      - plus.xyc.server
+  application:
+    qos-enable: false
+  protocol:
+    name: dubbo
+    port: 20804
+  provider:
+    filter: support-exception,support-language,-exception
+  consumer:
+    check: false
+    filter: support-exception,support-language,-exception
+  registry:
+    address: nacos://${NACOS_SERVER}
+    group: dubbo
