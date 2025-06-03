@@ -16,6 +16,7 @@ modules:
     tables:
       - account
       - account_access_token
+      - account_readme
   - name: project
     tables:
       - project

@@ -24,11 +24,14 @@ import org.zkit.support.starter.redisson.DistributedLock;
 import org.zkit.support.server.account.api.entity.response.AccountResponse;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
 import plus.xyc.server.main.account.entity.dto.Account;
+import plus.xyc.server.main.account.entity.dto.AccountReadme;
 import plus.xyc.server.main.account.entity.mapstruct.AccountMapStruct;
 import plus.xyc.server.main.account.entity.request.*;
 import plus.xyc.server.main.account.entity.request.OTPBindRequest;
 import plus.xyc.server.main.account.entity.request.OTPDisableRequest;
+import plus.xyc.server.main.account.entity.response.AccountProfileResponse;
 import plus.xyc.server.main.account.mapper.AccountMapper;
+import plus.xyc.server.main.account.mapper.AccountReadmeMapper;
 import plus.xyc.server.main.account.service.AccountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -58,6 +61,8 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     private AuthAccountApiService authAccountApiService;
     @DubboReference
     private AuthAccountOTPApiService authAccountOTPApiService;
+    @Resource
+    private AccountReadmeMapper accountReadmeMapper;
 
     @Override
     @Cacheable(value = "account#1h", key = "#id")
@@ -251,5 +256,18 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         org.zkit.support.server.account.api.entity.request.OTPDisableRequest disableRequest = new org.zkit.support.server.account.api.entity.request.OTPDisableRequest();
         disableRequest.setId(request.getAccountId());
         authAccountOTPApiService.disable(disableRequest);
+    }
+
+    @Override
+    @Cacheable(value = "account:profile#1h", key = "#username")
+    public AccountProfileResponse profile(String username) {
+        Account account = baseMapper.findOneByUsername(username);
+        if(account == null) {
+            throw new ResultException(MainCode.ACCOUNT_NOT_EXIST.code, MessageUtils.get(MainCode.ACCOUNT_NOT_EXIST.key));
+        }
+        AccountReadme readme = accountReadmeMapper.selectById(account.getId());
+        AccountProfileResponse response = accountMapStruct.toAccountProfileResponse(account);
+        response.setReadme(readme == null ? null : readme.getContent());
+        return response;
     }
 }

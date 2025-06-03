@@ -12,7 +12,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-04-22
+ * @since 2025-06-03
  */
 @Data
 @Accessors(chain = true)
@@ -44,4 +44,7 @@ public class Account implements Serializable {
 
     @Schema(description = "当前项目id")
     private Long currentProjectId;
+
+    @Schema(description = "个人介绍")
+    private String memo;
 }

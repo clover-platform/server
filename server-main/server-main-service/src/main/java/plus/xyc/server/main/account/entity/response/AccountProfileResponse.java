@@ -36,4 +36,10 @@ public class AccountProfileResponse {
     @Schema(description = "是否需要二次验证")
     private Boolean requireOtp;
 
+    @Schema(description = "自我介绍")
+    private String readme;
+
+    @Schema(description = "个性签名")
+    private String memo;
+    
 }
