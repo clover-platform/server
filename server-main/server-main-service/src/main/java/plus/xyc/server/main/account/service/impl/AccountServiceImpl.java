@@ -259,7 +259,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     }
 
     @Override
-    @Cacheable(value = "account:profile#1h", key = "#username")
+    @Cacheable(value = "account:profile:by:username#1h", key = "#username")
     public AccountProfileResponse profile(String username) {
         Account account = baseMapper.findOneByUsername(username);
         if(account == null) {
