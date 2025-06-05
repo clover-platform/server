@@ -38,6 +38,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.enums.MainCode;
+import org.springframework.cache.annotation.Caching;
 
 import java.util.List;
 
@@ -269,5 +270,18 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         AccountProfileResponse response = accountMapStruct.toAccountProfileResponse(account);
         response.setReadme(readme == null ? null : readme.getContent());
         return response;
+    }
+
+    @Override
+    @Caching(evict = {
+        @CacheEvict(value = "account#1h", key = "#request.id"),
+        @CacheEvict(value = "account:profile:by:username#1h", key = "#result.username")
+    })
+    public Account updateAvatar(UpdateAvatarRequest request) {
+        UpdateWrapper<Account> update = new UpdateWrapper<>();
+        update.eq("id", request.getId());
+        update.set("avatar", request.getUrl());
+        baseMapper.update(update);
+        return this.getById(request.getId());
     }
 }

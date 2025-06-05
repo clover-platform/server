@@ -38,5 +38,6 @@ public interface AccountService extends IService<Account> {
     void bindOTP(OTPBindRequest request);
     void disableOTP(OTPDisableRequest request);
     AccountProfileResponse profile(String username);
+    Account updateAvatar(UpdateAvatarRequest request);
 
 }
