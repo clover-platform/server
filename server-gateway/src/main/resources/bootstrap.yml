@@ -25,9 +25,11 @@ dubbo:
     name: dubbo
     port: 20800
   provider:
+    timeout: 30000
     filter: support-exception,support-language,-exception
   consumer:
     check: false
+    timeout: 30000
     filter: support-exception,support-language,-exception
   registry:
     address: nacos://${NACOS_SERVER}
