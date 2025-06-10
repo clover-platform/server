@@ -40,6 +40,7 @@ public class ConfigAppController {
     @Operation(summary = "应用列表")
     public List<AppResponse> apps() {
         List<ConfigApp> apps = configAppService.all();
+        log.info("getLocale:{}", MessageUtils.getLocale());
         return apps.stream().map((app) -> {
             AppResponse ar = mapStruct.toAppResponse(app);
             ar.setName(MessageUtils.get(app.getNameKey()));
