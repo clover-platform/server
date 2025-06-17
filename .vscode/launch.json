@@ -8,7 +8,8 @@
             "mainClass": "plus.xyc.server.gateway.Application",
             "projectName": "server-gateway",
             "args": "",
-            "envFile": "${workspaceFolder}/server-gateway/.env"
+            "envFile": "${workspaceFolder}/server-gateway/.env",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",
@@ -18,7 +19,8 @@
             "mainClass": "plus.xyc.server.main.Application",
             "projectName": "server-main-service",
             "args": "",
-            "envFile": "${workspaceFolder}/server-main/.env"
+            "envFile": "${workspaceFolder}/server-main/.env",
+            "console": "integratedTerminal"
         },
         {
             "type": "java",
@@ -28,7 +30,8 @@
             "mainClass": "plus.xyc.server.i18n.Application",
             "projectName": "server-i18n-service",
             "args": "",
-            "envFile": "${workspaceFolder}/server-i18n/.env"
+            "envFile": "${workspaceFolder}/server-i18n/.env",
+            "console": "integratedTerminal"
         }
     ]
 }

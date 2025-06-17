@@ -3,6 +3,12 @@
   "editor.insertSpaces": true,
   "editor.formatOnPaste": true,
   "cSpell.words": [
-    "Easykit", "Dubbo", "zkit"
+    "Easykit",
+    "Dubbo",
+    "zkit",
+    "mybatis",
+    "redisson",
+    "pointcut",
+    "Configurer"
   ],
 }

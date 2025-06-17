@@ -7,7 +7,7 @@ datasource:
 # 激活的模块
 actives:
   - activity
-  - branch
+  - file
   - bundle
   - entry
   - language
@@ -19,11 +19,11 @@ modules:
   - name: activity
     tables:
       - activity
-  - name: branch
+  - name: file
     tables:
-      - branch
-      - branch_revision
-      - branch_revision_commit
+      - file
+      - file_revision
+      - file_revision_commit
   - name: bundle
     tables:
       - bundle

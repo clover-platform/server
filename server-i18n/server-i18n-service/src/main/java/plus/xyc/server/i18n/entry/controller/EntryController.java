@@ -30,7 +30,7 @@ import plus.xyc.server.i18n.entry.service.EntryService;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/{moduleName}/branch/{branchName}/entry")
+@RequestMapping("/{moduleName}/file/{fileName}/entry")
 @Tag(name = "EntryController", description = "词条")
 public class EntryController {
 
@@ -44,7 +44,7 @@ public class EntryController {
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @RequestBody EntryCreateRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         request.setModuleId(pathRequest.getModule().getId());
@@ -58,7 +58,7 @@ public class EntryController {
             @Parameter(description = "语言") @RequestParam String language,
             @Parameter(description = "词条ID") @PathVariable("entryId") Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         return entryService.detail(id, language);
@@ -71,7 +71,7 @@ public class EntryController {
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @Parameter(description = "词条ID") @PathVariable("entryId") Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         entryService.remove(id, user.getId());
@@ -85,7 +85,7 @@ public class EntryController {
             @RequestBody EntryEditRequest request,
             @Parameter(description = "词条ID") @PathVariable("entryId") Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         request.setId(id);
@@ -99,12 +99,12 @@ public class EntryController {
             @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute EntryListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         request.setModuleId(pathRequest.getModule().getId());
-        if(pathRequest.getBranch() != null)
-            request.setBranchId(pathRequest.getBranch().getId());
+        if(pathRequest.getFile() != null)
+            request.setBranchId(pathRequest.getFile().getId());
         return entryService.query(page, request);
     }
 
@@ -113,12 +113,12 @@ public class EntryController {
     public PageResult<EntryWithStateResponse> all(
             @ParameterObject @ModelAttribute EntryListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         request.setModuleId(pathRequest.getModule().getId());
-        if(pathRequest.getBranch() != null)
-            request.setBranchId(pathRequest.getBranch().getId());
+        if(pathRequest.getFile() != null)
+            request.setBranchId(pathRequest.getFile().getId());
         return entryService.all(request);
     }
 
@@ -131,8 +131,8 @@ public class EntryController {
             @PathInject PathRequest pathRequest
     ) {
         request.setModuleId(pathRequest.getModule().getId());
-        if(pathRequest.getBranch() != null)
-            request.setBranchId(pathRequest.getBranch().getId());
+        if(pathRequest.getFile() != null)
+            request.setBranchId(pathRequest.getFile().getId());
         entryService.sync(request);
     }
 
@@ -140,7 +140,7 @@ public class EntryController {
     @Operation(summary = "统计词条")
     public EntryCountResponse count(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest,
             @ParameterObject @ModelAttribute EntryCountRequest request
     ) {

@@ -18,7 +18,7 @@ import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 @RestController
-@RequestMapping("/open/{moduleName}/branch/{branchName}/entry")
+@RequestMapping("/open/{moduleName}/file/{fileName}/entry")
 @Tag(name = "OpenEntryController", description = "词条接口")
 @Slf4j
 public class OpenEntryController {
@@ -33,12 +33,12 @@ public class OpenEntryController {
             @RequestBody JSONObject content,
             @OpenUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支名称") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         OpenEntryPushRequest request = new OpenEntryPushRequest();
         request.setModuleId(pathRequest.getModule().getId());
-        request.setBranchId(pathRequest.getBranch().getId());
+        request.setBranchId(pathRequest.getFile().getId());
         request.setContent(content);
         request.setUserId(user.getId());
         entryService.push(request);
@@ -50,11 +50,11 @@ public class OpenEntryController {
             @ParameterObject @ModelAttribute OpenEntryPullRequest request,
             @OpenUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支名称") @PathVariable String branchName,
+            @Parameter(description = "文件名") @PathVariable String fileName,
             @PathInject PathRequest pathRequest
     ) {
         request.setModuleId(pathRequest.getModule().getId());
-        request.setBranchId(pathRequest.getBranch().getId());
+        request.setBranchId(pathRequest.getFile().getId());
         request.setUserId(user.getId());
         return entryService.pull(request);
     }

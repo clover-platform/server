@@ -45,8 +45,8 @@ public class RecountAspect {
         Arrays.stream(joinPoint.getArgs()).forEach(arg -> {
             if(arg instanceof PathRequest pathRequest) {
                 log.info("RecountAspect pathRequest: {}", pathRequest);
-                if(pathRequest.getBranch() != null) {
-                    moduleCountService.updateCount(pathRequest.getModule().getId(), pathRequest.getBranch().getId());
+                if(pathRequest.getFile() != null) {
+                    moduleCountService.updateCount(pathRequest.getModule().getId(), pathRequest.getFile().getId());
                 }else{
                     moduleCountService.updateCount(pathRequest.getModule().getId());
                 }

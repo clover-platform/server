@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.i18n.file.mapper.FileRevisionCommitMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.file.entity.dto.FileRevisionCommit">
+        <id column="id" property="id" />
+        <result column="revision_id" property="revisionId" />
+        <result column="action" property="action" />
+        <result column="entry_id" property="entryId" />
+        <result column="origin" property="origin" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
+        <result column="current" property="current" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, revision_id, action, entry_id, origin, current
+    </sql>
+
+</mapper>

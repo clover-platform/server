@@ -11,11 +11,11 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import org.springframework.web.servlet.HandlerMapping;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
-import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.entry.service.EntryService;
+import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.service.ModuleService;
 
@@ -24,16 +24,16 @@ import java.util.Map;
 @Slf4j
 public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver {
     private final ModuleService moduleService;
-    private final BranchService branchService;
+    private final FileService fileService;
     private final EntryService entryService;
 
     public PathInjectArgumentResolver(
             ModuleService moduleService,
-            BranchService branchService,
+            FileService fileService,
             EntryService entryService
     ) {
         this.moduleService = moduleService;
-        this.branchService = branchService;
+        this.fileService = fileService;
         this.entryService = entryService;
     }
 
@@ -72,7 +72,7 @@ public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver
         log.info("PathInjectArgumentResolver uriTemplateVariables: {}", path);
         PathRequest pathRequest = new PathRequest();
         String moduleName = path.get("moduleName");
-        String branchName = path.get("branchName");
+        String fileName = path.get("fileName");
         String entryId = path.get("entryId");
         if(moduleName != null) {
             Module module = moduleService.findByIdentifier(moduleName);
@@ -80,8 +80,8 @@ public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver
                 throw new ResultException(I18nCode.MODULE_NOT_FOUND.code, MessageUtils.get(I18nCode.MODULE_NOT_FOUND.key));
             pathRequest.setModule(moduleService.findByIdentifier(moduleName));
         }
-        if(branchName != null && !"-".equals(branchName)) {
-            pathRequest.setBranch(branchService.findByName(pathRequest.getModule().getId(), branchName));
+        if(fileName != null && !"-".equals(fileName)) {
+            pathRequest.setFile(fileService.findByName(pathRequest.getModule().getId(), fileName));
         }
         if(entryId != null) {
             pathRequest.setEntry(entryService.findById(Long.parseLong(entryId)));
