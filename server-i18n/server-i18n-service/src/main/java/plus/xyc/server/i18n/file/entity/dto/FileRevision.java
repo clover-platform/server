@@ -10,16 +10,16 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 变更
+ * 文件变更
  * </p>
  *
  * @author generator
- * @since 2025-06-17
+ * @since 2025-06-18
  */
 @Data
 @Accessors(chain = true)
 @TableName("file_revision")
-@Schema(name = "FileRevision", description = "变更")
+@Schema(name = "FileRevision", description = "文件变更")
 public class FileRevision implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
@@ -50,4 +50,7 @@ public class FileRevision implements Serializable {
 
     @Schema(description = "删除数量")
     private Integer deletedSize;
+
+    @Schema(description = "文件地址")
+    private String fileUrl;
 }

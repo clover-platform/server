@@ -13,11 +13,12 @@
         <result column="added_size" property="addedSize" />
         <result column="updated_size" property="updatedSize" />
         <result column="deleted_size" property="deletedSize" />
+        <result column="file_url" property="fileUrl" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, file_id, create_time, create_user, current, message, added_size, updated_size, deleted_size
+        id, file_id, create_time, create_user, current, message, added_size, updated_size, deleted_size, file_url
     </sql>
 
 </mapper>

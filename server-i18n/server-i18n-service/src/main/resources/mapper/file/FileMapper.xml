@@ -12,11 +12,13 @@
         <result column="deleted" property="deleted" />
         <result column="upload_user_id" property="uploadUserId" />
         <result column="update_user_id" property="updateUserId" />
+        <result column="import_config" property="importConfig" typeHandler="com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler" />
+        <result column="import_status" property="importStatus" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, module_id, name, upload_time, update_time, deleted, upload_user_id, update_user_id
+        id, module_id, name, upload_time, update_time, deleted, upload_user_id, update_user_id, import_config, import_status
     </sql>
 
     <select id="list" resultMap="BaseResultMap">

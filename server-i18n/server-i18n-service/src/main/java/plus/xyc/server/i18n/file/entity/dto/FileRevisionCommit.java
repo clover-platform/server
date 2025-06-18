@@ -11,16 +11,16 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 变更详情
+ * 文件变更详情
  * </p>
  *
  * @author generator
- * @since 2025-06-17
+ * @since 2025-06-18
  */
 @Data
 @Accessors(chain = true)
 @TableName("file_revision_commit")
-@Schema(name = "FileRevisionCommit", description = "变更详情")
+@Schema(name = "FileRevisionCommit", description = "文件变更详情")
 public class FileRevisionCommit implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
