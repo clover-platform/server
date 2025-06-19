@@ -9,6 +9,7 @@
     "mybatis",
     "redisson",
     "pointcut",
-    "Configurer"
+    "Configurer",
+    "Fastjson"
   ],
 }

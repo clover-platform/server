@@ -15,7 +15,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-06-18
+ * @since 2025-06-19
  */
 @Data
 @Accessors(chain = true)
@@ -36,7 +36,7 @@ public class Activity implements Serializable {
     @Schema(description = "创建时间")
     private Date createTime;
 
-    @Schema(description = "操作 1:模块 2:分支 3:下载 4:成员 5:设置 6:词条")
+    @Schema(description = "操作 1:模块 2:文件 3:下载 4:成员 5:设置 6:词条")
     private Integer type;
 
     @Schema(description = "子操作 操作类型6时 1:词条 2:翻译 3:评论")

@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-06-18
+ * @since 2025-06-19
  */
 @Data
 @Accessors(chain = true)
@@ -32,8 +32,8 @@ public class ModuleCount implements Serializable {
     @Schema(description = "语言代码")
     private String code;
 
-    @Schema(description = "分支ID")
-    private Long branchId;
+    @Schema(description = "文件ID")
+    private Long fileId;
 
     @Schema(description = "词条数")
     private Long totalEntry;

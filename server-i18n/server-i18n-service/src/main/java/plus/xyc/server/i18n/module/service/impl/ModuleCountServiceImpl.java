@@ -5,12 +5,12 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.zkit.support.starter.redisson.DistributedLock;
-import plus.xyc.server.i18n.branch.entity.dto.Branch;
-import plus.xyc.server.i18n.branch.mapper.BranchMapper;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
+import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.response.ModuleCountResponse;
@@ -39,7 +39,7 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
     @Resource
     private EntryStateMapper entryStateMapper;
     @Resource
-    private BranchMapper branchMapper;
+    private FileMapper fileMapper;
     @Resource
     private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
 
@@ -47,13 +47,14 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
     @Transactional
     @DistributedLock(value = "'module:update:count:'+#id")
     public void updateCount(Long id) {
-        List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
-        List<Branch> branches = branchMapper.findByModuleId(id);
-        targets.forEach(target -> {
-            branches.forEach(branch -> {
-                this.updateCount(id, branch.getId(), target.getCode());
-            });
-        });
+        // TODO updateCount
+        // List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
+        // List<Branch> branches = branchMapper.findByModuleId(id);
+        // targets.forEach(target -> {
+        //     branches.forEach(branch -> {
+        //         this.updateCount(id, branch.getId(), target.getCode());
+        //     });
+        // });
     }
 
     @Override
@@ -71,7 +72,7 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
     @DistributedLock(value = "'module:update:count:' + #id + ':' + #branchId + ':' + #language")
     public void updateCount(Long id, Long branchId, String language) {
         List<Entry> entries = entryMapper.findByModuleIdAndBranchId(id, branchId);
-        Branch branch = branchMapper.findOneById(branchId);
+        File branch = fileMapper.selectById(branchId);
         log.info("entries: {}", entries);
         EntryCountRequest request = new EntryCountRequest();
         request.setModuleId(id);
@@ -88,7 +89,7 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
         if(count == null) {
             count = new ModuleCount();
             count.setModuleId(id);
-            count.setBranchId(branchId);
+            count.setFileId(branchId);
             count.setCode(language);
             baseMapper.insert(count);
         }

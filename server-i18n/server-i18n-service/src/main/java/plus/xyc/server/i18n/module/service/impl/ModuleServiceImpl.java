@@ -13,9 +13,9 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
-import plus.xyc.server.i18n.branch.mapper.BranchMapper;
-import plus.xyc.server.i18n.branch.service.BranchService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
+import plus.xyc.server.i18n.file.mapper.FileMapper;
+import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.member.entity.response.MemberResponse;
 import plus.xyc.server.i18n.member.service.MemberService;
@@ -60,13 +60,13 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Resource
     private MemberService memberService;
     @Resource
-    private BranchService branchService;
+    private FileService fileService;
     @Resource
     private ActivityService activityService;
     @DubboReference
     private MainAccountApiService mainAccountApiService;
     @Resource
-    private BranchMapper branchMapper;
+    private FileMapper fileMapper;
     @Resource
     private ModuleCountService moduleCountService;
 
@@ -134,7 +134,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         memberService.addModuleOwner(module.getId(), module.getOwner());
 
         // 创建默认分支
-        branchService.createDefault(module.getId(), request.getOwner());
+        // branchService.createDefault(module.getId(), request.getOwner());
 
         // 记录日志
         activityService.module(module.getId(), ActivityOperate.ADD.code, module);
@@ -165,7 +165,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         countResponse.setTargetCount(targetSizes.stream().findFirst().map(SizeResponse::getSize).orElse(0));
         List<ModuleCountResponse> counts = moduleCountService.getCounts(List.of(id));
         countResponse.setWordCount(counts.stream().findFirst().map(ModuleCountResponse::getWordCount).orElse(0L));
-        countResponse.setBranchCount(branchMapper.countByModuleId(id));
+        // TODO countResponse.setBranchCount(branchMapper.countByModuleId(id));
+        // countResponse.setBranchCount(branchMapper.countByModuleId(id));
         countResponse.setMemberCount(members.size());
         response.setCount(countResponse);
         response.setMembers(admins.stream().map(admin -> {

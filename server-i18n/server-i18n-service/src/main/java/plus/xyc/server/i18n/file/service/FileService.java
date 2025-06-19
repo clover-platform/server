@@ -20,7 +20,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface FileService extends IService<File> {
 
     PageResult<File> list(PageRequest page, FileListRequest request);
-    File findByName(Long moduleId, String name);
+    File findById(Long id);
     void upload(FileUploadRequest request);
 
 }

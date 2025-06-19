@@ -7,7 +7,7 @@
         <id column="id" property="id" />
         <result column="module_id" property="moduleId" />
         <result column="code" property="code" />
-        <result column="branch_id" property="branchId" />
+        <result column="file_id" property="fileId" />
         <result column="total_entry" property="totalEntry" />
         <result column="translated_entry" property="translatedEntry" />
         <result column="verified_entry" property="verifiedEntry" />
@@ -16,18 +16,18 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, module_id, code, branch_id, total_entry, translated_entry, verified_entry, total_entry_length
+        id, module_id, code, file_id, total_entry, translated_entry, verified_entry, total_entry_length
     </sql>
 
     <select id="findByCountRequest" resultMap="BaseResultMap">
         select
         m.*
         from module_count as m
-        left join branch as b on m.branch_id = b.id
+        left join file as f on m.file_id = f.id
         where m.module_id = #{request.moduleId}
-        and b.deleted = false
+        and f.deleted = false
         <if test="request.branch != null and request.branch != ''">
-            and b.name = #{request.branch}
+            and f.name = #{request.branch}
         </if>
         <if test="request.language != null and request.language != ''">
             and m.code = #{request.language}
@@ -40,17 +40,17 @@
         from module_count
         where
         module_id = #{moduleId,jdbcType=NUMERIC}
-        AND branch_id = #{branchId,jdbcType=NUMERIC}
+        AND file_id = #{fileId,jdbcType=NUMERIC}
         AND code = #{code,jdbcType=VARCHAR}
     </select>
 
     <select id="findByModuleId" resultMap="BaseResultMap">
         select m.*
         from module_count as m
-        left join branch as b on m.branch_id = b.id
+        left join file as f on m.file_id = f.id
         where
         m.module_id = #{moduleId,jdbcType=NUMERIC}
-        and b.deleted = false
+        and f.deleted = false
     </select>
 
     <select id="findByModuleIdIn" resultMap="BaseResultMap">
@@ -58,14 +58,14 @@
             mc.*
         from
             module_count as mc,
-            branch as b
+            file as f
         where
-            mc.branch_id = b.id
+            mc.file_id = f.id
             and mc.module_id in
             <foreach collection="moduleIdList" item="item" open="(" close=")" separator=",">
                 #{item,jdbcType=NUMERIC}
             </foreach>
-            and b.deleted = 0
+            and f.deleted = 0
     </select>
 
 </mapper>

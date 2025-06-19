@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-06-18
+ * @since 2025-06-19
  */
 @Data
 @Accessors(chain = true)
@@ -28,8 +28,8 @@ public class Entry implements Serializable {
     @Schema(description = "模块ID")
     private Long moduleId;
 
-    @Schema(description = "分支ID")
-    private Long branchId;
+    @Schema(description = "文件ID")
+    private Long fileId;
 
     @Schema(description = "键")
     private String identifier;

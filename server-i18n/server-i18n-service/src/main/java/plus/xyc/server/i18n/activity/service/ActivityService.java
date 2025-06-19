@@ -17,7 +17,7 @@ import plus.xyc.server.i18n.activity.entity.request.ActivityListRequest;
 public interface ActivityService extends IService<Activity> {
 
     void module(Long id, Integer operate, Object origin);
-    void branch(Long id, Integer operate, Object origin);
+    void file(Long id, Integer operate, Object origin);
     void bundle(Long id, Integer operate, Object origin);
     void member(Long id, Integer operate, Object origin);
     void setting(Long id, Integer operate, Object origin);

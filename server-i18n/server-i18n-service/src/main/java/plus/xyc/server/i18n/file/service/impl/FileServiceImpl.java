@@ -1,20 +1,27 @@
 package plus.xyc.server.i18n.file.service.impl;
 
+import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
+import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.file.service.FileService;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.Cacheable;
@@ -40,6 +47,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     private HTTPService httpService;
     @DubboReference
     private AssetsOSSApiService assetsOSSApiService;
+    @Resource
+    private FileRevisionService fileRevisionService;
 
     @Override
     public PageResult<File> list(PageRequest pr, FileListRequest request) {
@@ -50,9 +59,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     }
 
     @Override
-    @Cacheable(value = "i18n:file", key = "#moduleId + ':' + #name")
-    public File findByName(Long moduleId, String name) {
-        return baseMapper.findOneByModuleIdAndNameAndDeleted(moduleId, name, false);
+    @Cacheable(value = "i18n:file", key = "#id")
+    public File findById(Long id) {
+        return baseMapper.selectById(id);
     }
 
     // 导入 json 文件
@@ -65,19 +74,68 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             String jsonStr = httpService.get(signedUrl);
             JSONObject json = JSON.parseObject(jsonStr);
             log.info("远程json内容: {}", json);
+
+            JSONObject importConfig = new JSONObject();
+            importConfig.put("type", "json");
+            // 插入文件
+            Date now = new Date();
+            File fileEntity = new File();
+            fileEntity.setModuleId(moduleId);
+            fileEntity.setName(file.getName());
+            fileEntity.setUploadUserId(userId);
+            fileEntity.setUpdateUserId(userId);
+            fileEntity.setUploadTime(now);
+            fileEntity.setUpdateTime(now);
+            fileEntity.setImportConfig(importConfig);
+            fileEntity.setImportStatus(1);
+            save(fileEntity);
+
+            // 导入词条
+            List<Entry> entries = new ArrayList<>();
+            json.forEach((key, value) -> {
+                Entry entry = new Entry();
+                entry.setModuleId(moduleId);
+                entry.setIdentifier(key);
+                entry.setValue(value.toString());
+                entry.setCreateTime(now);
+                entry.setUpdateTime(now);
+                entries.add(entry);
+            });
+            fileRevisionService.init(fileEntity.getId(), userId, urlStr, entries);
         } catch (Exception e) {
             log.error("读取远程json异常，url: {}", urlStr, e);
         }
     }
 
+    private void initExcel(Long moduleId, Long userId, FileUploadRequest.FileItem file) {
+        log.info("import excel file: {}", file);
+        Date now = new Date();
+        File fileEntity = new File();
+        fileEntity.setModuleId(moduleId);
+        fileEntity.setName(file.getName());
+        fileEntity.setUploadUserId(userId);
+        fileEntity.setUpdateUserId(userId);
+        fileEntity.setUploadTime(now);
+        fileEntity.setUpdateTime(now);
+        JSONObject importConfig = new JSONObject();
+        importConfig.put("type", "excel");
+        importConfig.put("url", file.getUrl());
+        fileEntity.setImportConfig(importConfig);
+        fileEntity.setImportStatus(0);
+        save(fileEntity);
+    }
+
     @Override
+    @Transactional
     public void upload(FileUploadRequest request) {
         log.info("upload file: {}", request);
         request.getFiles().forEach(file -> {
-            // 不同的文件类型处理方式不同
-            // json 文件
             if (file.getName().endsWith(".json")) {
+                // 直接导入
                 importJson(request.getModuleId(), request.getUserId(), file);
+            } else if (file.getName().endsWith(".xlsx") || file.getName().endsWith(".xls")) {
+                // 无法直接导入，需要用户配置列对应关系
+                initExcel(request.getModuleId(), request.getUserId(), file);
             }
         });
     }

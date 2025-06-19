@@ -22,10 +22,6 @@ import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
-import plus.xyc.server.i18n.branch.entity.dto.Branch;
-import plus.xyc.server.i18n.branch.entity.request.NewRevisionRequest;
-import plus.xyc.server.i18n.branch.mapper.BranchMapper;
-import plus.xyc.server.i18n.branch.service.BranchRevisionService;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
@@ -45,6 +41,8 @@ import plus.xyc.server.i18n.entry.service.EntryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
+import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
@@ -77,8 +75,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Resource
     private ActivityService activityService;
     @Resource
-    private BranchMapper branchMapper;
-    @Resource
     private EntryStateMapper entryStateMapper;
     @Resource
     private ModuleCountMapper moduleCountMapper;
@@ -86,11 +82,10 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
     @Resource
     private EntryStateService entryStateService;
-    @Lazy
-    @Resource
-    private BranchRevisionService branchRevisionService;
     @Resource
     private AIAPIService aiapiService;
+    @Resource
+    private FileMapper fileMapper;
 
     @Override
     public PageResult<EntryWithStateResponse> query(PageRequest query, EntryListRequest request) {
@@ -186,11 +181,11 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     public void cloneEntries(List<EntryWithResultResponse> sources, Long targetId) {
-        Branch target = branchMapper.selectById(targetId);
+        File target = fileMapper.selectById(targetId);
         List<ModuleTargetLanguage> languages = moduleTargetLanguageMapper.findByModuleId(target.getModuleId());
         sources.forEach(entry -> {
             entry.setId(null);
-            entry.setBranchId(targetId);
+            entry.setFileId(targetId);
             entry.setUpdateTime(new Date());
         });
         List<Entry> all = sources.stream().map(entry -> entryMapStruct.toEntryFromEntryWithResultResponse(entry)).toList();
@@ -249,25 +244,25 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Transactional
     @DistributedLock("'i18n:entry:create:'+#request.moduleId")
     public void create(EntryCreateRequest request) {
-        List<Branch> branches = branchMapper.findByNameIn(request.getModuleId(), request.getBranches());
-        if(branches.size() != request.getBranches().size()) {
-            throw new ResultException(I18nCode.ENTRY_CREATE_BRANCHES.code, MessageUtils.get(I18nCode.ENTRY_CREATE_BRANCHES.key));
-        }
-        branches.forEach(branch -> {
-            int size = baseMapper.countByModuleIdAndBranchIdAndIdentifier(request.getModuleId(), branch.getId(), request.getKey());
-            if(size > 0) {
-                throw new ResultException(I18nCode.ENTRY_CREATE_KEY.code, MessageUtils.get(I18nCode.ENTRY_CREATE_KEY.key));
-            }
-            Entry entry = new Entry();
-            entry.setModuleId(request.getModuleId());
-            entry.setBranchId(branch.getId());
-            entry.setIdentifier(request.getKey());
-            entry.setValue(request.getValue());
-            entry.setCreateUserId(request.getUserId());
-            save(entry);
+        // List<File> branches = fileMapper.findByNameIn(request.getModuleId(), request.getBranches());
+        // if(branches.size() != request.getBranches().size()) {
+        //     throw new ResultException(I18nCode.ENTRY_CREATE_BRANCHES.code, MessageUtils.get(I18nCode.ENTRY_CREATE_BRANCHES.key));
+        // }
+        // branches.forEach(branch -> {
+        //     int size = baseMapper.countByModuleIdAndBranchIdAndIdentifier(request.getModuleId(), branch.getId(), request.getKey());
+        //     if(size > 0) {
+        //         throw new ResultException(I18nCode.ENTRY_CREATE_KEY.code, MessageUtils.get(I18nCode.ENTRY_CREATE_KEY.key));
+        //     }
+        //     Entry entry = new Entry();
+        //     entry.setModuleId(request.getModuleId());
+        //     entry.setFileId(branch.getId());
+        //     entry.setIdentifier(request.getKey());
+        //     entry.setValue(request.getValue());
+        //     entry.setCreateUserId(request.getUserId());
+        //     save(entry);
 
-            activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
-        });
+        //     activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
+        // });
     }
 
     @Override
@@ -344,7 +339,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @DistributedLock("'i18n:entry:push:'+#request.moduleId")
     public void push(OpenEntryPushRequest request) {
         EntryService self = AopUtils.current(EntryService.class);
-        Branch branch = branchMapper.selectById(request.getBranchId());
+        File branch = fileMapper.selectById(request.getBranchId());
 
         // 当前所有的词条
         List<Entry> entries = baseMapper.findByBranchId(request.getBranchId());
@@ -362,7 +357,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             if(entry == null) {
                 Entry newEntry = new Entry();
                 newEntry.setModuleId(request.getModuleId());
-                newEntry.setBranchId(request.getBranchId());
+                newEntry.setFileId(request.getBranchId());
                 newEntry.setIdentifier(key);
                 newEntry.setValue(value);
                 newEntry.setCreateUserId(request.getUserId());
@@ -388,34 +383,35 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
         log.info("push entry addList: {}, updateList: {}, deleteList: {}", addList.size(), updateList.size(), deleteList.size());
 
+        // TODO 
         // 新版本
-        NewRevisionRequest newRevisionRequest = new NewRevisionRequest();
-        newRevisionRequest.setBranchId(request.getBranchId());
-        newRevisionRequest.setUserId(request.getUserId());
-        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        newRevisionRequest.setMessage(MessageUtils.get("branch.revision.push.message", branch.getName(), time));
-        Long revisionId = branchRevisionService.newRevision(newRevisionRequest);
+        // NewRevisionRequest newRevisionRequest = new NewRevisionRequest();
+        // newRevisionRequest.setBranchId(request.getBranchId());
+        // newRevisionRequest.setUserId(request.getUserId());
+        // String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+        // newRevisionRequest.setMessage(MessageUtils.get("branch.revision.push.message", branch.getName(), time));
+        // Long revisionId = branchRevisionService.newRevision(newRevisionRequest);
 
-        // 新增
-        if(!addList.isEmpty()) {
-            self.saveBatch(addList);
-            List<Long> entryIds = addList.stream().map(Entry::getId).toList();
-            branchRevisionService.add(revisionId, entryIds);
-        }
+        // // 新增
+        // if(!addList.isEmpty()) {
+        //     self.saveBatch(addList);
+        //     List<Long> entryIds = addList.stream().map(Entry::getId).toList();
+        //     branchRevisionService.add(revisionId, entryIds);
+        // }
 
-        // 更新
-        if(!updateList.isEmpty()) {
-            self.updateBatchById(updateList);
-            List<Entry> updateOriginEntries = entries.stream().filter(item -> updateList.stream().map(Entry::getId).toList().contains(item.getId())).toList();
-            branchRevisionService.update(revisionId, updateList, updateOriginEntries);
-        }
+        // // 更新
+        // if(!updateList.isEmpty()) {
+        //     self.updateBatchById(updateList);
+        //     List<Entry> updateOriginEntries = entries.stream().filter(item -> updateList.stream().map(Entry::getId).toList().contains(item.getId())).toList();
+        //     branchRevisionService.update(revisionId, updateList, updateOriginEntries);
+        // }
 
-        // 删除
-        if(!deleteList.isEmpty()) {
-            List<Long> entryIds = deleteList.stream().map(Entry::getId).toList();
-            lambdaUpdate().set(Entry::getDeleted, true).in(Entry::getId, entryIds).update();
-            branchRevisionService.delete(revisionId, entryIds);
-        }
+        // // 删除
+        // if(!deleteList.isEmpty()) {
+        //     List<Long> entryIds = deleteList.stream().map(Entry::getId).toList();
+        //     lambdaUpdate().set(Entry::getDeleted, true).in(Entry::getId, entryIds).update();
+        //     branchRevisionService.delete(revisionId, entryIds);
+        // }
     }
 
     @Override

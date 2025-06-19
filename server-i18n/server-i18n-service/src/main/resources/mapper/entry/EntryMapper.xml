@@ -6,7 +6,7 @@
     <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.entry.entity.dto.Entry">
         <id column="id" property="id" />
         <result column="module_id" property="moduleId" />
-        <result column="branch_id" property="branchId" />
+        <result column="file_id" property="fileId" />
         <result column="identifier" property="identifier" />
         <result column="value" property="value" />
         <result column="create_time" property="createTime" />
@@ -18,28 +18,28 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, module_id, branch_id, identifier, value, create_time, update_time, create_user_id, update_user_id, deleted
+        id, module_id, file_id, identifier, value, create_time, update_time, create_user_id, update_user_id, deleted
     </sql>
 
     <select id="findByModuleId" resultMap="BaseResultMap">
         select e.*
-        from entry as e left join branch b on e.branch_id = b.id
+        from entry as e left join file f on e.file_id = f.id
         where
         e.module_id = #{moduleId,jdbcType=NUMERIC}
         and e.deleted = false
-        and b.deleted = false
+        and f.deleted = false
     </select>
 
     <select id="query" resultMap="BaseResultMap">
         select
         e.*
         from entry as e
-        left join branch as b on e.branch_id = b.id
+        left join file f on e.file_id = f.id
         left join entry_state as es on e.id = es.entry_id and (#{query.language} is null or es.language = #{query.language})
         where
-        e.deleted = false and b.deleted = false
-        <if test="query.branchId != null">
-            and e.branch_id = #{query.branchId,jdbcType=NUMERIC}
+        e.deleted = false and f.deleted = false
+        <if test="query.fileId != null">
+            and e.file_id = #{query.fileId,jdbcType=NUMERIC}
         </if>
         <if test="query.moduleId != null">
             and e.module_id = #{query.moduleId,jdbcType=NUMERIC}
@@ -54,11 +54,11 @@
         select
         count(1) as total
         from entry as e
-        left join branch as b on e.branch_id = b.id
+        left join file f on e.file_id = f.id
         where
-        e.deleted = false and b.deleted = false
+        e.deleted = false and f.deleted = false
         <if test="request.branch != null and request.branch != ''">
-            and b.name = #{request.branch}
+            and f.name = #{request.branch}
         </if>
         <if test="request.moduleId != null">
             and e.module_id = #{request.moduleId,jdbcType=NUMERIC}
@@ -70,7 +70,7 @@
         <include refid="Base_Column_List"/>
         from entry
         where
-        branch_id = #{branchId,jdbcType=NUMERIC}
+        file_id = #{fileId,jdbcType=NUMERIC}
         and deleted = false
     </select>
 
@@ -78,7 +78,7 @@
         select count(*)
         from entry
         where module_id = #{moduleId,jdbcType=NUMERIC}
-        AND branch_id = #{branchId,jdbcType=NUMERIC}
+        AND file_id = #{fileId,jdbcType=NUMERIC}
         AND identifier = #{identifier,jdbcType=VARCHAR}
         and deleted = false
     </select>
@@ -89,21 +89,21 @@
         from entry
         where
         module_id = #{moduleId,jdbcType=NUMERIC}
-        AND branch_id = #{branchId,jdbcType=NUMERIC}
+        AND file_id = #{fileId,jdbcType=NUMERIC}
         and deleted = false
     </select>
 
     <select id="countByBranchIdAndDeleted" resultType="int">
         select count(*)
         from entry
-        where branch_id = #{branchId,jdbcType=NUMERIC}
+        where file_id = #{fileId,jdbcType=NUMERIC}
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
     <select id="findIdByBranchIdAndDeleted" resultMap="BaseResultMap">
         select id
         from entry
-        where branch_id = #{branchId,jdbcType=NUMERIC}
+        where file_id = #{fileId,jdbcType=NUMERIC}
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
     <select id="countByModuleIdAndBranchId" resultType="int">
@@ -111,7 +111,7 @@
         from entry
         where module_id = #{moduleId,jdbcType=NUMERIC}
           <if test="branchId != null">
-            AND branch_id = #{branchId,jdbcType=NUMERIC}
+            AND file_id = #{fileId,jdbcType=NUMERIC}
           </if>
           and deleted = false
     </select>

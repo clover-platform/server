@@ -30,7 +30,7 @@ import java.util.List;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/{moduleName}/branch/{branchName}/entry/{entryId}/result")
+@RequestMapping("/{moduleName}/file/{fileId}/entry/{entryId}/result")
 @Tag(name = "EntryResultController", description = "词条翻译结果")
 public class EntryResultController {
 
@@ -41,7 +41,7 @@ public class EntryResultController {
     @Operation(summary = "AI建议")
     public List<String> ai(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest,
             @RequestBody EntryAIResultRequest request
@@ -57,7 +57,7 @@ public class EntryResultController {
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @RequestBody EntryResultSaveRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
@@ -74,7 +74,7 @@ public class EntryResultController {
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @Parameter(description = "翻译结果ID") @PathVariable Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
@@ -87,7 +87,7 @@ public class EntryResultController {
             @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute EntryResultListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
@@ -102,7 +102,7 @@ public class EntryResultController {
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @Parameter(description = "翻译结果ID") @PathVariable Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
@@ -116,7 +116,7 @@ public class EntryResultController {
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @Parameter(description = "翻译结果ID") @PathVariable Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {

@@ -72,7 +72,7 @@ public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver
         log.info("PathInjectArgumentResolver uriTemplateVariables: {}", path);
         PathRequest pathRequest = new PathRequest();
         String moduleName = path.get("moduleName");
-        String fileName = path.get("fileName");
+        String fileIdString = path.get("fileId");
         String entryId = path.get("entryId");
         if(moduleName != null) {
             Module module = moduleService.findByIdentifier(moduleName);
@@ -80,8 +80,9 @@ public class PathInjectArgumentResolver implements HandlerMethodArgumentResolver
                 throw new ResultException(I18nCode.MODULE_NOT_FOUND.code, MessageUtils.get(I18nCode.MODULE_NOT_FOUND.key));
             pathRequest.setModule(moduleService.findByIdentifier(moduleName));
         }
-        if(fileName != null && !"-".equals(fileName)) {
-            pathRequest.setFile(fileService.findByName(pathRequest.getModule().getId(), fileName));
+        if(fileIdString != null && !"-".equals(fileIdString)) {
+            Long fileId = Long.parseLong(fileIdString);
+            pathRequest.setFile(fileService.findById(fileId));
         }
         if(entryId != null) {
             pathRequest.setEntry(entryService.findById(Long.parseLong(entryId)));

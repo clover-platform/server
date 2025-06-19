@@ -26,7 +26,7 @@ import plus.xyc.server.i18n.entry.service.EntryCommentService;
  * @since 2024-05-13
  */
 @RestController
-@RequestMapping("/{moduleName}/branch/{branchName}/entry/{entryId}/comment")
+@RequestMapping("/{moduleName}/file/{fileId}/entry/{entryId}/comment")
 @Tag(name = "EntryCommentController", description = "词条评论")
 public class EntryCommentController {
 
@@ -39,7 +39,7 @@ public class EntryCommentController {
             @ParameterObject @ModelAttribute PageRequest page,
             @ParameterObject @ModelAttribute EntryCommentListRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
@@ -53,7 +53,7 @@ public class EntryCommentController {
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @RequestBody EntryCommentAddRequest request,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {
@@ -68,7 +68,7 @@ public class EntryCommentController {
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "评论ID") @PathVariable Long id,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(description = "分支ID") @PathVariable String branchName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
             @Parameter(description = "词条ID") @PathVariable Long entryId,
             @PathInject PathRequest pathRequest
     ) {

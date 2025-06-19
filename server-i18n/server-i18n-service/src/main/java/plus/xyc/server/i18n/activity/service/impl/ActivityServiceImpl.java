@@ -30,8 +30,8 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     }
 
     @Override
-    public void branch(Long id, Integer operate, Object origin) {
-        log(id, ActivityType.BRANCH.code, null, operate, origin);
+    public void file(Long id, Integer operate, Object origin) {
+        log(id, ActivityType.FILE.code, null, operate, origin);
     }
 
     @Override

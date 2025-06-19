@@ -1,4 +1,4 @@
-package plus.xyc.server.i18n.branch.entity.enums;
+package plus.xyc.server.i18n.file.entity.enums;
 
 public enum CommitAction {
     ADD(1),
