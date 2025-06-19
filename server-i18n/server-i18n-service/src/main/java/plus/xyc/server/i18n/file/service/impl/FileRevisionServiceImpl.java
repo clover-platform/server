@@ -6,11 +6,14 @@ import plus.xyc.server.i18n.file.entity.dto.FileRevision;
 import plus.xyc.server.i18n.file.mapper.FileRevisionMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionCommitService;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -63,6 +66,14 @@ public class FileRevisionServiceImpl extends ServiceImpl<FileRevisionMapper, Fil
 
         // 插入 commit 记录
         fileRevisionCommitService.add(revision.getId(), entries.stream().map(Entry::getId).toList());
+    }
+
+    @Override
+    public List<FileRevision> findListByFileIds(List<Long> fileIds) {
+        if(fileIds == null || fileIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return baseMapper.selectList(new LambdaQueryWrapper<FileRevision>().in(FileRevision::getFileId, fileIds).eq(FileRevision::getCurrent, true));
     }
 
 }

@@ -2,8 +2,11 @@ package plus.xyc.server.i18n.file.service.impl;
 
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.entity.dto.FileRevision;
+import plus.xyc.server.i18n.file.entity.mapstruct.FileMapStruct;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
+import plus.xyc.server.i18n.file.entity.response.FileResponse;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.file.service.FileService;
@@ -12,6 +15,9 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 
+import cn.idev.excel.FastExcel;
+import cn.idev.excel.context.AnalysisContext;
+import cn.idev.excel.read.listener.ReadListener;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 
@@ -20,9 +26,12 @@ import com.alibaba.fastjson2.JSONObject;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.CacheEvict;
@@ -51,12 +60,20 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     private AssetsOSSApiService assetsOSSApiService;
     @Resource
     private FileRevisionService fileRevisionService;
+    @Resource
+    private FileMapStruct fileMapStruct;
 
     @Override
-    public PageResult<File> list(PageRequest pr, FileListRequest request) {
+    public PageResult<FileResponse> list(PageRequest pr, FileListRequest request) {
         try (Page<File> page = pr.start()) {
             baseMapper.list(request);
-            return PageResult.of(page);
+            List<FileResponse> fileResponses = page.getResult().stream().map(fileMapStruct::toFileResponse).collect(Collectors.toList());
+            List<Long> fileIds = fileResponses.stream().map(FileResponse::getId).collect(Collectors.toList());
+            List<FileRevision> fileRevisions = fileRevisionService.findListByFileIds(fileIds);
+            fileResponses.forEach(fileResponse -> {
+                fileResponse.setRevisionVersion(fileRevisions.stream().filter(fileRevision -> fileRevision.getFileId().equals(fileResponse.getId())).findFirst().map(FileRevision::getVersion).orElse(0));
+            }); 
+            return PageResult.of(page.getTotal(), fileResponses);
         }
     }
 
@@ -148,6 +165,35 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         UpdateWrapper<File> wrapper = new UpdateWrapper<>();
         wrapper.lambda().set(File::getDeleted, true).eq(File::getId, fileId);
         update(wrapper);
+    }
+
+    @Override
+    public List<List<String>> preview(Long fileId) {
+        File file = getById(fileId);
+        JSONObject importConfig = JSON.parseObject(JSON.toJSONString(file.getImportConfig()));
+        String url = importConfig.getString("url");
+        String signedUrl = assetsOSSApiService.sign(url);
+
+        InputStream inputStream = httpService.download(signedUrl);
+
+        List<List<String>> all = new ArrayList<>();
+        FastExcel.read(inputStream, new ReadListener<Map<Integer, String>>() {
+            @Override
+            public void invoke(Map<Integer, String> data, AnalysisContext context) {
+                log.info("解析到一条数据" + JSON.toJSONString(data));
+                List<String> row = new ArrayList<>();
+                data.forEach((key, value) -> {
+                    row.add(value);
+                });
+                all.add(row);
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+                log.info("解析完成");
+            }
+        }).sheet(0).headRowNumber(0).numRows(5).doRead();
+        return all;
     }
 
 }

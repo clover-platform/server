@@ -18,5 +18,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface FileRevisionService extends IService<FileRevision> {
 
     void init(Long fileId, Long userId, String url, List<Entry> entries);
+    List<FileRevision> findListByFileIds(List<Long> fileIds);
 
 }

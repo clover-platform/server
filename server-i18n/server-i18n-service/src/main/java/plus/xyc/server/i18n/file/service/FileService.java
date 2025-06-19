@@ -3,6 +3,9 @@ package plus.xyc.server.i18n.file.service;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
+import plus.xyc.server.i18n.file.entity.response.FileResponse;
+
+import java.util.List;
 
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
@@ -19,9 +22,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface FileService extends IService<File> {
 
-    PageResult<File> list(PageRequest page, FileListRequest request);
+    PageResult<FileResponse> list(PageRequest page, FileListRequest request);
     File findById(Long id);
     void upload(FileUploadRequest request);
     void delete(Long fileId);
+    List<List<String>> preview(Long fileId);
 
 }

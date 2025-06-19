@@ -1,5 +1,7 @@
 package plus.xyc.server.i18n.file.controller;
 
+import java.util.List;
+
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,9 +24,9 @@ import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
-import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
+import plus.xyc.server.i18n.file.entity.response.FileResponse;
 
 /**
  * <p>
@@ -44,7 +46,7 @@ public class FileController {
 
     @GetMapping("/list")
     @Operation(summary = "查询文件")
-    public PageResult<File> list(
+    public PageResult<FileResponse> list(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(hidden = true) @PathInject PathRequest pathRequest,
             @ParameterObject @ModelAttribute PageRequest page,
@@ -71,6 +73,12 @@ public class FileController {
     @Operation(summary = "删除文件")
     public void delete(@Parameter(description = "文件ID") @PathVariable Long fileId) {
         fileService.delete(fileId);
+    }
+
+    @GetMapping("/{fileId}/preview")
+    @Operation(summary = "预览文件")
+    public List<List<String>> preview(@Parameter(description = "文件ID") @PathVariable Long fileId) {
+        return fileService.preview(fileId);
     }
 
 }

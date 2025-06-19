@@ -53,4 +53,7 @@ public class FileRevision implements Serializable {
 
     @Schema(description = "文件地址")
     private String fileUrl;
+
+    @Schema(description = "版本号")
+    private Integer version;
 }
