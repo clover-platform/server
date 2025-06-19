@@ -9,13 +9,10 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.context.annotation.Lazy;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.service.AIAPIService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
-import org.zkit.support.starter.boot.utils.AopUtils;
-import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
@@ -43,7 +40,6 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
-import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
@@ -51,7 +47,6 @@ import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -338,8 +333,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Transactional
     @DistributedLock("'i18n:entry:push:'+#request.moduleId")
     public void push(OpenEntryPushRequest request) {
-        EntryService self = AopUtils.current(EntryService.class);
-        File branch = fileMapper.selectById(request.getBranchId());
+        // EntryService self = AopUtils.current(EntryService.class);
+        // File branch = fileMapper.selectById(request.getBranchId());
 
         // 当前所有的词条
         List<Entry> entries = baseMapper.findByBranchId(request.getBranchId());
