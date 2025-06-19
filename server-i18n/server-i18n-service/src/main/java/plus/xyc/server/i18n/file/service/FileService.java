@@ -22,5 +22,6 @@ public interface FileService extends IService<File> {
     PageResult<File> list(PageRequest page, FileListRequest request);
     File findById(Long id);
     void upload(FileUploadRequest request);
+    void delete(Long fileId);
 
 }

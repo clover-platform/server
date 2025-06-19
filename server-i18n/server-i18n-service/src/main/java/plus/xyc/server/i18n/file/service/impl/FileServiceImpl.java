@@ -8,6 +8,7 @@ import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.file.service.FileService;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
 
@@ -24,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.zkit.support.server.assets.api.service.AssetsOSSApiService;
@@ -59,7 +61,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     }
 
     @Override
-    @Cacheable(value = "i18n:file", key = "#id")
+    @Cacheable(value = "i18n:file#1h", key = "#id")
     public File findById(Long id) {
         return baseMapper.selectById(id);
     }
@@ -138,6 +140,14 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 initExcel(request.getModuleId(), request.getUserId(), file);
             }
         });
+    }
+
+    @Override
+    @CacheEvict(value = "i18n:file", key = "#fileId")
+    public void delete(Long fileId) {
+        UpdateWrapper<File> wrapper = new UpdateWrapper<>();
+        wrapper.lambda().set(File::getDeleted, true).eq(File::getId, fileId);
+        update(wrapper);
     }
 
 }

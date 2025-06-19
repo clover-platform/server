@@ -1,6 +1,7 @@
 package plus.xyc.server.i18n.file.controller;
 
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import plus.xyc.server.i18n.file.service.FileService; 
 import plus.xyc.server.i18n.common.annotation.PathInject;
+import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
@@ -53,6 +55,7 @@ public class FileController {
 
     @PostMapping("/upload")
     @Operation(summary = "上传文件")
+    @Recount
     public void upload(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(hidden = true) @PathInject PathRequest pathRequest,
@@ -61,6 +64,13 @@ public class FileController {
         request.setModuleId(pathRequest.getModule().getId());
         request.setUserId(user.getId());
         fileService.upload(request);
+    }
+
+    @Recount
+    @DeleteMapping("/{fileId}")
+    @Operation(summary = "删除文件")
+    public void delete(@Parameter(description = "文件ID") @PathVariable Long fileId) {
+        fileService.delete(fileId);
     }
 
 }
