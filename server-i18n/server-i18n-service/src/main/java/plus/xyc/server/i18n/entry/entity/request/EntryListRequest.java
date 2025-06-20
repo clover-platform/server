@@ -7,8 +7,8 @@ import lombok.Data;
 @Schema(description = "词条请求")
 public class EntryListRequest {
 
-    @Schema(description = "分支ID")
-    private Long branchId;
+    @Schema(description = "文件ID")
+    private Long fileId;
     @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "语言")

@@ -13,8 +13,8 @@ public class OpenEntryPullRequest {
     @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
 
-    @Schema(description = "分支ID", hidden = true)
-    private Long branchId;
+    @Schema(description = "文件ID", hidden = true)
+    private Long fileId;
 
     @Schema(description = "语言")
     private String language;

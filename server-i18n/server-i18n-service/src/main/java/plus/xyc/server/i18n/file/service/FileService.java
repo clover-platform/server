@@ -1,6 +1,7 @@
 package plus.xyc.server.i18n.file.service;
 
 import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
@@ -27,5 +28,6 @@ public interface FileService extends IService<File> {
     void upload(FileUploadRequest request);
     void delete(Long fileId);
     List<List<String>> preview(Long fileId);
+    void importFile(FileImportRequest request);
 
 }

@@ -19,13 +19,13 @@ import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 public interface EntryMapper extends BaseMapper<Entry> {
 
     List<Entry> findByModuleId(@Param("moduleId") Long moduleId);
-    List<Entry> findByModuleIdAndBranchId(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId);
+    List<Entry> findByModuleIdAndFileId(@Param("moduleId") Long moduleId, @Param("fileId") Long fileId);
     List<Entry> query(@Param("keyword") String keyword, @Param("query") EntryListRequest request);
     Long countTotal(@Param("request") EntryCountRequest request);
-    List<Entry> findByBranchId(@Param("branchId") Long branchId);
-    int countByModuleIdAndBranchIdAndIdentifier(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("identifier") String identifier);
-    int countByBranchIdAndDeleted(@Param("branchId") Long branchId, @Param("deleted") Boolean deleted);
-    List<Entry> findIdByBranchIdAndDeleted(@Param("branchId") Long branchId, @Param("deleted") Boolean deleted);
-    int countByModuleIdAndBranchId(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId);
+    List<Entry> findByFileId(@Param("fileId") Long fileId); 
+    int countByModuleIdAndFileIdAndIdentifier(@Param("moduleId") Long moduleId, @Param("fileId") Long fileId, @Param("identifier") String identifier);
+    int countByFileIdAndDeleted(@Param("fileId") Long fileId, @Param("deleted") Boolean deleted);
+    List<Entry> findIdByFileIdAndDeleted(@Param("fileId") Long fileId, @Param("deleted") Boolean deleted);
+    int countByModuleIdAndFileId(@Param("moduleId") Long moduleId, @Param("fileId") Long fileId);
 
 }

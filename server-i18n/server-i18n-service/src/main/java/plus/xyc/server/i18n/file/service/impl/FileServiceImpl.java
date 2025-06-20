@@ -4,6 +4,7 @@ import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.dto.FileRevision;
 import plus.xyc.server.i18n.file.entity.mapstruct.FileMapStruct;
+import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
@@ -194,6 +195,11 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             }
         }).sheet(0).headRowNumber(0).numRows(5).doRead();
         return all;
+    }
+
+    @Override
+    public void importFile(FileImportRequest request) {
+        log.info("import file: {}", request);
     }
 
 }

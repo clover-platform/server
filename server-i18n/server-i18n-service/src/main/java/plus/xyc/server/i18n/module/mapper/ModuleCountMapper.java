@@ -19,7 +19,7 @@ import java.util.List;
 public interface ModuleCountMapper extends BaseMapper<ModuleCount> {
 
     List<ModuleCount> findByCountRequest(@Param("request")EntryCountRequest request);
-    ModuleCount findOneByModuleIdAndBranchIdAndCode(@Param("moduleId") Long moduleId, @Param("branchId") Long branchId, @Param("code") String code);
+    ModuleCount findOneByModuleIdAndFileIdAndCode(@Param("moduleId") Long moduleId, @Param("fileId") Long fileId, @Param("code") String code);
     List<ModuleCount> findByModuleId(@Param("moduleId") Long moduleId);
     List<ModuleCount> findByModuleIdIn(@Param("moduleIdList") Collection<Long> moduleIdList);
 

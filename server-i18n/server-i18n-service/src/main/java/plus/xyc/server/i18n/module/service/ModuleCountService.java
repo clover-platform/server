@@ -17,8 +17,8 @@ import java.util.List;
 public interface ModuleCountService extends IService<ModuleCount> {
 
     void updateCount(Long id);
-    void updateCount(Long id, Long branchId);
-    void updateCount(Long id, Long branchId, String language);
+    void updateCount(Long id, Long fileId);
+    void updateCount(Long id, Long fileId, String language);
     List<ModuleCountResponse> getCounts(List<Long> moduleIds);
 
 }

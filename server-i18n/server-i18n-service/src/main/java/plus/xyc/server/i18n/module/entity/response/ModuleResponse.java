@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Schema(description = "模块响应")
@@ -29,5 +30,7 @@ public class ModuleResponse {
     private java.util.Date updateTime;
     @Schema(description = "创建时间")
     private Date createTime;
+    @Schema(description = "语言列表")
+    private List<ModuleLanguageResponse> languages;
 
 }

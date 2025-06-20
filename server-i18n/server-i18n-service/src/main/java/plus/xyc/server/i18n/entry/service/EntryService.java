@@ -31,17 +31,17 @@ public interface EntryService extends IService<Entry> {
     PageResult<EntryWithStateResponse> all(EntryListRequest request);
     void sync(EntryListRequest request);
     EntryCountResponse count(EntryCountRequest request);
-    List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId);
+    List<EntryWithResultResponse> getEntryByFileIdWithResult(Long fileId);
     void cloneEntriesBySourceId(Long sourceId, Long targetId);
     void cloneEntries(List<EntryWithResultResponse> sources, Long targetId);
     void create(EntryCreateRequest request);
     void edit(EntryEditRequest request);
     EntryWithStateResponse detail(Long id, String language);
     void remove(Long id, Long userId);
-    List<Entry> getByBranchId(Long branchId);
+    List<Entry> getByFileId(Long fileId);
     Entry findById(Long id);
-    int countByBranchId(Long branchId);
-    List<Long> findIdByBranchId(Long branchId);
+    int countByFileId(Long fileId);
+    List<Long> findIdByFileId(Long fileId);
     void push(OpenEntryPushRequest request);
     JSONObject pull(OpenEntryPullRequest request);
 

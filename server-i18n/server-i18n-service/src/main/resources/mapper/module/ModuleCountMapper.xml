@@ -34,7 +34,7 @@
         </if>
     </select>
 
-    <select id="findOneByModuleIdAndBranchIdAndCode" resultMap="BaseResultMap">
+    <select id="findOneByModuleIdAndFileIdAndCode" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from module_count

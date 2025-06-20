@@ -200,7 +200,9 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Override
     public ModuleResponse detail(Long id) {
         Module module = getById(id);
-        return moduleMapStruct.toModuleResponse(module);
+        ModuleResponse response = moduleMapStruct.toModuleResponse(module);
+        response.setLanguages(languages(id));
+        return response;
     }
 
     @Override

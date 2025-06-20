@@ -110,7 +110,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     public PageResult<EntryWithStateResponse> all(EntryListRequest request) {
-        int count = baseMapper.countByModuleIdAndBranchId(request.getModuleId(), request.getBranchId());
+        int count = baseMapper.countByModuleIdAndFileId(request.getModuleId(), request.getFileId());
         PageRequest pageRequest = new PageRequest();
         pageRequest.setPage(1);
         pageRequest.setSize(count);
@@ -156,8 +156,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public List<EntryWithResultResponse> getEntryByBranchIdWithResult(Long branchId) {
-        List<Entry> entries = baseMapper.findByBranchId(branchId);
+    public List<EntryWithResultResponse> getEntryByFileIdWithResult(Long fileId) {
+        List<Entry> entries = baseMapper.findByFileId(fileId);
         List<Long> entryIds = entries.stream().map(Entry::getId).toList();
         List<EntryResult> results = entryIds.isEmpty() ? List.of() : entryResultMapper.findByEntryIds(entryIds);
         return entries.stream().map(entry -> {
@@ -170,7 +170,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     public void cloneEntriesBySourceId(Long sourceId, Long targetId) {
-        List<EntryWithResultResponse> entries = getEntryByBranchIdWithResult(sourceId);
+        List<EntryWithResultResponse> entries = getEntryByFileIdWithResult(sourceId);
         cloneEntries(entries, targetId);
     }
 
@@ -309,8 +309,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public List<Entry> getByBranchId(Long branchId) {
-        return baseMapper.findByBranchId(branchId);
+    public List<Entry> getByFileId(Long fileId) {
+        return baseMapper.findByFileId(fileId);
     }
 
     @Override
@@ -320,13 +320,13 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public int countByBranchId(Long branchId) {
-        return baseMapper.countByBranchIdAndDeleted(branchId, false);
+    public int countByFileId(Long fileId) {
+        return baseMapper.countByFileIdAndDeleted(fileId, false);
     }
 
     @Override
-    public List<Long> findIdByBranchId(Long branchId) {
-        return baseMapper.findIdByBranchIdAndDeleted(branchId, false).stream().map(Entry::getId).toList();
+    public List<Long> findIdByFileId(Long fileId) {
+        return baseMapper.findIdByFileIdAndDeleted(fileId, false).stream().map(Entry::getId).toList();
     }
 
     @Override
@@ -337,7 +337,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         // File branch = fileMapper.selectById(request.getBranchId());
 
         // 当前所有的词条
-        List<Entry> entries = baseMapper.findByBranchId(request.getBranchId());
+        List<Entry> entries = baseMapper.findByFileId(request.getFileId());
 
         log.info("entries: {}", entries);
 
@@ -352,7 +352,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             if(entry == null) {
                 Entry newEntry = new Entry();
                 newEntry.setModuleId(request.getModuleId());
-                newEntry.setFileId(request.getBranchId());
+                newEntry.setFileId(request.getFileId());
                 newEntry.setIdentifier(key);
                 newEntry.setValue(value);
                 newEntry.setCreateUserId(request.getUserId());
@@ -411,13 +411,13 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
     @Override
     public JSONObject pull(OpenEntryPullRequest request) {
-        int count = this.countByBranchId(request.getBranchId());
+        int count = this.countByFileId(request.getFileId());
         PageRequest pageRequest = new PageRequest();
         pageRequest.setPage(1);
         pageRequest.setSize(count);
         EntryListRequest queryRequest = new EntryListRequest();
         queryRequest.setModuleId(request.getModuleId());
-        queryRequest.setBranchId(request.getBranchId());
+        queryRequest.setFileId(request.getFileId());
         queryRequest.setLanguage(request.getLanguage());
         PageResult<EntryWithStateResponse> result = this.query(pageRequest, queryRequest);
         JSONObject response = new JSONObject();

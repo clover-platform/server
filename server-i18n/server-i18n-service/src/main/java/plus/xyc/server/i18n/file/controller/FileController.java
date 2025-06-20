@@ -20,10 +20,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import plus.xyc.server.i18n.file.service.FileService; 
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
+import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
@@ -39,6 +41,7 @@ import plus.xyc.server.i18n.file.entity.response.FileResponse;
 @RestController
 @RequestMapping("/{moduleName}/file")
 @Tag(name = "FileController", description = "文件")
+@Slf4j
 public class FileController {
 
     @Resource
@@ -79,6 +82,22 @@ public class FileController {
     @Operation(summary = "预览文件")
     public List<List<String>> preview(@Parameter(description = "文件ID") @PathVariable Long fileId) {
         return fileService.preview(fileId);
+    }
+
+    @PostMapping("/{fileId}/import")
+    @Operation(summary = "导入文件")
+    @Recount
+    public void importFile(
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
+            @Parameter(hidden = true) @PathInject PathRequest pathRequest,
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody FileImportRequest request) {
+        log.info("import file: {}", pathRequest);
+        request.setModuleId(pathRequest.getModule().getId());
+        request.setUserId(user.getId());
+        request.setFileId(fileId);
+        fileService.importFile(request);
     }
 
 }

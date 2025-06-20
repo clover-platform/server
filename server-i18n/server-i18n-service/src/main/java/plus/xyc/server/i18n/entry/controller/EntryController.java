@@ -104,7 +104,7 @@ public class EntryController {
     ) {
         request.setModuleId(pathRequest.getModule().getId());
         if(pathRequest.getFile() != null)
-            request.setBranchId(pathRequest.getFile().getId());
+            request.setFileId(pathRequest.getFile().getId());
         return entryService.query(page, request);
     }
 
@@ -118,7 +118,7 @@ public class EntryController {
     ) {
         request.setModuleId(pathRequest.getModule().getId());
         if(pathRequest.getFile() != null)
-            request.setBranchId(pathRequest.getFile().getId());
+            request.setFileId(pathRequest.getFile().getId());
         return entryService.all(request);
     }
 
@@ -132,7 +132,7 @@ public class EntryController {
     ) {
         request.setModuleId(pathRequest.getModule().getId());
         if(pathRequest.getFile() != null)
-            request.setBranchId(pathRequest.getFile().getId());
+            request.setFileId(pathRequest.getFile().getId());
         entryService.sync(request);
     }
 

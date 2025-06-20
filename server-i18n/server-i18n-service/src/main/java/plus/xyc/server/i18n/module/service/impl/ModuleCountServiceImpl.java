@@ -59,20 +59,20 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
 
     @Override
     @Transactional
-    @DistributedLock(value = "'module:update:count:'+#id+':'+#branchId")
-    public void updateCount(Long id, Long branchId) {
+    @DistributedLock(value = "'module:update:count:'+#id+':'+#fileId")
+    public void updateCount(Long id, Long fileId) {
         List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
         targets.forEach(target -> {
-            this.updateCount(id, branchId, target.getCode());
+            this.updateCount(id, fileId, target.getCode());
         });
     }
 
     @Override
     @Transactional
-    @DistributedLock(value = "'module:update:count:' + #id + ':' + #branchId + ':' + #language")
-    public void updateCount(Long id, Long branchId, String language) {
-        List<Entry> entries = entryMapper.findByModuleIdAndBranchId(id, branchId);
-        File branch = fileMapper.selectById(branchId);
+    @DistributedLock(value = "'module:update:count:' + #id + ':' + #fileId + ':' + #language")
+    public void updateCount(Long id, Long fileId, String language) {
+        List<Entry> entries = entryMapper.findByModuleIdAndFileId(id, fileId);
+        File branch = fileMapper.selectById(fileId);
         log.info("entries: {}", entries);
         EntryCountRequest request = new EntryCountRequest();
         request.setModuleId(id);
@@ -85,11 +85,11 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
         for (Entry entry : entries) {
             totalLength += entry.getValue().length();
         }
-        ModuleCount count = baseMapper.findOneByModuleIdAndBranchIdAndCode(id, branchId, language);
+        ModuleCount count = baseMapper.findOneByModuleIdAndFileIdAndCode(id, fileId, language);
         if(count == null) {
             count = new ModuleCount();
             count.setModuleId(id);
-            count.setFileId(branchId);
+            count.setFileId(fileId);
             count.setCode(language);
             baseMapper.insert(count);
         }

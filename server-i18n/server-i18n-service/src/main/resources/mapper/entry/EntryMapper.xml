@@ -65,7 +65,7 @@
         </if>
     </select>
 
-    <select id="findByBranchId" resultMap="BaseResultMap">
+    <select id="findByFileId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from entry
@@ -74,7 +74,7 @@
         and deleted = false
     </select>
 
-    <select id="countByModuleIdAndBranchIdAndIdentifier" resultType="int">
+    <select id="countByModuleIdAndFileIdAndIdentifier" resultType="int">
         select count(*)
         from entry
         where module_id = #{moduleId,jdbcType=NUMERIC}
@@ -83,7 +83,7 @@
         and deleted = false
     </select>
 
-    <select id="findByModuleIdAndBranchId" resultMap="BaseResultMap">
+    <select id="findByModuleIdAndFileId" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from entry
@@ -93,24 +93,24 @@
         and deleted = false
     </select>
 
-    <select id="countByBranchIdAndDeleted" resultType="int">
+    <select id="countByFileIdAndDeleted" resultType="int">
         select count(*)
         from entry
         where file_id = #{fileId,jdbcType=NUMERIC}
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
-    <select id="findIdByBranchIdAndDeleted" resultMap="BaseResultMap">
+    <select id="findIdByFileIdAndDeleted" resultMap="BaseResultMap">
         select id
         from entry
         where file_id = #{fileId,jdbcType=NUMERIC}
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
-    <select id="countByModuleIdAndBranchId" resultType="int">
+    <select id="countByModuleIdAndFileId" resultType="int">
         select count(*)
         from entry
         where module_id = #{moduleId,jdbcType=NUMERIC}
-          <if test="branchId != null">
+          <if test="fileId != null">
             AND file_id = #{fileId,jdbcType=NUMERIC}
           </if>
           and deleted = false
