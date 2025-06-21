@@ -1,5 +1,6 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
@@ -26,6 +27,7 @@ import plus.xyc.server.i18n.entry.entity.mapstruct.EntryMapStruct;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryImportRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
@@ -48,6 +50,7 @@ import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -429,5 +432,55 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             }
         });
         return response;
+    }
+
+    @Override
+    public void importEntries(EntryImportRequest request) {
+        log.info("import entries: {}", JSON.toJSONString(request));
+        Date now = new Date();
+        List<Entry> entries = request.getEntries().stream().map(entry -> {
+            Entry e = new Entry();
+            e.setModuleId(request.getModuleId());
+            e.setFileId(request.getFileId());
+            e.setIdentifier(entry.getIdentifier());
+            e.setValue(entry.getValue());
+            e.setContext(entry.getContext());
+            e.setCreateUserId(request.getUserId());
+            e.setUpdateUserId(request.getUserId());
+            e.setCreateTime(now);
+            e.setUpdateTime(now);
+            return e;
+        }).toList();
+        saveBatch(entries);
+
+        List<EntryResult> results = new ArrayList<>();
+        
+        final AtomicInteger index = new AtomicInteger(0);
+        entries.forEach(entry -> {
+            EntryImportRequest.Entry requestEntry = request.getEntries().get(index.getAndIncrement());
+            List<EntryImportRequest.Result> requestResults = requestEntry.getResults();
+            requestResults.forEach(result -> {
+                EntryResult entryResult = new EntryResult();
+                entryResult.setEntryId(entry.getId());
+                entryResult.setLanguage(result.getLanguage());
+                entryResult.setContent(result.getContent());
+                entryResult.setTranslatorId(request.getUserId());
+                results.add(entryResult);
+            });
+        });
+        entryResultService.saveBatch(results);
+
+        List<EntryState> states = new ArrayList<>();
+        results.forEach(result -> {
+            EntryState state = new EntryState();
+            state.setEntryId(result.getEntryId());
+            state.setLanguage(result.getLanguage());
+            state.setResultId(result.getId());
+            state.setTranslated(true);
+            state.setVerified(false);
+            state.setTranslationTime(now);
+            states.add(state);
+        });
+        entryStateService.saveBatch(states);
     }
 }

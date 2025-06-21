@@ -19,6 +19,9 @@ public class FileImportRequest {
     private Long fileId;
 
     @Schema(description = "配置")
-    private Map<Integer, String> config;
+    private Map<String, String> config;
+
+    @Schema(description = "是否跳过第一行")
+    private Boolean skipFirstRow;
 
 }

@@ -93,7 +93,6 @@ public class FileController {
             @Parameter(hidden = true) @PathInject PathRequest pathRequest,
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @RequestBody FileImportRequest request) {
-        log.info("import file: {}", pathRequest);
         request.setModuleId(pathRequest.getModule().getId());
         request.setUserId(user.getId());
         request.setFileId(fileId);

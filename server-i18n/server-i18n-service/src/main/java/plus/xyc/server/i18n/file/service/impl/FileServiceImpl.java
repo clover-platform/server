@@ -1,6 +1,8 @@
 package plus.xyc.server.i18n.file.service.impl;
 
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
+import plus.xyc.server.i18n.entry.entity.request.EntryImportRequest;
+import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.dto.FileRevision;
 import plus.xyc.server.i18n.file.entity.mapstruct.FileMapStruct;
@@ -28,6 +30,7 @@ import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -63,6 +66,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     private FileRevisionService fileRevisionService;
     @Resource
     private FileMapStruct fileMapStruct;
+    @Resource
+    private EntryService entryService;
 
     @Override
     public PageResult<FileResponse> list(PageRequest pr, FileListRequest request) {
@@ -181,7 +186,6 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         FastExcel.read(inputStream, new ReadListener<Map<Integer, String>>() {
             @Override
             public void invoke(Map<Integer, String> data, AnalysisContext context) {
-                log.info("解析到一条数据" + JSON.toJSONString(data));
                 List<String> row = new ArrayList<>();
                 data.forEach((key, value) -> {
                     row.add(value);
@@ -190,16 +194,77 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             }
 
             @Override
-            public void doAfterAllAnalysed(AnalysisContext context) {
-                log.info("解析完成");
-            }
+            public void doAfterAllAnalysed(AnalysisContext context) {}
         }).sheet(0).headRowNumber(0).numRows(5).doRead();
         return all;
     }
 
     @Override
+    @Transactional
     public void importFile(FileImportRequest request) {
         log.info("import file: {}", request);
+        File file = getById(request.getFileId());
+        Boolean skipFirstRow = request.getSkipFirstRow();
+        JSONObject importConfig = JSON.parseObject(JSON.toJSONString(file.getImportConfig()));
+        String url = importConfig.getString("url");
+        String signedUrl = assetsOSSApiService.sign(url);
+
+        InputStream inputStream = httpService.download(signedUrl);
+
+        EntryImportRequest entryImportRequest = new EntryImportRequest();
+        entryImportRequest.setFileId(file.getId());
+        entryImportRequest.setModuleId(file.getModuleId());
+        entryImportRequest.setUserId(request.getUserId());
+        List<EntryImportRequest.Entry> entries = new ArrayList<>();
+
+        Map<String, String> config = request.getConfig();
+        log.info("config: {}", JSON.toJSONString(config));
+        FastExcel.read(inputStream, new ReadListener<Map<Integer, String>>() {
+            @Override
+            public void invoke(Map<Integer, String> data, AnalysisContext context) {
+                log.info("read row: {}", JSON.toJSONString(data));
+                EntryImportRequest.Entry entry = new EntryImportRequest.Entry();
+                List<EntryImportRequest.Result> results = new ArrayList<>();
+
+                config.forEach((key, value) -> {
+                    if(value.startsWith("target:")) { // 翻译结果列
+                        String content = data.get(Integer.parseInt(key));
+                        if(content == null || content.isEmpty()) {
+                            return;
+                        }
+                        String language = value.replace("target:", "");
+                        EntryImportRequest.Result result = new EntryImportRequest.Result();
+                        result.setLanguage(language);
+                        result.setContent(content);
+                        results.add(result);
+                    }else{ // invoke method 比如 identifier 则调用 setIdentifier
+                        String method = value;
+                        method = "set" + method.substring(0, 1).toUpperCase() + method.substring(1);
+                        try {
+                            entry.getClass().getMethod(method, String.class).invoke(entry, data.get(Integer.parseInt(key)));
+                        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException
+                                | SecurityException e) {
+                            log.error("invoke method error: {}", e.getMessage());
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                entry.setResults(results);
+                entries.add(entry);
+            }
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+            }
+        }).sheet(0).headRowNumber(skipFirstRow ? 1 : 0).doRead();
+        entryImportRequest.setEntries(entries);
+        entryService.importEntries(entryImportRequest);
+
+        // 更新文件导入状态
+        importConfig.put("config", config);
+        file.setImportStatus(1);
+        file.setImportConfig(importConfig);
+        file.setUpdateTime(new Date());
+        updateById(file);
     }
 
 }
