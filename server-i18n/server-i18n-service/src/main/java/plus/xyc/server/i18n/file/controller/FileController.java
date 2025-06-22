@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,6 +28,7 @@ import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
+import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
 
@@ -97,6 +99,20 @@ public class FileController {
         request.setUserId(user.getId());
         request.setFileId(fileId);
         fileService.importFile(request);
+    }
+
+    @PutMapping("/{fileId}/rename")
+    @Operation(summary = "重命名文件")
+    public void rename(
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
+            @Parameter(hidden = true) @PathInject PathRequest pathRequest,
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody FileRenameRequest request) {
+        request.setModuleId(pathRequest.getModule().getId());
+        request.setUserId(user.getId());
+        request.setFileId(fileId);
+        fileService.rename(request);
     }
 
 }

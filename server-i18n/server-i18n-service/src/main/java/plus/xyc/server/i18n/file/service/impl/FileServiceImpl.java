@@ -8,11 +8,14 @@ import plus.xyc.server.i18n.file.entity.dto.FileRevision;
 import plus.xyc.server.i18n.file.entity.mapstruct.FileMapStruct;
 import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
+import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.file.service.FileService;
+import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
+import plus.xyc.server.i18n.module.service.ModuleCountService;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -68,17 +71,28 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     private FileMapStruct fileMapStruct;
     @Resource
     private EntryService entryService;
+    @Resource
+    private ModuleCountService moduleCountService;
 
     @Override
     public PageResult<FileResponse> list(PageRequest pr, FileListRequest request) {
         try (Page<File> page = pr.start()) {
             baseMapper.list(request);
-            List<FileResponse> fileResponses = page.getResult().stream().map(fileMapStruct::toFileResponse).collect(Collectors.toList());
+            List<FileResponse> fileResponses = page.getResult().stream().map(fileMapStruct::toFileResponse)
+                    .collect(Collectors.toList());
             List<Long> fileIds = fileResponses.stream().map(FileResponse::getId).collect(Collectors.toList());
             List<FileRevision> fileRevisions = fileRevisionService.findListByFileIds(fileIds);
+            List<ModuleCount> moduleCounts = moduleCountService.getCounts(request.getModuleId(), fileIds);
+            log.info("moduleCounts: {}", JSON.toJSONString(moduleCounts));
             fileResponses.forEach(fileResponse -> {
-                fileResponse.setRevisionVersion(fileRevisions.stream().filter(fileRevision -> fileRevision.getFileId().equals(fileResponse.getId())).findFirst().map(FileRevision::getVersion).orElse(0));
-            }); 
+                fileResponse.setRevisionVersion(fileRevisions.stream()
+                        .filter(fileRevision -> fileRevision.getFileId().equals(fileResponse.getId())).findFirst()
+                        .map(FileRevision::getVersion).orElse(0));
+                ModuleCount count = moduleCounts.stream()
+                        .filter(moduleCount -> moduleCount.getFileId().equals(fileResponse.getId())).findFirst()
+                        .orElse(null);
+                fileResponse.setWordCount(count == null ? 0 : count.getTotalEntry().intValue());
+            });
             return PageResult.of(page.getTotal(), fileResponses);
         }
     }
@@ -194,7 +208,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             }
 
             @Override
-            public void doAfterAllAnalysed(AnalysisContext context) {}
+            public void doAfterAllAnalysed(AnalysisContext context) {
+            }
         }).sheet(0).headRowNumber(0).numRows(5).doRead();
         return all;
     }
@@ -215,6 +230,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         entryImportRequest.setFileId(file.getId());
         entryImportRequest.setModuleId(file.getModuleId());
         entryImportRequest.setUserId(request.getUserId());
+        entryImportRequest.setFileUrl(url);
         List<EntryImportRequest.Entry> entries = new ArrayList<>();
 
         Map<String, String> config = request.getConfig();
@@ -227,9 +243,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 List<EntryImportRequest.Result> results = new ArrayList<>();
 
                 config.forEach((key, value) -> {
-                    if(value.startsWith("target:")) { // 翻译结果列
+                    if (value.startsWith("target:")) { // 翻译结果列
                         String content = data.get(Integer.parseInt(key));
-                        if(content == null || content.isEmpty()) {
+                        if (content == null || content.isEmpty()) {
                             return;
                         }
                         String language = value.replace("target:", "");
@@ -237,11 +253,12 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                         result.setLanguage(language);
                         result.setContent(content);
                         results.add(result);
-                    }else{ // invoke method 比如 identifier 则调用 setIdentifier
+                    } else { // invoke method 比如 identifier 则调用 setIdentifier
                         String method = value;
                         method = "set" + method.substring(0, 1).toUpperCase() + method.substring(1);
                         try {
-                            entry.getClass().getMethod(method, String.class).invoke(entry, data.get(Integer.parseInt(key)));
+                            entry.getClass().getMethod(method, String.class).invoke(entry,
+                                    data.get(Integer.parseInt(key)));
                         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException
                                 | SecurityException e) {
                             log.error("invoke method error: {}", e.getMessage());
@@ -252,6 +269,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 entry.setResults(results);
                 entries.add(entry);
             }
+
             @Override
             public void doAfterAllAnalysed(AnalysisContext context) {
             }
@@ -265,6 +283,18 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         file.setImportConfig(importConfig);
         file.setUpdateTime(new Date());
         updateById(file);
+    }
+
+    @Override
+    @Transactional
+    public void rename(FileRenameRequest request) {
+        UpdateWrapper<File> wrapper = new UpdateWrapper<>();
+        wrapper.lambda()
+            .set(File::getUpdateUserId, request.getUserId())
+            .set(File::getUpdateTime, new Date())
+            .set(File::getName, request.getName())
+            .eq(File::getId, request.getFileId());
+        update(wrapper);
     }
 
 }

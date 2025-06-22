@@ -68,4 +68,25 @@
             and f.deleted = 0
     </select>
 
+    <select id="findByModuleIdAndFileIdIn" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            module_count
+        where id in (
+            select
+                max(id)
+            from
+                module_count
+            where
+                module_id = #{moduleId,jdbcType=NUMERIC}
+              and file_id in
+                <foreach collection="fileIdList" item="item" open="(" close=")" separator=",">
+                    #{item,jdbcType=NUMERIC}
+                </foreach>
+            group by
+                file_id
+        )
+    </select>
+
 </mapper>

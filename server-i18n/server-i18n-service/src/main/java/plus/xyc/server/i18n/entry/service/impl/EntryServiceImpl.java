@@ -10,6 +10,7 @@ import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.context.annotation.Lazy;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.service.AIAPIService;
 import org.zkit.support.starter.boot.entity.Result;
@@ -42,6 +43,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
+import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
@@ -84,6 +86,9 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private AIAPIService aiapiService;
     @Resource
     private FileMapper fileMapper;
+    @Lazy
+    @Resource
+    private FileRevisionService fileRevisionService;
 
     @Override
     public PageResult<EntryWithStateResponse> query(PageRequest query, EntryListRequest request) {
@@ -451,7 +456,8 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             e.setUpdateTime(now);
             return e;
         }).toList();
-        saveBatch(entries);
+        // saveBatch(entries);
+        fileRevisionService.init(request.getFileId(), request.getUserId(), request.getFileUrl(), entries);
 
         List<EntryResult> results = new ArrayList<>();
         

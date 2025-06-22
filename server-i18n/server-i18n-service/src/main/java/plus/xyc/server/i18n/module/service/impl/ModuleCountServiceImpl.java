@@ -114,4 +114,11 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
             return response;
         }).toList();
     }
+
+    @Override
+    public List<ModuleCount> getCounts(Long moduleId, List<Long> fileIds) {
+        if(fileIds == null || fileIds.isEmpty())
+            return List.of();
+        return baseMapper.findByModuleIdAndFileIdIn(moduleId, fileIds);
+    }
 }

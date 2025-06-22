@@ -18,6 +18,9 @@ public class EntryImportRequest {
     @Schema(description = "用户ID")
     private Long userId;
 
+    @Schema(description = "文件URL")
+    private String fileUrl;
+
     @Schema(description = "词条列表")
     private List<Entry> entries;
 
