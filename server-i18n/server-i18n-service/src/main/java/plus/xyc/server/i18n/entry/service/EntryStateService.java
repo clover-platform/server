@@ -1,6 +1,9 @@
 package plus.xyc.server.i18n.entry.service;
 
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
+
+import java.util.List;
+
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 
@@ -20,5 +23,6 @@ public interface EntryStateService extends IService<EntryState> {
     void removeTranslate(Long entryId,String language, Long resultId);
     void approve(Long entryId,String language, Long resultId);
     void removeApproval(Long entryId,String language, Long resultId);
+    List<EntryState> findListByEntryIds(List<Long> entryIds);
 
 }

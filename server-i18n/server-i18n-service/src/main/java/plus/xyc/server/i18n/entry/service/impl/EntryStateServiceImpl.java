@@ -9,11 +9,15 @@ import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryResultMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * <p>
@@ -98,6 +102,16 @@ public class EntryStateServiceImpl extends ServiceImpl<EntryStateMapper, EntrySt
                 .set(EntryState::getResultId, resultId)
                 .eq(EntryState::getId, state.getId())
                 .update();
+    }
+
+    @Override
+    public List<EntryState> findListByEntryIds(List<Long> entryIds) {
+        if(entryIds == null || entryIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        LambdaQueryWrapper<EntryState> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(EntryState::getEntryId, entryIds);
+        return list(queryWrapper);
     }
 
 }

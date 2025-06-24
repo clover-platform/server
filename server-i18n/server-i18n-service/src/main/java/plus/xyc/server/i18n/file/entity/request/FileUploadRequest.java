@@ -38,7 +38,10 @@ public class FileUploadRequest {
         private String url;
 
         @Schema(description = "是否重复")
-        private Boolean repeated;
+        private Boolean success;
+
+        @Schema(description = "错误信息")
+        private String error;
     }
 
 }

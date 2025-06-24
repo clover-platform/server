@@ -193,7 +193,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             fileEntity.setImportStatus(1);
             save(fileEntity);
 
-            fileRevisionService.init(moduleId, fileEntity.getId(), userId, urlStr, entries);
+            fileRevisionService.add(moduleId, fileEntity.getId(), userId, urlStr, entries);
         } catch (Exception e) {
             log.error("读取远程json异常，url: {}", urlStr, e);
         }
@@ -233,10 +233,17 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         request.getFiles().forEach(file -> {
             File fileEntity = findByName(request.getModuleId(), file.getName());
             if (fileEntity != null) {
-                file.setRepeated(true);
+                if (fileEntity.getImportStatus() == 0) {
+                    file.setSuccess(false);
+                    file.setError("not_imported");
+                    return;
+                }
+                file.setSuccess(false);
+                file.setError("repeated");
                 return;
             }
-            file.setRepeated(false);
+            file.setSuccess(true);
+            file.setError(null);
             if (file.getName().endsWith(".json")) {
                 // 直接导入
                 importJson(request.getModuleId(), request.getUserId(), file);
@@ -299,7 +306,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         importConfig.put("skipFirstRow", skipFirstRow);
         log.info("importConfig: {}", importConfig);
         List<EntryRequest> entries = getEntriesFromExcel(url, importConfig);
-        fileRevisionService.init(file.getModuleId(), file.getId(), request.getUserId(), url, entries);
+        fileRevisionService.add(file.getModuleId(), file.getId(), request.getUserId(), url, entries);
 
         file.setImportStatus(1);
         file.setImportConfig(importConfig);
@@ -333,6 +340,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             entries = getEntriesFromExcel(request.getFiles().get(0).getUrl(), importConfig);
         }
         log.info("entries: {}", JSON.toJSONString(entries));
+        fileRevisionService.add(file.getModuleId(), file.getId(), request.getUserId(), request.getFiles().get(0).getUrl(), entries);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
@@ -28,14 +29,18 @@ import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
+import plus.xyc.server.i18n.entry.entity.response.UpdateEntriesResponse;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryResultMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
 import plus.xyc.server.i18n.entry.service.EntryResultService;
 import plus.xyc.server.i18n.entry.service.EntryService;
+
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
@@ -174,73 +179,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public void cloneEntriesBySourceId(Long sourceId, Long targetId) {
-        List<EntryWithResultResponse> entries = getEntryByFileIdWithResult(sourceId);
-        cloneEntries(entries, targetId);
-    }
-
-    @Override
-    public void cloneEntries(List<EntryWithResultResponse> sources, Long targetId) {
-        File target = fileMapper.selectById(targetId);
-        List<ModuleTargetLanguage> languages = moduleTargetLanguageMapper.findByModuleId(target.getModuleId());
-        sources.forEach(entry -> {
-            entry.setId(null);
-            entry.setFileId(targetId);
-            entry.setUpdateTime(new Date());
-        });
-        List<Entry> all = sources.stream().map(entry -> entryMapStruct.toEntryFromEntryWithResultResponse(entry)).toList();
-        // 保存数据
-        // 每次插入100条
-        for (int i = 0; i < sources.size(); i += 100) {
-            List<Entry> part = all.subList(i, Math.min(i + 100, sources.size()));
-            EntryService self = (EntryService)AopContext.currentProxy();
-            self.saveBatch(part);
-        }
-        sources.forEach(entry -> {
-            entry.setId(Objects.requireNonNull(all.stream().filter(item -> item.getValue().equals(entry.getValue())).findFirst().orElse(null)).getId());
-        });
-
-        List<EntryResult> results = sources.stream().map(entry -> entry.getResults().stream().peek(result -> {
-            result.setId(null);
-            result.setEntryId(entry.getId());
-            result.setUpdateTime(new Date());
-        }).toList()).toList().stream().flatMap(List::stream).toList();
-        // 保存数据
-        // 每次插入100条
-        for (int i = 0; i < results.size(); i += 100) {
-            List<EntryResult> part = results.subList(i, Math.min(i + 100, results.size()));
-            entryResultService.saveBatch(part);
-        }
-
-        // 重建 state
-        List<EntryState> states = new ArrayList<>();
-        sources.forEach(entry -> {
-            languages.forEach(language -> {
-                // language=language.getCode & 按 updateTime 降序排序，获取最后一条
-                EntryResult lastResult = entry.getResults().stream().filter(result -> result.getLanguage().equals(language.getCode())).max(Comparator.comparing(EntryResult::getUpdateTime)).orElse(null);
-
-                EntryState state = new EntryState();
-                state.setEntryId(entry.getId());
-                state.setLanguage(language.getCode());
-                state.setTranslated(lastResult != null);
-                state.setVerified(lastResult != null ? lastResult.getVerified() : false);
-                state.setTranslationTime(lastResult != null ? lastResult.getUpdateTime() : null);
-                state.setResultId(lastResult != null ? lastResult.getId() : null);
-                state.setTranslationTime(lastResult != null ? lastResult.getUpdateTime() : null);
-
-                states.add(state);
-            });
-        });
-
-        // 保存数据
-        // 每次插入100条
-        for (int i = 0; i < states.size(); i += 100) {
-            List<EntryState> part = states.subList(i, Math.min(i + 100, states.size()));
-            entryStateService.saveBatch(part);
-        }
-    }
-
-    @Override
     @Transactional
     @DistributedLock("'i18n:entry:create:'+#request.moduleId")
     public void create(EntryCreateRequest request) {
@@ -338,80 +276,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Transactional
     @DistributedLock("'i18n:entry:push:'+#request.moduleId")
     public void push(OpenEntryPushRequest request) {
-        // EntryService self = AopUtils.current(EntryService.class);
-        // File branch = fileMapper.selectById(request.getBranchId());
-
-        // 当前所有的词条
-        List<Entry> entries = baseMapper.findByFileId(request.getFileId());
-
-        log.info("entries: {}", entries);
-
-        List<Entry> addList = new ArrayList<>();
-        List<Entry> updateList = new ArrayList<>();
-        List<Entry> deleteList = new ArrayList<>();
-
-        // 新增的 和 需要更新的
-        request.getContent().forEach((key, v) -> {
-            String value = (String) v;
-            Entry entry = entries.stream().filter(item -> item.getIdentifier().equals(key)).findFirst().orElse(null);
-            if(entry == null) {
-                Entry newEntry = new Entry();
-                newEntry.setModuleId(request.getModuleId());
-                newEntry.setFileId(request.getFileId());
-                newEntry.setIdentifier(key);
-                newEntry.setValue(value);
-                newEntry.setCreateUserId(request.getUserId());
-                addList.add(newEntry);
-            } else if(!v.equals(entry.getValue())) {
-                entry.setValue(value);
-                entry.setUpdateUserId(request.getUserId());
-                updateList.add(entry);
-            }
-        });
-
-        // 需要删除的
-        entries.forEach(entry -> {
-            if(!request.getContent().containsKey(entry.getIdentifier())) {
-                deleteList.add(entry);
-            }
-        });
-
-        // 如果都是空的，直接返回
-        if(addList.isEmpty() && updateList.isEmpty() && deleteList.isEmpty()) {
-            return;
-        }
-
-        log.info("push entry addList: {}, updateList: {}, deleteList: {}", addList.size(), updateList.size(), deleteList.size());
-
-        // TODO 
-        // 新版本
-        // NewRevisionRequest newRevisionRequest = new NewRevisionRequest();
-        // newRevisionRequest.setBranchId(request.getBranchId());
-        // newRevisionRequest.setUserId(request.getUserId());
-        // String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-        // newRevisionRequest.setMessage(MessageUtils.get("branch.revision.push.message", branch.getName(), time));
-        // Long revisionId = branchRevisionService.newRevision(newRevisionRequest);
-
-        // // 新增
-        // if(!addList.isEmpty()) {
-        //     self.saveBatch(addList);
-        //     List<Long> entryIds = addList.stream().map(Entry::getId).toList();
-        //     branchRevisionService.add(revisionId, entryIds);
-        // }
-
-        // // 更新
-        // if(!updateList.isEmpty()) {
-        //     self.updateBatchById(updateList);
-        //     List<Entry> updateOriginEntries = entries.stream().filter(item -> updateList.stream().map(Entry::getId).toList().contains(item.getId())).toList();
-        //     branchRevisionService.update(revisionId, updateList, updateOriginEntries);
-        // }
-
-        // // 删除
-        // if(!deleteList.isEmpty()) {
-        //     List<Long> entryIds = deleteList.stream().map(Entry::getId).toList();
-        //     lambdaUpdate().set(Entry::getDeleted, true).in(Entry::getId, entryIds).update();
-        //     branchRevisionService.delete(revisionId, entryIds);
-        // }
+        log.info("push entry: {}", request);
     }
 
     @Override
@@ -434,5 +299,107 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             }
         });
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void deleteByIds(List<Long> ids) {
+        if(ids == null || ids.isEmpty()) {
+            return;
+        }
+        lambdaUpdate().in(Entry::getId, ids).set(Entry::getDeleted, true).update();
+    }
+
+    @Override
+    public UpdateEntriesResponse updateEntries(Long moduleId, Long fileId, Long userId, List<EntryRequest> requestEntries) {
+        UpdateEntriesResponse response = new UpdateEntriesResponse();
+        if(requestEntries == null || requestEntries.isEmpty()) {
+            response.setNewEntries(List.of());
+            response.setUpdateEntries(List.of());
+            response.setDeleteEntries(List.of());
+            response.setOriginEntries(List.of());
+            return response;
+        }
+
+        List<Entry> oldEntries = getByFileId(fileId);
+        // clone 一份，不要被后续更新
+        List<Entry> backup = JSON.parseArray(JSON.toJSONString(oldEntries), Entry.class);
+
+        // 导入词条
+        Date now = new Date();
+        List<Entry> entries = new ArrayList<>();
+        requestEntries.forEach(e -> {
+            // 根据 identifier 查询 entries 中是否存在
+            Entry existEntry = entries.stream().filter(entry -> entry.getIdentifier().equals(e.getIdentifier())).findFirst().orElse(null);
+            if(existEntry != null) {
+                return;
+            }
+            Entry entry = new Entry();
+            entry.setModuleId(moduleId);
+            entry.setIdentifier(e.getIdentifier());
+            entry.setValue(e.getValue());
+            entry.setContext(e.getContext());
+            entry.setCreateTime(now);
+            entry.setUpdateTime(now);
+            entry.setFileId(fileId);
+            entry.setCreateUserId(userId);
+            entry.setUpdateUserId(userId);
+            entry.setUpdateTime(now);
+            entries.add(entry);
+        });
+
+        // 词条准备完毕，开始匹配新增、更新、删除
+        List<Entry> newEntries = new ArrayList<>();
+        List<Entry> updateEntries = new ArrayList<>();
+        List<Entry> deleteEntries = new ArrayList<>();
+        // 以 Identifier 的唯一性为依据，如果不在 oldEntries 中，则新增
+        entries.forEach(entry -> {
+            if (oldEntries.stream().noneMatch(e -> e.getIdentifier().equals(entry.getIdentifier()))) {
+                newEntries.add(entry);
+            }
+        });
+        // 以 Identifier 的唯一性为依据，如果 entries 中不存在，oldEntries 中存在，则删除
+        oldEntries.forEach(oldEntry -> {
+            if (entries.stream().noneMatch(e -> e.getIdentifier().equals(oldEntry.getIdentifier()))) {
+                deleteEntries.add(oldEntry);
+            }
+        });
+        // 以 Identifier、value、context 为依据，如果 Identifier 一致，value 或 context 不一致，则更新
+        // context 可能为空
+        oldEntries.forEach(oldEntry -> {
+            if (entries.stream().anyMatch(e -> e.getIdentifier().equals(oldEntry.getIdentifier())
+                    && !e.getValue().equals(oldEntry.getValue()) && (e.getContext() == null && oldEntry.getContext() == null || e.getContext().equals(oldEntry.getContext())))) {
+                updateEntries.add(oldEntry);
+            }
+        });
+
+        // 批量插入
+        saveBatch(newEntries);
+        // 批量更新
+        updateEntries.forEach(entry -> {
+            EntryRequest requestEntry = requestEntries.stream()
+                    .filter(e -> e.getIdentifier().equals(entry.getIdentifier())).findFirst().orElse(null);
+            entry.setValue(requestEntry.getValue());
+            entry.setContext(requestEntry.getContext());
+            entry.setUpdateTime(now);
+            entry.setUpdateUserId(userId);
+        });
+        updateBatchById(updateEntries);
+        // 批量删除
+        deleteByIds(deleteEntries.stream().map(Entry::getId).toList());
+
+        response.setNewEntries(newEntries);
+        response.setUpdateEntries(updateEntries);
+        response.setDeleteEntries(deleteEntries);
+        response.setOriginEntries(backup);
+        return response;
+    }
+
+    @Override
+    public List<Entry> getByIds(List<Long> ids) {
+        if(ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return lambdaQuery().in(Entry::getId, ids).list();
     }
 }

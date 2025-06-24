@@ -258,4 +258,12 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.REMOVE_APPROVAL.code, result);
     }
+
+    @Override
+    public List<EntryResult> getResults(List<Long> ids) {
+        if(ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return lambdaQuery().in(EntryResult::getEntryId, ids).eq(EntryResult::getDeleted, false).list();
+    }
 }
