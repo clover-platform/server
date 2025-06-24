@@ -31,6 +31,7 @@ import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
+import plus.xyc.server.i18n.file.entity.response.FileUploadResponse;
 
 /**
  * <p>
@@ -62,15 +63,26 @@ public class FileController {
 
     @PostMapping("/upload")
     @Operation(summary = "上传文件")
-    @Recount
-    public void upload(
+    public FileUploadResponse upload(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @Parameter(hidden = true) @PathInject PathRequest pathRequest,
             @Parameter(hidden = true) @CurrentUser SessionUser user,
             @RequestBody FileUploadRequest request) {
         request.setModuleId(pathRequest.getModule().getId());
         request.setUserId(user.getId());
-        fileService.upload(request);
+        return fileService.upload(request);
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "批量更新文件")
+    public void updateBatch(
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(hidden = true) @PathInject PathRequest pathRequest,
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody FileUploadRequest request) {
+        request.setModuleId(pathRequest.getModule().getId());
+        request.setUserId(user.getId());
+        fileService.updateBatch(request);
     }
 
     @Recount
@@ -113,6 +125,20 @@ public class FileController {
         request.setUserId(user.getId());
         request.setFileId(fileId);
         fileService.rename(request);
+    }
+
+    @PostMapping("/{fileId}/update")
+    @Operation(summary = "更新文件")
+    @Recount
+    public void updateFile(
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(description = "文件ID") @PathVariable Long fileId,
+            @Parameter(hidden = true) @PathInject PathRequest pathRequest,
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody FileUploadRequest request) {
+        request.setModuleId(pathRequest.getModule().getId());
+        request.setUserId(user.getId());
+        fileService.updateFile(request);
     }
 
 }

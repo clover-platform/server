@@ -1,7 +1,6 @@
 package plus.xyc.server.i18n.file.service.impl;
 
-import plus.xyc.server.i18n.entry.entity.dto.Entry;
-import plus.xyc.server.i18n.entry.entity.request.EntryImportRequest;
+import plus.xyc.server.i18n.entry.entity.request.EntryRequest;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.entity.dto.FileRevision;
@@ -11,12 +10,14 @@ import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
+import plus.xyc.server.i18n.file.entity.response.FileUploadResponse;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.pagehelper.Page;
@@ -41,6 +42,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -103,16 +105,78 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         return baseMapper.selectById(id);
     }
 
+    private List<EntryRequest> getEntriesFromJson(String url) {
+        String signedUrl = assetsOSSApiService.sign(url);
+        String jsonStr = httpService.get(signedUrl);
+        JSONObject json = JSON.parseObject(jsonStr);
+        List<EntryRequest> entries = new ArrayList<>();
+        json.forEach((key, value) -> {
+            EntryRequest entry = new EntryRequest();
+            entry.setIdentifier(key);
+            entry.setValue(value.toString());
+            entries.add(entry);
+        });
+        return entries;
+    }
+
+    private List<EntryRequest> getEntriesFromExcel(String url, JSONObject importConfig) {
+        List<EntryRequest> entries = new ArrayList<>();
+        String signedUrl = assetsOSSApiService.sign(url);
+
+        InputStream inputStream = httpService.download(signedUrl);
+
+        @SuppressWarnings("unchecked")
+        Map<String, String> config = importConfig.getJSONObject("config").toJavaObject(Map.class);
+        Boolean skipFirstRow = importConfig.getBoolean("skipFirstRow");
+        FastExcel.read(inputStream, new ReadListener<Map<Integer, String>>() {
+            @Override
+            public void invoke(Map<Integer, String> data, AnalysisContext context) {
+                log.info("read row: {}", JSON.toJSONString(data));
+                EntryRequest entry = new EntryRequest();
+                List<EntryRequest.Result> results = new ArrayList<>();
+
+                config.forEach((key, value) -> {
+                    if (value.startsWith("target:")) { // 翻译结果列
+                        String content = data.get(Integer.parseInt(key));
+                        if (content == null || content.isEmpty()) {
+                            return;
+                        }
+                        String language = value.replace("target:", "");
+                        EntryRequest.Result result = new EntryRequest.Result();
+                        result.setLanguage(language);
+                        result.setContent(content);
+                        results.add(result);
+                    } else { // invoke method 比如 identifier 则调用 setIdentifier
+                        String method = value;
+                        method = "set" + method.substring(0, 1).toUpperCase() + method.substring(1);
+                        try {
+                            entry.getClass().getMethod(method, String.class).invoke(entry,
+                                    data.get(Integer.parseInt(key)));
+                        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException
+                                | SecurityException e) {
+                            log.error("invoke method error: {}", e.getMessage());
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                entry.setResults(results);
+                entries.add(entry);
+            }
+
+            @Override
+            public void doAfterAllAnalysed(AnalysisContext context) {
+            }
+        }).sheet(0).headRowNumber(skipFirstRow ? 1 : 0).doRead();
+
+        return entries;
+    }
+
     // 导入 json 文件
     private void importJson(Long moduleId, Long userId, FileUploadRequest.FileItem file) {
         log.info("import json file: {}", file);
         String urlStr = file.getUrl();
         try {
-            String signedUrl = assetsOSSApiService.sign(urlStr);
-            log.info("signedUrl: {}", signedUrl);
-            String jsonStr = httpService.get(signedUrl);
-            JSONObject json = JSON.parseObject(jsonStr);
-            log.info("远程json内容: {}", json);
+            List<EntryRequest> entries = getEntriesFromJson(urlStr);
 
             JSONObject importConfig = new JSONObject();
             importConfig.put("type", "json");
@@ -129,18 +193,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             fileEntity.setImportStatus(1);
             save(fileEntity);
 
-            // 导入词条
-            List<Entry> entries = new ArrayList<>();
-            json.forEach((key, value) -> {
-                Entry entry = new Entry();
-                entry.setModuleId(moduleId);
-                entry.setIdentifier(key);
-                entry.setValue(value.toString());
-                entry.setCreateTime(now);
-                entry.setUpdateTime(now);
-                entries.add(entry);
-            });
-            fileRevisionService.init(fileEntity.getId(), userId, urlStr, entries);
+            fileRevisionService.init(moduleId, fileEntity.getId(), userId, urlStr, entries);
         } catch (Exception e) {
             log.error("读取远程json异常，url: {}", urlStr, e);
         }
@@ -164,11 +217,26 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         save(fileEntity);
     }
 
+    public File findByName(Long moduleId, String name) {
+        LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<>();
+        wrapper
+            .eq(File::getModuleId, moduleId)
+            .eq(File::getName, name)
+            .eq(File::getDeleted, false);
+        return getOne(wrapper);
+    }
+
     @Override
     @Transactional
-    public void upload(FileUploadRequest request) {
+    public FileUploadResponse upload(FileUploadRequest request) {
         log.info("upload file: {}", request);
         request.getFiles().forEach(file -> {
+            File fileEntity = findByName(request.getModuleId(), file.getName());
+            if (fileEntity != null) {
+                file.setRepeated(true);
+                return;
+            }
+            file.setRepeated(false);
             if (file.getName().endsWith(".json")) {
                 // 直接导入
                 importJson(request.getModuleId(), request.getUserId(), file);
@@ -177,6 +245,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 initExcel(request.getModuleId(), request.getUserId(), file);
             }
         });
+        FileUploadResponse response = new FileUploadResponse();
+        response.setFiles(request.getFiles());
+        return response;
     }
 
     @Override
@@ -206,7 +277,6 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 });
                 all.add(row);
             }
-
             @Override
             public void doAfterAllAnalysed(AnalysisContext context) {
             }
@@ -222,63 +292,15 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         Boolean skipFirstRow = request.getSkipFirstRow();
         JSONObject importConfig = JSON.parseObject(JSON.toJSONString(file.getImportConfig()));
         String url = importConfig.getString("url");
-        String signedUrl = assetsOSSApiService.sign(url);
-
-        InputStream inputStream = httpService.download(signedUrl);
-
-        EntryImportRequest entryImportRequest = new EntryImportRequest();
-        entryImportRequest.setFileId(file.getId());
-        entryImportRequest.setModuleId(file.getModuleId());
-        entryImportRequest.setUserId(request.getUserId());
-        entryImportRequest.setFileUrl(url);
-        List<EntryImportRequest.Entry> entries = new ArrayList<>();
 
         Map<String, String> config = request.getConfig();
-        log.info("config: {}", JSON.toJSONString(config));
-        FastExcel.read(inputStream, new ReadListener<Map<Integer, String>>() {
-            @Override
-            public void invoke(Map<Integer, String> data, AnalysisContext context) {
-                log.info("read row: {}", JSON.toJSONString(data));
-                EntryImportRequest.Entry entry = new EntryImportRequest.Entry();
-                List<EntryImportRequest.Result> results = new ArrayList<>();
-
-                config.forEach((key, value) -> {
-                    if (value.startsWith("target:")) { // 翻译结果列
-                        String content = data.get(Integer.parseInt(key));
-                        if (content == null || content.isEmpty()) {
-                            return;
-                        }
-                        String language = value.replace("target:", "");
-                        EntryImportRequest.Result result = new EntryImportRequest.Result();
-                        result.setLanguage(language);
-                        result.setContent(content);
-                        results.add(result);
-                    } else { // invoke method 比如 identifier 则调用 setIdentifier
-                        String method = value;
-                        method = "set" + method.substring(0, 1).toUpperCase() + method.substring(1);
-                        try {
-                            entry.getClass().getMethod(method, String.class).invoke(entry,
-                                    data.get(Integer.parseInt(key)));
-                        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException
-                                | SecurityException e) {
-                            log.error("invoke method error: {}", e.getMessage());
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                entry.setResults(results);
-                entries.add(entry);
-            }
-
-            @Override
-            public void doAfterAllAnalysed(AnalysisContext context) {
-            }
-        }).sheet(0).headRowNumber(skipFirstRow ? 1 : 0).doRead();
-        entryImportRequest.setEntries(entries);
-        entryService.importEntries(entryImportRequest);
-
         // 更新文件导入状态
         importConfig.put("config", config);
+        importConfig.put("skipFirstRow", skipFirstRow);
+        log.info("importConfig: {}", importConfig);
+        List<EntryRequest> entries = getEntriesFromExcel(url, importConfig);
+        fileRevisionService.init(file.getModuleId(), file.getId(), request.getUserId(), url, entries);
+
         file.setImportStatus(1);
         file.setImportConfig(importConfig);
         file.setUpdateTime(new Date());
@@ -295,6 +317,42 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             .set(File::getName, request.getName())
             .eq(File::getId, request.getFileId());
         update(wrapper);
+    }
+
+    @Override
+    @Transactional
+    public void updateFile(FileUploadRequest request) {
+        log.info("update file: {}", request);
+        File file = getById(request.getFileId());
+        JSONObject importConfig = JSON.parseObject(JSON.toJSONString(file.getImportConfig()));
+        String type = importConfig.getString("type");
+        List<EntryRequest> entries = new ArrayList<>();
+        if (type.equals("json")) {
+            entries = getEntriesFromJson(request.getFiles().get(0).getUrl());
+        } else if (type.equals("excel")) {
+            entries = getEntriesFromExcel(request.getFiles().get(0).getUrl(), importConfig);
+        }
+        log.info("entries: {}", JSON.toJSONString(entries));
+    }
+
+    @Override
+    @Transactional
+    public void updateBatch(FileUploadRequest request) {
+        FileService self = (FileService) AopContext.currentProxy();
+        request.getFiles().forEach(file -> {
+            List<FileUploadRequest.FileItem> files = new ArrayList<>();
+            files.add(file);
+            File fileEntity = findByName(request.getModuleId(), file.getName());
+            if (fileEntity == null) {
+                return;
+            }
+            FileUploadRequest updateRequest = new FileUploadRequest();
+            updateRequest.setModuleId(request.getModuleId());
+            updateRequest.setUserId(request.getUserId());
+            updateRequest.setFileId(fileEntity.getId());
+            updateRequest.setFiles(files);
+            self.updateFile(updateRequest);
+        });
     }
 
 }

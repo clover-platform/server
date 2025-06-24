@@ -10,6 +10,7 @@
     "redisson",
     "pointcut",
     "Configurer",
-    "Fastjson"
+    "Fastjson",
+    "Analysed"
   ],
 }

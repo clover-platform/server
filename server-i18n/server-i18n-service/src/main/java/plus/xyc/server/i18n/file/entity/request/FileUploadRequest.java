@@ -15,6 +15,9 @@ public class FileUploadRequest {
     @Schema(description = "用户ID", hidden = true)
     private Long userId;
 
+    @Schema(description = "文件ID")
+    private Long fileId;
+
     @Schema(description = "文件")
     private List<FileItem> files;
 
@@ -33,6 +36,9 @@ public class FileUploadRequest {
 
         @Schema(description = "文件URL")
         private String url;
+
+        @Schema(description = "是否重复")
+        private Boolean repeated;
     }
 
 }

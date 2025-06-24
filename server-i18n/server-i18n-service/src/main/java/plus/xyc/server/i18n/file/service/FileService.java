@@ -6,6 +6,7 @@ import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;
 import plus.xyc.server.i18n.file.entity.request.FileUploadRequest;
 import plus.xyc.server.i18n.file.entity.response.FileResponse;
+import plus.xyc.server.i18n.file.entity.response.FileUploadResponse;
 
 import java.util.List;
 
@@ -26,10 +27,13 @@ public interface FileService extends IService<File> {
 
     PageResult<FileResponse> list(PageRequest page, FileListRequest request);
     File findById(Long id);
-    void upload(FileUploadRequest request);
+    FileUploadResponse upload(FileUploadRequest request);
     void delete(Long fileId);
     List<List<String>> preview(Long fileId);
     void importFile(FileImportRequest request);
     void rename(FileRenameRequest request);
+    void updateFile(FileUploadRequest request);
+    File findByName(Long moduleId, String name);
+    void updateBatch(FileUploadRequest request);
 
 }

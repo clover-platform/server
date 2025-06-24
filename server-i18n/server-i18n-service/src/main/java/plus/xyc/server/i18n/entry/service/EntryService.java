@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryCreateRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
-import plus.xyc.server.i18n.entry.entity.request.EntryImportRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
@@ -45,6 +44,5 @@ public interface EntryService extends IService<Entry> {
     List<Long> findIdByFileId(Long fileId);
     void push(OpenEntryPushRequest request);
     JSONObject pull(OpenEntryPullRequest request);
-    void importEntries(EntryImportRequest request);
 
 }
