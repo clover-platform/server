@@ -11,7 +11,7 @@ public class EntryCountRequest {
     private Long moduleId;
     @Schema(description = "语言")
     private String language;
-    @Schema(description = "分支")
-    private String branch;
+    @Schema(description = "文件ID")
+    private Long fileId;
 
 }

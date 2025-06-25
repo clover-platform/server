@@ -26,8 +26,8 @@
         left join file as f on m.file_id = f.id
         where m.module_id = #{request.moduleId}
         and f.deleted = false
-        <if test="request.branch != null and request.branch != ''">
-            and f.name = #{request.branch}
+        <if test="request.fileId != null">
+            and f.id = #{request.fileId}
         </if>
         <if test="request.language != null and request.language != ''">
             and m.code = #{request.language}

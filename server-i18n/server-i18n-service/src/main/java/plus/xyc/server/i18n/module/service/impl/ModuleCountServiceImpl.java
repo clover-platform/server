@@ -9,7 +9,6 @@ import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
-import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
@@ -72,12 +71,10 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
     @DistributedLock(value = "'module:update:count:' + #id + ':' + #fileId + ':' + #language")
     public void updateCount(Long id, Long fileId, String language) {
         List<Entry> entries = entryMapper.findByModuleIdAndFileId(id, fileId);
-        File branch = fileMapper.selectById(fileId);
-        log.info("entries: {}", entries);
         EntryCountRequest request = new EntryCountRequest();
         request.setModuleId(id);
         request.setLanguage(language);
-        request.setBranch(branch.getName());
+        request.setFileId(fileId);
         Long translated = entryStateMapper.countTranslated(request);
         Long verified = entryStateMapper.countVerified(request);
         Long total = entryMapper.countTotal(request);
