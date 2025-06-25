@@ -11,6 +11,7 @@
     "pointcut",
     "Configurer",
     "Fastjson",
-    "Analysed"
+    "Analysed",
+    "mapstruct"
   ],
 }

@@ -220,9 +220,9 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     public File findByName(Long moduleId, String name) {
         LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<>();
         wrapper
-            .eq(File::getModuleId, moduleId)
-            .eq(File::getName, name)
-            .eq(File::getDeleted, false);
+                .eq(File::getModuleId, moduleId)
+                .eq(File::getName, name)
+                .eq(File::getDeleted, false);
         return getOne(wrapper);
     }
 
@@ -284,6 +284,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 });
                 all.add(row);
             }
+
             @Override
             public void doAfterAllAnalysed(AnalysisContext context) {
             }
@@ -319,10 +320,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     public void rename(FileRenameRequest request) {
         UpdateWrapper<File> wrapper = new UpdateWrapper<>();
         wrapper.lambda()
-            .set(File::getUpdateUserId, request.getUserId())
-            .set(File::getUpdateTime, new Date())
-            .set(File::getName, request.getName())
-            .eq(File::getId, request.getFileId());
+                .set(File::getUpdateUserId, request.getUserId())
+                .set(File::getUpdateTime, new Date())
+                .set(File::getName, request.getName())
+                .eq(File::getId, request.getFileId());
         update(wrapper);
     }
 
@@ -340,7 +341,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             entries = getEntriesFromExcel(request.getFiles().get(0).getUrl(), importConfig);
         }
         log.info("entries: {}", JSON.toJSONString(entries));
-        fileRevisionService.add(file.getModuleId(), file.getId(), request.getUserId(), request.getFiles().get(0).getUrl(), entries);
+        fileRevisionService.add(file.getModuleId(), file.getId(), request.getUserId(),
+                request.getFiles().get(0).getUrl(), entries);
     }
 
     @Override
@@ -361,6 +363,16 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
             updateRequest.setFiles(files);
             self.updateFile(updateRequest);
         });
+    }
+
+    @Override
+    public List<FileResponse> all(Long moduleId) {
+        LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<>();
+        wrapper
+                .eq(File::getModuleId, moduleId)
+                .eq(File::getDeleted, false);
+        List<File> files = list(wrapper);
+        return files.stream().map(fileMapStruct::toFileResponse).collect(Collectors.toList());
     }
 
 }

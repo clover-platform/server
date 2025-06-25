@@ -61,6 +61,14 @@ public class FileController {
         return fileService.list(page, request);
     }
 
+    @GetMapping("/all")
+    @Operation(summary = "查询所有文件")
+    public List<FileResponse> all(
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(hidden = true) @PathInject PathRequest pathRequest) {
+        return fileService.all(pathRequest.getModule().getId());
+    }
+
     @PostMapping("/upload")
     @Operation(summary = "上传文件")
     public FileUploadResponse upload(

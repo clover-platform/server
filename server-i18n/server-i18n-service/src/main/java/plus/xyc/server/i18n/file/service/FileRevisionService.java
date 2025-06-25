@@ -2,6 +2,7 @@ package plus.xyc.server.i18n.file.service;
 
 import plus.xyc.server.i18n.entry.entity.request.EntryRequest;
 import plus.xyc.server.i18n.file.entity.dto.FileRevision;
+import plus.xyc.server.i18n.file.entity.response.FileRevisionResponse;
 
 import java.util.List;
 
@@ -20,5 +21,6 @@ public interface FileRevisionService extends IService<FileRevision> {
     void add(Long moduleId, Long fileId, Long userId, String url, List<EntryRequest> entries);
     List<FileRevision> findListByFileIds(List<Long> fileIds);
     FileRevision findCurrentByFileId(Long fileId);
+    List<FileRevisionResponse> list(Long fileId);
 
 }

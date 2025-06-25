@@ -9,6 +9,8 @@ import plus.xyc.server.i18n.entry.service.EntryResultService;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.file.entity.dto.FileRevision;
+import plus.xyc.server.i18n.file.entity.mapstruct.FileRevisionMapStruct;
+import plus.xyc.server.i18n.file.entity.response.FileRevisionResponse;
 import plus.xyc.server.i18n.file.mapper.FileRevisionMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionCommitService;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
@@ -56,6 +58,8 @@ public class FileRevisionServiceImpl extends ServiceImpl<FileRevisionMapper, Fil
     private ModuleTargetLanguageService moduleTargetLanguageService;
     @Resource
     private ModuleCountService moduleCountService;
+    @Resource
+    private FileRevisionMapStruct fileRevisionMapStruct;
 
     @Override
     @Transactional
@@ -196,6 +200,12 @@ public class FileRevisionServiceImpl extends ServiceImpl<FileRevisionMapper, Fil
     @Override
     public FileRevision findCurrentByFileId(Long fileId) {
         return lambdaQuery().eq(FileRevision::getFileId, fileId).eq(FileRevision::getCurrent, true).one();
+    }
+
+    @Override
+    public List<FileRevisionResponse> list(Long fileId) {
+        List<FileRevision> revisions = lambdaQuery().eq(FileRevision::getFileId, fileId).orderByDesc(FileRevision::getVersion).list();
+        return revisions.stream().map(fileRevisionMapStruct::toFileRevisionResponse).toList();
     }
 
 }
