@@ -57,8 +57,8 @@
         left join file f on e.file_id = f.id
         where
         e.deleted = false and f.deleted = false
-        <if test="request.branch != null and request.branch != ''">
-            and f.name = #{request.branch}
+        <if test="request.fileId != null">
+            and e.file_id = #{request.fileId,jdbcType=NUMERIC}
         </if>
         <if test="request.moduleId != null">
             and e.module_id = #{request.moduleId,jdbcType=NUMERIC}

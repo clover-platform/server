@@ -36,5 +36,6 @@ public interface FileService extends IService<File> {
     File findByName(Long moduleId, String name);
     void updateBatch(FileUploadRequest request);
     List<FileResponse> all(Long moduleId);
+    List<File> findByModuleId(Long moduleId);
 
 }

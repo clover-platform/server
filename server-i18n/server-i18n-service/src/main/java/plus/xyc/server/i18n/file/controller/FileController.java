@@ -26,11 +26,6 @@ import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.annotation.Recount;
 import plus.xyc.server.i18n.common.entity.PathRequest;
-import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
-import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
-import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
-import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
-import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;
@@ -54,8 +49,6 @@ public class FileController {
 
     @Resource
     private FileService fileService;
-    @Resource
-    private EntryService entryService;
 
     @GetMapping("/list")
     @Operation(summary = "查询文件")
@@ -76,26 +69,7 @@ public class FileController {
         return fileService.all(pathRequest.getModule().getId());
     }
 
-    @GetMapping("/entry/all")
-    @Operation(summary = "查询所有词条")
-    public PageResult<EntryWithStateResponse> entryAll(
-            @ParameterObject @ModelAttribute EntryListRequest request,
-            @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @Parameter(hidden = true) @PathInject PathRequest pathRequest) {
-        request.setModuleId(pathRequest.getModule().getId());
-        return entryService.all(request);
-    }
-
-    @GetMapping("/entry/count")
-    @Operation(summary = "统计词条")
-    public EntryCountResponse entryCount(
-            @Parameter(description = "模块标识") @PathVariable String moduleName,
-            @PathInject PathRequest pathRequest,
-            @ParameterObject @ModelAttribute EntryCountRequest request) {
-        request.setModuleId(pathRequest.getModule().getId());
-        return entryService.count(request);
-    }
-
+    @Recount
     @PostMapping("/upload")
     @Operation(summary = "上传文件")
     public FileUploadResponse upload(
@@ -108,6 +82,7 @@ public class FileController {
         return fileService.upload(request);
     }
 
+    @Recount
     @PostMapping("/update")
     @Operation(summary = "批量更新文件")
     public void updateBatch(

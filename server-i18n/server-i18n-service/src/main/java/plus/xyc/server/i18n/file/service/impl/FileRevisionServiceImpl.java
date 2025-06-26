@@ -186,7 +186,7 @@ public class FileRevisionServiceImpl extends ServiceImpl<FileRevisionMapper, Fil
                 .filter(entry -> updateEntries.stream().anyMatch(e -> e.getId().equals(entry.getId()))).toList());
 
         // 更新词条数量
-        moduleCountService.updateCount(moduleId, fileId);
+        // moduleCountService.updateCount(moduleId, fileId);
     }
 
     @Override

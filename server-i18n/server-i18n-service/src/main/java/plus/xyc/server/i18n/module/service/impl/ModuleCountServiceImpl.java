@@ -9,7 +9,9 @@ import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.mapper.EntryMapper;
 import plus.xyc.server.i18n.entry.mapper.EntryStateMapper;
+import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
+import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.response.ModuleCountResponse;
@@ -17,6 +19,8 @@ import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,19 +45,21 @@ public class ModuleCountServiceImpl extends ServiceImpl<ModuleCountMapper, Modul
     private FileMapper fileMapper;
     @Resource
     private ModuleTargetLanguageMapper moduleTargetLanguageMapper;
+    @Lazy
+    @Resource
+    private FileService fileService;
 
     @Override
     @Transactional
     @DistributedLock(value = "'module:update:count:'+#id")
     public void updateCount(Long id) {
-        // TODO updateCount
-        // List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
-        // List<Branch> branches = branchMapper.findByModuleId(id);
-        // targets.forEach(target -> {
-        //     branches.forEach(branch -> {
-        //         this.updateCount(id, branch.getId(), target.getCode());
-        //     });
-        // });
+        List<ModuleTargetLanguage> targets = moduleTargetLanguageMapper.findByModuleId(id);
+        List<File> files = fileService.findByModuleId(id);
+        targets.forEach(target -> {
+            files.forEach(file -> {
+                this.updateCount(id, file.getId(), target.getCode());
+            });
+        });
     }
 
     @Override

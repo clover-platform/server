@@ -9,8 +9,8 @@ import java.util.List;
 @Schema(description = "词条创建请求")
 public class EntryCreateRequest {
 
-    @Schema(description = "词条名称")
-    private List<String> branches;
+    @Schema(description = "文件ID")
+    private List<Long> files;
     @Schema(description = "模块ID", hidden = true)
     private Long moduleId;
     @Schema(description = "词条键")

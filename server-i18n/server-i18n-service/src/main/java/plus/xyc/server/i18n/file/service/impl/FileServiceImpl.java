@@ -45,6 +45,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.zkit.support.server.assets.api.service.AssetsOSSApiService;
 import org.zkit.support.starter.boot.okhttp.HTTPService;
@@ -73,6 +74,7 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     private FileMapStruct fileMapStruct;
     @Resource
     private EntryService entryService;
+    @Lazy
     @Resource
     private ModuleCountService moduleCountService;
 
@@ -373,6 +375,13 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
                 .eq(File::getDeleted, false);
         List<File> files = list(wrapper);
         return files.stream().map(fileMapStruct::toFileResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<File> findByModuleId(Long moduleId) {
+        LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(File::getModuleId, moduleId).eq(File::getDeleted, false);
+        return list(wrapper);
     }
 
 }

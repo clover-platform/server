@@ -7,7 +7,7 @@ public enum I18nCode {
     MODULE_IDENTIFIER_EXIST(1001, "module.identifier.exists"),
     MODULE_NOT_FOUND(1002, "module.not.found"),
 
-    ENTRY_CREATE_BRANCHES(2001, "entry.create.branches"),
+    ENTRY_CREATE_FILES(2001, "entry.create.files"),
     ENTRY_CREATE_KEY(2002, "entry.create.key"),
 
     ENTRY_RESULT_EXIST(3001, "entry.result.exists"),

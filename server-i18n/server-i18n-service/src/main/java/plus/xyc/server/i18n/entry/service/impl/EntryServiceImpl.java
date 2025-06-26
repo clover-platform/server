@@ -14,12 +14,14 @@ import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.service.AIAPIService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
+import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
 import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
 import plus.xyc.server.i18n.activity.service.ActivityService;
+import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
 import plus.xyc.server.i18n.entry.entity.dto.EntryState;
@@ -42,8 +44,10 @@ import plus.xyc.server.i18n.entry.service.EntryService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
+import plus.xyc.server.i18n.file.entity.dto.File;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
+import plus.xyc.server.i18n.file.service.FileService;
 import plus.xyc.server.i18n.module.entity.dto.ModuleCount;
 import plus.xyc.server.i18n.module.mapper.ModuleCountMapper;
 import plus.xyc.server.i18n.module.mapper.ModuleTargetLanguageMapper;
@@ -87,6 +91,9 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Lazy
     @Resource
     private FileRevisionService fileRevisionService;
+    @Lazy
+    @Resource
+    private FileService fileService;
 
     @Override
     public PageResult<EntryWithStateResponse> query(PageRequest query, EntryListRequest request) {
@@ -178,25 +185,25 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     @Transactional
     @DistributedLock("'i18n:entry:create:'+#request.moduleId")
     public void create(EntryCreateRequest request) {
-        // List<File> branches = fileMapper.findByNameIn(request.getModuleId(), request.getBranches());
-        // if(branches.size() != request.getBranches().size()) {
-        //     throw new ResultException(I18nCode.ENTRY_CREATE_BRANCHES.code, MessageUtils.get(I18nCode.ENTRY_CREATE_BRANCHES.key));
-        // }
-        // branches.forEach(branch -> {
-        //     int size = baseMapper.countByModuleIdAndBranchIdAndIdentifier(request.getModuleId(), branch.getId(), request.getKey());
-        //     if(size > 0) {
-        //         throw new ResultException(I18nCode.ENTRY_CREATE_KEY.code, MessageUtils.get(I18nCode.ENTRY_CREATE_KEY.key));
-        //     }
-        //     Entry entry = new Entry();
-        //     entry.setModuleId(request.getModuleId());
-        //     entry.setFileId(branch.getId());
-        //     entry.setIdentifier(request.getKey());
-        //     entry.setValue(request.getValue());
-        //     entry.setCreateUserId(request.getUserId());
-        //     save(entry);
+        List<File> files = fileService.listByIds(request.getFiles());
+        if(files.size() != request.getFiles().size()) {
+            throw new ResultException(I18nCode.ENTRY_CREATE_FILES.code, MessageUtils.get(I18nCode.ENTRY_CREATE_FILES.key));
+        }
+        files.forEach(file -> {
+            int size = baseMapper.countByModuleIdAndFileIdAndIdentifier(request.getModuleId(), file.getId(), request.getKey());
+            if(size > 0) {
+                throw new ResultException(I18nCode.ENTRY_CREATE_KEY.code, MessageUtils.get(I18nCode.ENTRY_CREATE_KEY.key));
+            }
+            Entry entry = new Entry();
+            entry.setModuleId(request.getModuleId());
+            entry.setFileId(file.getId());
+            entry.setIdentifier(request.getKey());
+            entry.setValue(request.getValue());
+            entry.setCreateUserId(request.getUserId());
+            save(entry);
 
-        //     activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
-        // });
+            activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
+        });
     }
 
     @Override

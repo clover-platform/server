@@ -12,6 +12,10 @@
     "Configurer",
     "Fastjson",
     "Analysed",
-    "mapstruct"
+    "mapstruct",
+    "AIAPI",
+    "jdbc",
+    "VARCHAR",
+    "refid"
   ],
 }
