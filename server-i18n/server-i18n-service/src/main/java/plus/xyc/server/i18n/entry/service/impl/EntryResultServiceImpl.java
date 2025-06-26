@@ -10,8 +10,8 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.CacheEvict;
 import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.entity.InvokeRequest;
-import org.zkit.support.server.ai.api.entity.Message;
-import org.zkit.support.server.ai.api.service.AIAPIService;
+import org.zkit.support.server.ai.api.service.ChatApiService;
+import org.zkit.support.server.ai.api.service.VectorStoreApiService;
 import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -68,8 +68,10 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     private EntryStateService entryStateService;
     @Resource
     private EntryMapper entryMapper;
-    @Resource
-    private AIAPIService aiapiService;
+    @DubboReference
+    private ChatApiService chatApiService;
+    @DubboReference
+    private VectorStoreApiService vectorStoreApiService;
     @Resource
     private LanguageService languageService;
     @Resource
@@ -149,7 +151,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         log.info("results: {}", results);
         if(results.isEmpty()) { // 删除
             log.info("remove {}", entityId + "-" + language);
-            aiapiService.removeDocuments(List.of(entityId + "-" + language));
+            // aiapiService.removeDocuments(List.of(entityId + "-" + language));
             return;
         }
         results.stream().findFirst().ifPresent(last -> {
@@ -157,12 +159,12 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
             Entry entry = entryMapper.selectById(entityId);
             Document document = new Document();
             document.setId(entry.getId().toString() + "-" + language);
-            document.setPage_content("source:["+entry.getValue() + "], result:[" + last.getContent()+"]");
-            JSONObject meta = new JSONObject();
-            meta.put("source", "i18n");
-            meta.put("language", language);
-            document.setMetadata(meta);
-            aiapiService.addDocuments(List.of(document));
+            document.setContent("source:["+entry.getValue() + "], result:[" + last.getContent()+"]");
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("source", "i18n");
+            metadata.put("language", language);
+            document.setMetadata(metadata);
+            vectorStoreApiService.add(document);
         });
     }
 
@@ -219,26 +221,18 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         Entry entry = entryMapper.selectById(request.getEntryId());
         LanguageResponse response = languageService.getByCode(request.getLanguage());
         InvokeRequest invokeRequest = new InvokeRequest();
-        List<Message> messages = new ArrayList<>(configuration.getPrompts());
-        Message message = new Message();
-        message.setRole("user");
-        message.setContent("请将接下来的文案翻译为 " + response.getName());
-        messages.add(message);
-        invokeRequest.setUseVector(true);
-        invokeRequest.setMessages(messages);
-        invokeRequest.setContent(entry.getValue());
-        JSONArray metadata = new JSONArray();
-        metadata.add(new JSONObject().fluentPut("source", "i18n"));
-        metadata.add(new JSONObject().fluentPut("language", request.getLanguage()));
-        JSONObject filter = new JSONObject();
-        filter.put("$and", metadata);
-        invokeRequest.setFilter(filter);
-        Result<String> result = aiapiService.invoke(invokeRequest);
+        List<String> rules = new ArrayList<>(configuration.getRules());
+        invokeRequest.setUseContext(true);
+        invokeRequest.setMessage("请文案 " + entry.getValue() + " 翻译为 " + response.getName());
+        invokeRequest.setRules(rules);
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("source", "i18n");
+        metadata.put("language", request.getLanguage());
+        invokeRequest.setMetadata(metadata);
+        invokeRequest.setUseContext(true);
+        String result = chatApiService.invoke(invokeRequest);
         log.info("{}", result);
-        if(!result.isSuccess()) {
-            throw ResultException.internal();
-        }
-        return JSONArray.parseArray(result.getData(), String.class).stream().map(String::trim).distinct().toList();
+        return JSONArray.parseArray(result, String.class).stream().map(String::trim).distinct().toList();
     }
 
     @Override
