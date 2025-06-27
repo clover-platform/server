@@ -133,23 +133,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     }
 
     @Override
-    public void sync(EntryListRequest request) {
-        PageResult<EntryWithStateResponse> all = this.all(request);
-        List<EntryWithStateResponse> entries = all.getData();
-        List<Document> documents = entries.stream().filter(EntryWithStateResponse::getTranslated).map(entry -> {
-            Document document = new Document();
-            document.setId(entry.getId().toString() + "-" + request.getLanguage());
-            document.setContent("source:["+entry.getValue() + "], result:[" + entry.getTranslation().getContent()+"]");
-            JSONObject meta = new JSONObject();
-            meta.put("source", "i18n");
-            meta.put("language", request.getLanguage());
-            document.setMetadata(meta);
-            return document;
-        }).toList();
-        vectorStoreApiService.add(documents);
-    }
-
-    @Override
     public EntryCountResponse count(EntryCountRequest request) {
         EntryCountResponse response = new EntryCountResponse();
         List<ModuleCount> counts = moduleCountMapper.findByCountRequest(request);

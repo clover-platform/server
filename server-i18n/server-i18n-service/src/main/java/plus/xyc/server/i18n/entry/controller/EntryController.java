@@ -133,7 +133,7 @@ public class EntryController {
         request.setModuleId(pathRequest.getModule().getId());
         if(pathRequest.getFile() != null)
             request.setFileId(pathRequest.getFile().getId());
-        entryService.sync(request);
+        // entryService.sync(request);
     }
 
     @GetMapping("/count")

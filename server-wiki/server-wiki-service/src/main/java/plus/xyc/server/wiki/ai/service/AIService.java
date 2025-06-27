@@ -1,44 +1,44 @@
 package plus.xyc.server.wiki.ai.service;
 
-import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
+
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.zkit.support.server.ai.api.entity.InvokeRequest;
-import org.zkit.support.server.ai.api.entity.Message;
-import org.zkit.support.server.ai.api.service.AIAPIService;
+import org.zkit.support.server.ai.api.service.ChatApiService;
+
 import plus.xyc.server.wiki.ai.entity.AIChatRequest;
 import plus.xyc.server.wiki.configuration.AppConfiguration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AIService {
 
-    @Resource
-    private AIAPIService aiapiService;
+    @DubboReference
+    private ChatApiService chatApiService;
     @Resource
     private AppConfiguration configuration;
 
-    public SseEmitter chat(AIChatRequest req) {
+    public String chat(AIChatRequest req) {
         InvokeRequest request = new InvokeRequest();
-        request.setContent(req.getContent());
+        request.setMessage(req.getContent());
         if("chat".equals(req.getType())) {
-            JSONObject filter = new JSONObject();
+            Map<String, String> filter = new HashMap<>();
             filter.put("source", "wiki");
-            request.setFilter(filter);
-            request.setMessages(configuration.getChatPrompts());
-            request.setUseVector(true);
+            request.setMetadata(filter);
+            request.setRules(configuration.getChatRules());
+            request.setUseContext(true);
         } else {
-            List<Message> list = new ArrayList<>(configuration.getWriterPrompts());
-            Message data = new Message();
-            data.setRole("user");
-            data.setContent("已完成的编写：" + req.getData());
-            list.add(data);
-            request.setMessages(list);
+            List<String> list = new ArrayList<>(configuration.getWriterRules());
+            list.add("已完成的编写：" + req.getData());
+            request.setRules(list);
+            request.setUseContext(false);
         }
-        return aiapiService.stream(request);
+        return chatApiService.stream(request);
     }
 
 }

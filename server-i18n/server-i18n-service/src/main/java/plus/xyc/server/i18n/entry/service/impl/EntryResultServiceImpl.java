@@ -1,7 +1,6 @@
 package plus.xyc.server.i18n.entry.service.impl;
 
 import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.github.pagehelper.Page;
 import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
@@ -12,7 +11,6 @@ import org.zkit.support.server.ai.api.entity.Document;
 import org.zkit.support.server.ai.api.entity.InvokeRequest;
 import org.zkit.support.server.ai.api.service.ChatApiService;
 import org.zkit.support.server.ai.api.service.VectorStoreApiService;
-import org.zkit.support.starter.boot.entity.Result;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
@@ -158,11 +156,12 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
             log.info("last {}", last);
             Entry entry = entryMapper.selectById(entityId);
             Document document = new Document();
-            document.setId(entry.getId().toString() + "-" + language);
             document.setContent("source:["+entry.getValue() + "], result:[" + last.getContent()+"]");
-            Map<String, Object> metadata = new HashMap<>();
+            Map<String, String> metadata = new HashMap<>();
             metadata.put("source", "i18n");
             metadata.put("language", language);
+            metadata.put("entryId", entry.getId().toString());
+            metadata.put("resultId", last.getId().toString());
             document.setMetadata(metadata);
             vectorStoreApiService.add(document);
         });
@@ -223,9 +222,9 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         InvokeRequest invokeRequest = new InvokeRequest();
         List<String> rules = new ArrayList<>(configuration.getRules());
         invokeRequest.setUseContext(true);
-        invokeRequest.setMessage("请文案 " + entry.getValue() + " 翻译为 " + response.getName());
+        invokeRequest.setMessage("请把文案 " + entry.getValue() + " 翻译为 " + response.getName());
         invokeRequest.setRules(rules);
-        Map<String, Object> metadata = new HashMap<>();
+        Map<String, String> metadata = new HashMap<>();
         metadata.put("source", "i18n");
         metadata.put("language", request.getLanguage());
         invokeRequest.setMetadata(metadata);

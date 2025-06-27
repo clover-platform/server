@@ -31,7 +31,6 @@ public interface EntryService extends IService<Entry> {
 
     PageResult<EntryWithStateResponse> query(PageRequest page, EntryListRequest request);
     PageResult<EntryWithStateResponse> all(EntryListRequest request);
-    void sync(EntryListRequest request);
     EntryCountResponse count(EntryCountRequest request);
     List<EntryWithResultResponse> getEntryByFileIdWithResult(Long fileId);
     void create(EntryCreateRequest request);

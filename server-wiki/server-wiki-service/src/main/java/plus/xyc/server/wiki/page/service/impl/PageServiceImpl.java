@@ -14,7 +14,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.zkit.support.server.ai.api.entity.Document;
-import org.zkit.support.server.ai.api.service.AIAPIService;
+import org.zkit.support.server.ai.api.service.VectorStoreApiService;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
@@ -44,7 +44,9 @@ import plus.xyc.server.wiki.page.service.PageService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -75,8 +77,8 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
     private RedisTemplate<String, Object> redisTemplate;
     @Resource
     private PageCacheService pageCacheService;
-    @Resource
-    private AIAPIService aiapiService;
+    @DubboReference
+    private VectorStoreApiService vectorStoreApiService;
     @Resource
     private BookMapper bookMapper;
     @Resource
@@ -222,17 +224,18 @@ public class PageServiceImpl extends ServiceImpl<PageMapper, Page> implements Pa
         PageDetailResponse detail = self.detail(pageId, null);
         Book book = bookMapper.selectById(detail.getBookId());
         Document document = new Document();
-        document.setId(pageId.toString());
-        JSONObject pageContent = new JSONObject();
-        pageContent.put("title", detail.getTitle());
-        pageContent.put("content", html);
-        pageContent.put("url", configuration.getBaseUrl() + "/wiki/book/"+book.getPath()+"/page/" + pageId);
-        document.setPage_content(JSON.toJSONString(pageContent));
-        JSONObject meta = new JSONObject();
-        meta.put("source", "wiki");
-        document.setMetadata(meta);
+        JSONObject json = new JSONObject();
+        json.put("id", pageId);
+        json.put("title", detail.getTitle());
+        json.put("content", html);
+        json.put("url", configuration.getBaseUrl() + "/wiki/book/"+book.getPath()+"/page/" + pageId);
+        document.setContent(json.toJSONString());
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("source", "wiki");
+        metadata.put("id", pageId.toString());
+        document.setMetadata(metadata);
         log.info("addDocuments {}", document);
-        aiapiService.addDocuments(List.of(document));
+        vectorStoreApiService.add(document);
     }
 
     private CatalogResponse findById(Long id, List<CatalogResponse> catalog) {
