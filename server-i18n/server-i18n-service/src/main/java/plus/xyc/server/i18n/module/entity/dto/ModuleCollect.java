@@ -2,6 +2,7 @@ package plus.xyc.server.i18n.module.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
+import java.util.Date;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serial;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 目标语言
+ * 
  * </p>
  *
  * @author generator
@@ -17,18 +18,21 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName("module_target_language")
-@Schema(name = "ModuleTargetLanguage", description = "目标语言")
-public class ModuleTargetLanguage implements Serializable {
+@TableName("module_collect")
+@Schema(name = "ModuleCollect", description = "")
+public class ModuleCollect implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "团队ID")
+    @Schema(description = "模块ID")
     private Long moduleId;
 
-    @Schema(description = "语言代码")
-    private String code;
+    @Schema(description = "用户ID")
+    private Long userId;
+
+    @Schema(description = "创建时间")
+    private Date createdTime;
 }

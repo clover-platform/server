@@ -16,9 +16,6 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
-import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
-import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
-import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.configuration.AppConfiguration;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
@@ -60,8 +57,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     private EntryResultMapStruct mapStruct;
     @DubboReference
     private MainAccountApiService mainAccountApiService;
-    @Resource
-    private ActivityService activityService;
     @Resource
     private EntryStateService entryStateService;
     @Resource
@@ -136,9 +131,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         entryStateService.translate(request.getEntryId(), request.getLanguage(), result.getId());
 
-        // 记录日志
-        activityService.entity(request.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.ADD.code, result);
-
         syncDocument(request.getEntryId(), request.getLanguage());
     }
 
@@ -180,9 +172,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
 
         entryStateService.removeTranslate(result.getEntryId(), result.getLanguage(), result.getId());
 
-        // 记录日志
-        activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.DELETE.code, result);
-
         syncDocument(entryId, result.getLanguage());
     }
 
@@ -210,9 +199,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
                 .update();
 
         entryStateService.approve(result.getEntryId(), result.getLanguage(), result.getId());
-
-        // 记录日志
-        activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.APPROVE.code, result);
     }
 
     @Override
@@ -248,8 +234,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         List<EntryResult> results = getLastResults(ids, result.getLanguage());
         Long lastId = results.get(0).getId();
         entryStateService.removeApproval(result.getEntryId(), result.getLanguage(), lastId);
-
-        activityService.entity(entry.getModuleId(), ActivityEntryType.TRANSLATE.code, ActivityOperate.REMOVE_APPROVAL.code, result);
     }
 
     @Override

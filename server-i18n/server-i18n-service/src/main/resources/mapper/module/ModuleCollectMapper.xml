@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="plus.xyc.server.i18n.module.mapper.ModuleCollectMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="plus.xyc.server.i18n.module.entity.dto.ModuleCollect">
+        <id column="id" property="id" />
+        <result column="module_id" property="moduleId" />
+        <result column="user_id" property="userId" />
+        <result column="created_time" property="createdTime" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, module_id, user_id, created_time
+    </sql>
+
+</mapper>

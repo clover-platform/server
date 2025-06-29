@@ -11,8 +11,6 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
-import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
-import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileService;
@@ -61,8 +59,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private MemberService memberService;
     @Resource
     private FileService fileService;
-    @Resource
-    private ActivityService activityService;
     @DubboReference
     private MainAccountApiService mainAccountApiService;
     @Resource
@@ -135,9 +131,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
         // 创建默认分支
         // branchService.createDefault(module.getId(), request.getOwner());
-
-        // 记录日志
-        activityService.module(module.getId(), ActivityOperate.ADD.code, module);
     }
 
     @Override
@@ -193,8 +186,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Override
     public void delete(Long id, Long userId) {
         lambdaUpdate().set(Module::getDeleted, true).eq(Module::getId, id).update();
-
-        activityService.module(id, ActivityOperate.DELETE.code, id);
     }
 
     @Override
@@ -213,7 +204,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
                 .set(Module::getUpdateUser, request.getUserId())
                 .eq(Module::getId, request.getId())
                 .update();
-        activityService.module(request.getId(), ActivityOperate.UPDATE.code, getById(request.getId()));
     }
 
     @Override

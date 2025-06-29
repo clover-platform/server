@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>org.zkit.support</groupId>
-            <artifactId>server-mail-api</artifactId>
+            <artifactId>server-message-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -13,5 +13,7 @@ public class EntryEditRequest {
     private String value;
     @Schema(description = "用户ID", hidden = true)
     private Long userId;
+    @Schema(description = "上下文")
+    private String context;
 
 }

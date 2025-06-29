@@ -18,9 +18,6 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
-import plus.xyc.server.i18n.activity.entity.enums.ActivityEntryType;
-import plus.xyc.server.i18n.activity.entity.enums.ActivityOperate;
-import plus.xyc.server.i18n.activity.service.ActivityService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryResult;
@@ -74,8 +71,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     private EntryMapStruct entryMapStruct;
     @Resource
     private EntryResultMapper entryResultMapper;
-    @Resource
-    private ActivityService activityService;
     @Resource
     private EntryStateMapper entryStateMapper;
     @Resource
@@ -181,8 +176,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             entry.setValue(request.getValue());
             entry.setCreateUserId(request.getUserId());
             save(entry);
-
-            activityService.entity(request.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.ADD.code, entry);
         });
     }
 
@@ -197,10 +190,9 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
         Entry entry = getById(request.getId());
 
         entry.setValue(request.getValue());
+        entry.setContext(request.getContext());
         entry.setUpdateUserId(request.getUserId());
         updateById(entry);
-
-        activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.UPDATE.code, entry);
     }
 
     @Override
@@ -230,8 +222,6 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
 
         entry.setDeleted(true);
         updateById(entry);
-
-        activityService.entity(entry.getModuleId(), ActivityEntryType.ENTRY.code, ActivityOperate.DELETE.code, entry);
     }
 
     @Override

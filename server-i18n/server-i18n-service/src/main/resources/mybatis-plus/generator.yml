@@ -6,7 +6,6 @@ datasource:
   url: jdbc:mysql://mysql:7307/clover_i18n
 # 激活的模块
 actives:
-  - activity
   - file
   - bundle
   - entry
@@ -16,9 +15,6 @@ actives:
   - test
 # 模块配置
 modules:
-  - name: activity
-    tables:
-      - activity
   - name: file
     tables:
       - file
@@ -45,5 +41,6 @@ modules:
   - name: module
     tables:
       - module
+      - module_collect
       - module_target_language
       - module_count
