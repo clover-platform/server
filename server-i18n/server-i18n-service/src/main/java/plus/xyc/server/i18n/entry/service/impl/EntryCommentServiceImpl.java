@@ -9,7 +9,6 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
-import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import plus.xyc.server.i18n.entry.entity.dto.EntryComment;
 import plus.xyc.server.i18n.entry.entity.mapstruct.EntryCommentMapStruct;
 import plus.xyc.server.i18n.entry.entity.request.EntryCommentAddRequest;

@@ -165,7 +165,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @CacheEvict(value = "i18n:entry:detail", key = "#entryId")
     public void delete(Long entryId, Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
-        Entry entry = entryMapper.selectById(result.getEntryId());
         result.setDeleted(true);
         result.setUpdateTime(new Date());
         baseMapper.updateById(result);
@@ -181,7 +180,6 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @CacheEvict(value = "i18n:entry:detail", key = "#entryId")
     public void approve(Long entryId, Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
-        Entry entry = entryMapper.selectById(result.getEntryId());
 
         // 不等于 id 的 设置 verified = false
         lambdaUpdate().set(EntryResult::getVerified, false)
@@ -226,8 +224,7 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
     @CacheEvict(value = "i18n:entry:detail", key = "#entryId")
     public void removeApproval(Long entryId, Long id, Long userId) {
         EntryResult result = baseMapper.selectById(id);
-        Entry entry = entryMapper.selectById(result.getEntryId());
-
+        
         lambdaUpdate().set(EntryResult::getVerified, false).eq(EntryResult::getId, result.getId()).update();
 
         List<Long> ids = List.of(result.getEntryId());

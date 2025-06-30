@@ -15,7 +15,7 @@ import org.zkit.support.server.account.api.service.AuthAccountApiService;
 import org.zkit.support.server.account.api.service.AuthAccountOTPApiService;
 import org.zkit.support.server.message.api.entity.request.CheckCodeRequest;
 import org.zkit.support.server.message.api.entity.request.SendCodeRequest;
-import org.zkit.support.server.message.api.service.MailApiService;
+import org.zkit.support.server.message.api.service.MailCodeApiService;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.boot.utils.StringUtils;
@@ -57,13 +57,13 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Resource
     private AccountMapStruct accountMapStruct;
     @DubboReference
-    private MailApiService mailApiService;
-    @DubboReference
     private AuthAccountApiService authAccountApiService;
     @DubboReference
     private AuthAccountOTPApiService authAccountOTPApiService;
     @Resource
     private AccountReadmeMapper accountReadmeMapper;
+    @DubboReference
+    private MailCodeApiService mailCodeApiService;
 
     @Override
     @Cacheable(value = "account#1h", key = "#id")
@@ -75,7 +75,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(email);
         request.setAction("register");
-        mailApiService.sendCode(request);
+        mailCodeApiService.send(request);
     }
 
     private void check(String email, String username) {
@@ -110,7 +110,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         checkCodeRequest.setEmail(request.getEmail());
         checkCodeRequest.setCode(request.getCode());
         checkCodeRequest.setAction("register");
-        Boolean checked = mailApiService.check(checkCodeRequest);
+        Boolean checked = mailCodeApiService.check(checkCodeRequest);
         if(!checked) {
             throw new ResultException(MainCode.REGISTER_CODE.code, MessageUtils.get(MainCode.REGISTER_CODE.key));
         }
@@ -174,7 +174,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(email);
         request.setAction("reset");
-        mailApiService.sendCode(request);
+        mailCodeApiService.send(request);
     }
 
     @Override
@@ -184,7 +184,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         checkCodeRequest.setEmail(request.getEmail());
         checkCodeRequest.setCode(request.getCode());
         checkCodeRequest.setAction("reset");
-        Boolean checked = mailApiService.check(checkCodeRequest);
+        Boolean checked = mailCodeApiService.check(checkCodeRequest);
         if(!checked) {
             throw new ResultException(MainCode.RESET_CODE.code, MessageUtils.get(MainCode.RESET_CODE.key));
         }
@@ -220,11 +220,11 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         SendCodeRequest request = new SendCodeRequest();
         request.setEmail(account.getEmail());
         request.setAction(action);
-        mailApiService.sendCode(request);
+        mailCodeApiService.send(request);
     }
 
     private void checkEmailCode(CheckCodeRequest request) {
-        Boolean checked = mailApiService.check(request);
+        Boolean checked = mailCodeApiService.check(request);
         if(!checked) {
             throw new ResultException(MainCode.EMAIL_CODE.code, MessageUtils.get(MainCode.EMAIL_CODE.key));
         }
