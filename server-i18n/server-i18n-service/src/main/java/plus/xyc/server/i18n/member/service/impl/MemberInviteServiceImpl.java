@@ -47,7 +47,7 @@ import java.util.stream.Stream;
 @Slf4j
 public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, MemberInvite> implements MemberInviteService {
 
-    @DubboReference
+    @Resource
     private MailApiService mailApiService;
     @DubboReference
     private MainApiService mainApiService;
