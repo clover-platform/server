@@ -10,7 +10,6 @@ actives:
   - project
   - team
   - config
-  - activity
 # 模块配置
 modules:
   - name: account
@@ -31,6 +30,3 @@ modules:
   - name: config
     tables:
       - config_app
-  - name: activity
-    tables:
-      - activity
