@@ -21,7 +21,7 @@ import java.util.List;
 public class ConfigAppServiceImpl extends ServiceImpl<ConfigAppMapper, ConfigApp> implements ConfigAppService {
 
     @Override
-    @Cacheable(value = "apps", key = "'all'")
+    @Cacheable(value = "config:apps")
     public List<ConfigApp> all() {
         return baseMapper.findByEnable(true);
     }

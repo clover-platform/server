@@ -1,4 +1,4 @@
-package plus.xyc.server.main.config.entity.reponse;
+package plus.xyc.server.main.config.entity.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

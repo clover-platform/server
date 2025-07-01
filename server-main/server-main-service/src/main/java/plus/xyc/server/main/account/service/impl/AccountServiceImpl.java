@@ -11,8 +11,8 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.account.api.entity.request.*;
 import org.zkit.support.server.account.api.entity.response.TokenWithAccountResponse;
-import org.zkit.support.server.account.api.service.AuthAccountApiService;
-import org.zkit.support.server.account.api.service.AuthAccountOTPApiService;
+import org.zkit.support.server.account.api.service.AccountApiService;
+import org.zkit.support.server.account.api.service.AccountOTPApiService;
 import org.zkit.support.server.message.api.entity.request.CheckCodeRequest;
 import org.zkit.support.server.message.api.entity.request.SendCodeRequest;
 import org.zkit.support.server.message.api.service.MailCodeApiService;
@@ -57,9 +57,9 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Resource
     private AccountMapStruct accountMapStruct;
     @DubboReference
-    private AuthAccountApiService authAccountApiService;
+    private AccountApiService accountApiService;
     @DubboReference
-    private AuthAccountOTPApiService authAccountOTPApiService;
+    private AccountOTPApiService accountOTPApiService;
     @Resource
     private AccountReadmeMapper accountReadmeMapper;
     @DubboReference
@@ -94,7 +94,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         this.check(account.getEmail(), account.getUsername());
         AccountAddRequest request = new AccountAddRequest();
         request.setUsername(account.getUsername());
-        AccountResponse response = authAccountApiService.addOrGet(request);
+        AccountResponse response = accountApiService.addOrGet(request);
         account.setId(response.getId());
         this.saveOrUpdate(account);
         return account;
@@ -114,7 +114,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         if(!checked) {
             throw new ResultException(MainCode.REGISTER_CODE.code, MessageUtils.get(MainCode.REGISTER_CODE.key));
         }
-        TokenWithAccountResponse response = authAccountApiService.register(accountMapStruct.toAccountRegisterRequestFromRegisterRequest(request));
+        TokenWithAccountResponse response = accountApiService.register(accountMapStruct.toAccountRegisterRequestFromRegisterRequest(request));
         Account account = new Account();
         account.setId(response.getAccountId());
         account.setUsername(request.getUsername());
@@ -140,7 +140,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
             username = account.getEmail();
         }
         request.setUsername(username);
-        return authAccountApiService.login(request);
+        return accountApiService.login(request);
     }
 
     @Override
@@ -157,7 +157,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
     @Override
     @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#accountId")
     public void logout(String token, Long accountId) {
-        authAccountApiService.logout(token);
+        accountApiService.logout(token);
     }
 
     @Override
@@ -199,19 +199,19 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         CreateTokenRequest createTokenRequest = new CreateTokenRequest();
         createTokenRequest.setId(id);
         createTokenRequest.setExpiresIn(5 * 60 * 1000L);
-        return authAccountApiService.createToken(createTokenRequest);
+        return accountApiService.createToken(createTokenRequest);
     }
 
     @Override
     public TokenResponse resetPassword(ResetPasswordRequest request) {
-        return authAccountApiService.resetPassword(request);
+        return accountApiService.resetPassword(request);
     }
 
     @Override
     @CacheEvict(value = {"account", "account:teams", "account:projects"}, key = "#request.id")
     public void changePassword(ChangePasswordRequest request, String token) {
-        authAccountApiService.changePassword(request);
-        authAccountApiService.logout(token);
+        accountApiService.changePassword(request);
+        accountApiService.logout(token);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         org.zkit.support.server.account.api.entity.request.OTPBindRequest bindRequest = new org.zkit.support.server.account.api.entity.request.OTPBindRequest();
         bindRequest.setId(request.getAccountId());
         bindRequest.setCode(request.getOtpCode());
-        authAccountOTPApiService.bind(bindRequest);
+        accountOTPApiService.bind(bindRequest);
     }
 
     @Override
@@ -256,7 +256,7 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
 
         org.zkit.support.server.account.api.entity.request.OTPDisableRequest disableRequest = new org.zkit.support.server.account.api.entity.request.OTPDisableRequest();
         disableRequest.setId(request.getAccountId());
-        authAccountOTPApiService.disable(disableRequest);
+        accountOTPApiService.disable(disableRequest);
     }
 
     @Override

@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.account.api.entity.response.OTPResponse;
 import org.zkit.support.server.account.api.entity.response.OTPStatusResponse;
-import org.zkit.support.server.account.api.service.AuthAccountOTPApiService;
+import org.zkit.support.server.account.api.service.AccountOTPApiService;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.main.account.entity.request.OTPBindRequest;
@@ -25,20 +25,20 @@ import plus.xyc.server.main.account.service.AccountService;
 public class AccountOTPController {
 
     @DubboReference
-    private AuthAccountOTPApiService authAccountOTPApiService;
+    private AccountOTPApiService accountOTPApiService;
     @Resource
     private AccountService accountService;
 
     @GetMapping("/secret")
     @Operation(summary = "获取秘钥")
     public OTPResponse secret(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
-        return authAccountOTPApiService.otpSecret(user.getId());
+        return accountOTPApiService.otpSecret(user.getId());
     }
 
     @GetMapping("/status")
     @Operation(summary = "OTP状态")
     public OTPStatusResponse status(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
-        return authAccountOTPApiService.otpState(user.getId());
+        return accountOTPApiService.otpState(user.getId());
     }
 
     @PostMapping("/bind")

@@ -11,7 +11,7 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.security.annotation.PublicRequest;
 import plus.xyc.server.main.config.entity.dto.ConfigApp;
 import plus.xyc.server.main.config.entity.mapstruct.ConfigAppMapStruct;
-import plus.xyc.server.main.config.entity.reponse.AppResponse;
+import plus.xyc.server.main.config.entity.response.AppResponse;
 import plus.xyc.server.main.config.service.ConfigAppService;
 
 import java.util.List;

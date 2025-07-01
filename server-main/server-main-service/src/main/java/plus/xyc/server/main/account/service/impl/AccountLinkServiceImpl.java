@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import plus.xyc.server.main.account.mapper.AccountMapper;
 import org.zkit.support.server.account.api.entity.request.AuthLinkBindRequest;
 import org.zkit.support.server.account.api.entity.response.TokenResponse;
-import org.zkit.support.server.account.api.service.AuthAccountLinkApiService;
+import org.zkit.support.server.account.api.service.AccountLinkApiService;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 
@@ -20,7 +20,7 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 public class AccountLinkServiceImpl extends ServiceImpl<AccountMapper, Account> implements AccountLinkService {
 
     @DubboReference
-    private AuthAccountLinkApiService authAccountLinkApiService;
+    private AccountLinkApiService accountLinkApiService;
 
     @Override
     public TokenResponse bind(AuthLinkBindRequest request) {
@@ -29,6 +29,6 @@ public class AccountLinkServiceImpl extends ServiceImpl<AccountMapper, Account> 
             throw new ResultException(MainCode.ACCOUNT_NOT_EXIST.code, MessageUtils.get(MainCode.ACCOUNT_NOT_EXIST.key));
         }
         request.setAccount(account.getEmail());
-        return authAccountLinkApiService.bind(request);
+        return accountLinkApiService.bind(request);
     }
 }
