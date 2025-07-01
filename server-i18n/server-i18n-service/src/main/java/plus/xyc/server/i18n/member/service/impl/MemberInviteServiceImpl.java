@@ -7,7 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.zkit.support.server.message.api.entity.request.SendMailRequest;
-import org.zkit.support.server.message.api.service.MailApiService;
+import org.zkit.support.server.message.api.service.MailService;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MD5Utils;
 import org.zkit.support.starter.boot.utils.MessageUtils;
@@ -48,7 +48,7 @@ import java.util.stream.Stream;
 public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, MemberInvite> implements MemberInviteService {
 
     @Resource
-    private MailApiService mailApiService;
+    private MailService mailService;
     @DubboReference
     private MainApiService mainApiService;
     @Resource
@@ -93,7 +93,7 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         mail.setData(data);
         Stream.of(request.getEmails().split(",")).forEach(email -> {
             mail.setTo(email);
-            mailApiService.send(mail);
+            mailService.send(mail);
         });
     }
 
