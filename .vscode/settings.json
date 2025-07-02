@@ -16,6 +16,7 @@
     "AIAPI",
     "jdbc",
     "VARCHAR",
-    "refid"
+    "refid",
+    "Freemarker"
   ],
 }

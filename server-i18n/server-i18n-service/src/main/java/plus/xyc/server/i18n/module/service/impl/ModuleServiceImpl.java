@@ -11,6 +11,8 @@ import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
+
+import plus.xyc.server.i18n.activity.service.ActivityLogService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileService;
@@ -65,6 +67,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private FileMapper fileMapper;
     @Resource
     private ModuleCountService moduleCountService;
+    @Resource
+    private ActivityLogService activityLogService;
 
     @Override
     public PageResult<ModuleResponse> query(PageRequest pageRequest, ModuleQueryRequest query) {
@@ -129,8 +133,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         // 添加项目成员
         memberService.addModuleOwner(module.getId(), module.getOwner());
 
-        // 创建默认分支
-        // branchService.createDefault(module.getId(), request.getOwner());
+        activityLogService.createModule(module);
     }
 
     @Override
