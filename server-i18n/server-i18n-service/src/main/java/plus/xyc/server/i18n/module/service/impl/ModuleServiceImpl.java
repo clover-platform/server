@@ -12,7 +12,6 @@ import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.redisson.DistributedLock;
 
-import plus.xyc.server.i18n.activity.service.ActivityLogService;
 import plus.xyc.server.i18n.common.enums.I18nCode;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileService;
@@ -20,6 +19,7 @@ import plus.xyc.server.i18n.member.entity.enums.MemberRoleType;
 import plus.xyc.server.i18n.member.entity.response.MemberResponse;
 import plus.xyc.server.i18n.member.service.MemberService;
 import plus.xyc.server.i18n.module.entity.dto.Module;
+import plus.xyc.server.i18n.module.entity.dto.ModuleCollect;
 import plus.xyc.server.i18n.module.entity.dto.ModuleTargetLanguage;
 import plus.xyc.server.i18n.module.entity.mapstruct.ModuleMapStruct;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
@@ -28,6 +28,7 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
 import plus.xyc.server.i18n.module.entity.response.*;
 import plus.xyc.server.i18n.module.mapper.ModuleMapper;
+import plus.xyc.server.i18n.module.service.ModuleCollectService;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -68,26 +69,29 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     @Resource
     private ModuleCountService moduleCountService;
     @Resource
-    private ActivityLogService activityLogService;
+    private ModuleCollectService moduleCollectService;
 
     @Override
     public PageResult<ModuleResponse> query(PageRequest pageRequest, ModuleQueryRequest query) {
         try(Page<Module> page = pageRequest.start()) {
             baseMapper.query(pageRequest.getKeyword(), query);
-            return PageResult.of(page.getTotal(), wrapResponse(page.getResult()));
+            return PageResult.of(page.getTotal(), wrapResponse(query.getUserId(), page.getResult()));
         }
     }
 
-    public List<ModuleResponse> wrapResponse(List<Module> modules) {
+    public List<ModuleResponse> wrapResponse(Long userId, List<Module> modules) {
         List<Long> moduleIds = modules.stream().map(Module::getId).toList();
         List<SizeResponse> memberSizes = memberSizes(moduleIds);
         List<SizeResponse> targetSizes = targetSizes(moduleIds);
         List<ModuleCountResponse> counts = moduleCountService.getCounts(moduleIds);
+        List<ModuleCollect> collects = moduleCollectService.findByUserIdAndModuleIds(userId, moduleIds);
+        List<Long> collectIds = collects.stream().map(ModuleCollect::getModuleId).toList();
         return modules.stream().map(module -> {
             ModuleResponse response = moduleMapStruct.toModuleResponse(module);
             response.setWordSize(counts.stream().filter(count -> count.getModuleId().equals(module.getId())).findFirst().map(ModuleCountResponse::getWordCount).orElse(0L));
             response.setMemberSize(memberSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
             response.setTargetSize(targetSizes.stream().filter(size -> size.getId().equals(module.getId())).findFirst().map(SizeResponse::getSize).orElse(0));
+            response.setCollected(collectIds.contains(module.getId()));
             return response;
         }).toList();
     }
@@ -132,8 +136,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
         // 添加项目成员
         memberService.addModuleOwner(module.getId(), module.getOwner());
-
-        activityLogService.createModule(module);
     }
 
     @Override

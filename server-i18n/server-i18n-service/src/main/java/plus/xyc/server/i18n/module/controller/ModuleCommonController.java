@@ -8,10 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
+import org.zkit.support.server.message.api.aspect.annotation.Activity;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
 import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+
+import plus.xyc.server.i18n.activity.entity.ActivityAction;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
@@ -54,6 +57,7 @@ public class ModuleCommonController {
 
     @PostMapping("/new")
     @Operation(summary = "创建")
+    @Activity(action = ActivityAction.CREATE_MODULE, userId = "#user.id", title = "#request.name", url = "#request.identifier + '/dashboard'")
     public void newModule(
             @RequestBody ModuleCreateRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user

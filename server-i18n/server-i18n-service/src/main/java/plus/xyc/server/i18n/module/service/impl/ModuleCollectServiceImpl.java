@@ -4,6 +4,9 @@ import plus.xyc.server.i18n.module.entity.dto.ModuleCollect;
 import plus.xyc.server.i18n.module.mapper.ModuleCollectMapper;
 import plus.xyc.server.i18n.module.service.ModuleCollectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,5 +19,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ModuleCollectServiceImpl extends ServiceImpl<ModuleCollectMapper, ModuleCollect> implements ModuleCollectService {
+
+    @Override
+    public List<ModuleCollect> findByUserIdAndModuleIds(Long userId, List<Long> moduleIds) {
+        if(moduleIds == null || moduleIds.isEmpty())
+            return List.of();
+        return lambdaQuery().in(ModuleCollect::getModuleId, moduleIds).eq(ModuleCollect::getUserId, userId).list();
+    }
 
 }

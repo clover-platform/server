@@ -32,5 +32,9 @@ public class ModuleResponse {
     private Date createTime;
     @Schema(description = "语言列表")
     private List<ModuleLanguageResponse> languages;
-
+    @Schema(description = "是否已收藏")
+    private Boolean collected;
+    @Schema(description = "拥有者ID")
+    private Long ownerId;
+    
 }

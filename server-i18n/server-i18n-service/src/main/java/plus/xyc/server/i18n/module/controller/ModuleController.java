@@ -6,8 +6,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.zkit.support.server.message.api.aspect.annotation.Activity;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
+
+import plus.xyc.server.i18n.activity.entity.ActivityAction;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
@@ -55,6 +58,7 @@ public class ModuleController {
 
     @DeleteMapping("/{moduleName}")
     @Operation(summary = "删除模块")
+    @Activity(action = ActivityAction.DELETE_MODULE, userId = "#user.id", title = "#pathRequest.module.name")
     public void delete(
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
