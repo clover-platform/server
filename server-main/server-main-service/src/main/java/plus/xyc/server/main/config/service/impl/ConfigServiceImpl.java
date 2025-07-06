@@ -15,7 +15,7 @@ public class ConfigServiceImpl implements ConfigService {
     private AccountConfigApiService accountConfigApiService;
 
     @Override
-    @Cacheable(value = "config:common#10min")
+    @Cacheable(value = "config#10min", key = "'common'")
     public CommonConfigResponse common() {
         CommonConfigResponse response = new CommonConfigResponse();
         response.setPublicKey(accountConfigApiService.getTransportPublicKey());

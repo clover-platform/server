@@ -43,8 +43,8 @@ public class ConfigAppController {
         log.info("getLocale:{}", MessageUtils.getLocale());
         return apps.stream().map((app) -> {
             AppResponse ar = mapStruct.toAppResponse(app);
-            ar.setName(MessageUtils.get(app.getNameKey()));
-            ar.setDescription(MessageUtils.get(app.getDescriptionKey()));
+            ar.setName(MessageUtils.get(app.getNameKey(), app.getNameKey()));
+            ar.setDescription(MessageUtils.get(app.getDescriptionKey(), app.getDescriptionKey()));
             return ar;
         }).toList();
     }
