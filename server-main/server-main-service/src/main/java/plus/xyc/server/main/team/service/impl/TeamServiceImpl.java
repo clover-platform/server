@@ -19,6 +19,7 @@ import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.enums.MainCode;
 import plus.xyc.server.main.project.entity.dto.Project;
+import plus.xyc.server.main.project.service.ProjectEventService;
 import plus.xyc.server.main.project.service.ProjectService;
 import plus.xyc.server.main.team.entity.dto.Team;
 import plus.xyc.server.main.team.entity.dto.TeamCollect;
@@ -32,6 +33,7 @@ import plus.xyc.server.main.team.entity.response.TeamListResponse;
 import plus.xyc.server.main.team.mapper.TeamMapper;
 import plus.xyc.server.main.team.mapper.TeamMemberMapper;
 import plus.xyc.server.main.team.service.TeamCollectService;
+import plus.xyc.server.main.team.service.TeamEventService;
 import plus.xyc.server.main.team.service.TeamService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -58,6 +60,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     private ProjectService projectService;
     @Resource
     private TeamCollectService teamCollectService;
+    @Resource
+    private TeamEventService teamEventService;
+    @Resource
+    private ProjectEventService projectEventService;
 
     @Override
     @Cacheable(value = "account:teams#1d", key = "#userId")
@@ -107,6 +113,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         );
         accountService.setCurrent(setCurrentRequest);
 
+        // 发送事件
+        teamEventService.create(request.getOwnerId(), team.getId());
+        projectEventService.create(request.getOwnerId(), project.getId(), team.getId());
+
         InitTeamResponse response = new InitTeamResponse();
         response.setTeamId(team.getId());
         response.setProjectId(project.getId());
@@ -140,6 +150,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         teamMember.setAccountId(request.getOwnerId());
         teamMember.setType(TeamMemberType.OWNER.code);
         teamMemberMapper.insert(teamMember);
+
+        // 发送事件
+        teamEventService.create(request.getOwnerId(), team.getId());
+        projectEventService.create(request.getOwnerId(), project.getId(), team.getId());
     }
 
     @Override
@@ -186,11 +200,19 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         updateWrapper.set("deleted", true);
         update(updateWrapper);
 
+        List<Project> projects = projectService.findByTeamId(id);
+        List<Long> projectIds = projects.stream().map(Project::getId).toList();
+
         // 删除所有项目
         UpdateWrapper<Project> projectUpdateWrapper = new UpdateWrapper<>();
         projectUpdateWrapper.eq("team_id", id);
         projectUpdateWrapper.set("deleted", true);
         projectService.update(projectUpdateWrapper);
+
+        // 删除团队事件
+        teamEventService.delete(userId, id);
+        // 删除所有项目事件
+        projectIds.forEach(projectId -> projectEventService.delete(userId, projectId, id));
     }
 
     @Override

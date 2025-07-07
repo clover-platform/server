@@ -46,6 +46,9 @@
             <if test="keyword != null">
                 AND m.name like concat('%', #{keyword}, '%')
             </if>
+            <if test="query.projectId != null">
+                AND m.project_id = #{query.projectId}
+            </if>
         </where>
     </select>
 

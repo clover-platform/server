@@ -14,12 +14,10 @@ public enum I18nCode {
 
     ENTRY_COMMENT_FAST(4001, "entry.comment.fast"),
 
-    BRANCH_EXISTED(5001, "branch.existed"),
-
     MEMBER_INVITE_EXPIRED(10033, "member.invite.expired"),
     MEMBER_JOINED(10032, "member.invite.joined"),
 
-    BUNDLE_EXISTED(6001, "bundle.existed");
+    USER_NOT_FOUND(6001, "user.not.found");
 
     public final int code;
     public final String key;

@@ -28,5 +28,6 @@ public interface ProjectService extends IService<Project> {
     void checkAndSave(Project project);
     void create(CreateProjectRequest project);
     void delete(Long id, Long userId);
+    List<Project> findByTeamId(Long teamId);
 
 }

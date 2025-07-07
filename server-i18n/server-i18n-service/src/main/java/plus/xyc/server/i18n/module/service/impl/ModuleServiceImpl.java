@@ -73,6 +73,10 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     @Override
     public PageResult<ModuleResponse> query(PageRequest pageRequest, ModuleQueryRequest query) {
+        ApiAccountResponse account = mainAccountApiService.getById(query.getUserId());
+        if(account == null)
+            throw new ResultException(I18nCode.USER_NOT_FOUND.code, MessageUtils.get(I18nCode.USER_NOT_FOUND.key));
+        query.setProjectId(account.getCurrentProjectId());
         try(Page<Module> page = pageRequest.start()) {
             baseMapper.query(pageRequest.getKeyword(), query);
             return PageResult.of(page.getTotal(), wrapResponse(query.getUserId(), page.getResult()));
@@ -163,7 +167,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         countResponse.setTargetCount(targetSizes.stream().findFirst().map(SizeResponse::getSize).orElse(0));
         List<ModuleCountResponse> counts = moduleCountService.getCounts(List.of(id));
         countResponse.setWordCount(counts.stream().findFirst().map(ModuleCountResponse::getWordCount).orElse(0L));
-        // TODO countResponse.setBranchCount(branchMapper.countByModuleId(id));
+        // countResponse.setBranchCount(branchMapper.countByModuleId(id));
         // countResponse.setBranchCount(branchMapper.countByModuleId(id));
         countResponse.setMemberCount(members.size());
         response.setCount(countResponse);

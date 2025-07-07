@@ -200,4 +200,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         updateWrapper.set("deleted", true);
         update(updateWrapper);
     }
+
+    @Override
+    public List<Project> findByTeamId(Long teamId) {
+        return lambdaQuery().eq(Project::getTeamId, teamId).eq(Project::getDeleted, false).list();
+    }
 }
