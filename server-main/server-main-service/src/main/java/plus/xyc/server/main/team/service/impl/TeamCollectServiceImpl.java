@@ -55,4 +55,16 @@ public class TeamCollectServiceImpl extends ServiceImpl<TeamCollectMapper, TeamC
         }
         return List.of();
     }
+
+    @Override
+    @CacheEvict(value = "team:collect", key = "#userId")
+    public void cancel(Long userId, Long teamId) {
+        lambdaUpdate().eq(TeamCollect::getTeamId, teamId).eq(TeamCollect::getUserId, userId).remove();
+    }
+
+    @Override
+    @CacheEvict(value = "team:collect", key = "#userId")
+    public void cancel(Long userId, List<Long> teamIds) {
+        lambdaUpdate().in(TeamCollect::getTeamId, teamIds).eq(TeamCollect::getUserId, userId).remove();
+    }
 }

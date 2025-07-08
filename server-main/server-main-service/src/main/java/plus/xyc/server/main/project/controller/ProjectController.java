@@ -71,4 +71,12 @@ public class ProjectController {
         projectService.delete(id, user.getId());
     }
 
+    @DeleteMapping("/{id}/leave")
+    @Operation(summary = "退出项目")
+    public void leave(
+            @Parameter(description = "项目 ID") @PathVariable Long id,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user) {
+        projectService.leave(id, user.getId());
+    }
+
 }

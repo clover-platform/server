@@ -2,8 +2,10 @@ package plus.xyc.server.main.project.entity.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
+@Accessors(chain = true)
 @Schema(description = "收藏项目信息")
 public class ProjectCollectRequest {
 

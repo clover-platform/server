@@ -17,4 +17,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class TeamMemberServiceImpl extends ServiceImpl<TeamMemberMapper, TeamMember> implements TeamMemberService {
 
+    @Override
+    public void leave(Long id, Long userId) {
+        lambdaUpdate().eq(TeamMember::getTeamId, id).eq(TeamMember::getAccountId, userId).remove();
+    }
+
 }

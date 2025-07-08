@@ -20,6 +20,8 @@ public interface ProjectCollectService extends IService<ProjectCollect> {
     List<ProjectCollect> findByProjectIdsAndUserId(List<Long> projectIds, Long userId);
     void add(ProjectCollectRequest request);
     void cancel(ProjectCollectRequest request);
+    void cancel(Long userId, Long projectId);
+    void cancel(Long userId, List<Long> projectIds);
     List<Project> my(Long userId);
 
 }

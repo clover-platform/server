@@ -105,4 +105,13 @@ public class TeamController {
         return projectService.my(user.getId(), id);
     }
 
+    @DeleteMapping("/{id}/leave")
+    @Operation(summary = "退出团队")
+    public void leave(
+            @Parameter(description = "团队 ID") @PathVariable Long id,
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        teamService.leave(id, user.getId());
+    }
+
 }

@@ -19,6 +19,8 @@ public interface TeamCollectService extends IService<TeamCollect> {
 
     void add(TeamCollectRequest request);
     void cancel(TeamCollectRequest request);
+    void cancel(Long userId, Long teamId);
+    void cancel(Long userId, List<Long> teamIds);
     List<Team> my(Long userId);
     List<TeamCollect> findByTeamIdsAndUserId(List<Long> teamIds, Long userId);
 

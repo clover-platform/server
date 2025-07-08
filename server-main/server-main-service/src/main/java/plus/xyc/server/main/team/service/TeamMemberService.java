@@ -13,4 +13,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface TeamMemberService extends IService<TeamMember> {
 
+    void leave(Long id, Long userId);
+
 }

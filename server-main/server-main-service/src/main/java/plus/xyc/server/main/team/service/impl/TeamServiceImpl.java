@@ -34,6 +34,7 @@ import plus.xyc.server.main.team.mapper.TeamMapper;
 import plus.xyc.server.main.team.mapper.TeamMemberMapper;
 import plus.xyc.server.main.team.service.TeamCollectService;
 import plus.xyc.server.main.team.service.TeamEventService;
+import plus.xyc.server.main.team.service.TeamMemberService;
 import plus.xyc.server.main.team.service.TeamService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -64,11 +65,13 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     private TeamEventService teamEventService;
     @Resource
     private ProjectEventService projectEventService;
+    @Resource
+    private TeamMemberService teamMemberService;
 
     @Override
     @Cacheable(value = "account:teams#1d", key = "#userId")
     public List<TeamListResponse> my(Long userId) {
-        return baseMapper.findMy(userId, null);
+        return baseMapper.findAllByUserId(userId, null);
     }
 
     private void checkAndSave(Team team) {
@@ -200,23 +203,30 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         updateWrapper.set("deleted", true);
         update(updateWrapper);
 
-        List<Project> projects = projectService.findByTeamId(id);
-        List<Long> projectIds = projects.stream().map(Project::getId).toList();
+        projectService.deleteByTeamId(id, userId);
 
-        // 删除所有项目
-        UpdateWrapper<Project> projectUpdateWrapper = new UpdateWrapper<>();
-        projectUpdateWrapper.eq("team_id", id);
-        projectUpdateWrapper.set("deleted", true);
-        projectService.update(projectUpdateWrapper);
+        // 取消收藏
+        teamCollectService.cancel(userId, id);
 
         // 删除团队事件
         teamEventService.delete(userId, id);
-        // 删除所有项目事件
-        projectIds.forEach(projectId -> projectEventService.delete(userId, projectId, id));
     }
 
     @Override
     public void change(SetCurrentRequest request) {
         accountService.setCurrent(request);
+    }
+
+    @Override
+    @Transactional
+    public void leave(Long id, Long userId) {
+        teamMemberService.leave(id, userId);
+        projectService.leaveByTeamId(id, userId);
+
+        // 取消收藏
+        teamCollectService.cancel(userId, id);
+
+        // 发送事件
+        teamEventService.leave(userId, id);
     }
 }

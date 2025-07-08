@@ -55,4 +55,16 @@ public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper,
     public List<Project> my(Long userId) {
         return baseMapper.my(userId);
     }
+
+    @Override
+    @CacheEvict(value = "team:project", key = "#userId")
+    public void cancel(Long userId, Long projectId) {
+        lambdaUpdate().eq(ProjectCollect::getProjectId, projectId).eq(ProjectCollect::getUserId, userId).remove();
+    }
+
+    @Override
+    @CacheEvict(value = "team:project", key = "#userId")
+    public void cancel(Long userId, List<Long> projectIds) {
+        lambdaUpdate().in(ProjectCollect::getProjectId, projectIds).eq(ProjectCollect::getUserId, userId).remove();
+    }
 }

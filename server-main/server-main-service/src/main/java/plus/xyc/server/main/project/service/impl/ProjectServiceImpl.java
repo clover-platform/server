@@ -30,6 +30,8 @@ import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
 import plus.xyc.server.main.project.mapper.ProjectMemberMapper;
 import plus.xyc.server.main.project.service.ProjectCollectService;
+import plus.xyc.server.main.project.service.ProjectEventService;
+import plus.xyc.server.main.project.service.ProjectMemberService;
 import plus.xyc.server.main.project.service.ProjectService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -64,17 +66,21 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     private ProjectCollectService projectCollectService;
     @Resource
     private ProjectMapStruct projectMapStruct;
+    @Resource
+    private ProjectEventService projectEventService;
+    @Resource
+    private ProjectMemberService projectMemberService;
 
     @Override
     @Cacheable(value = "account:projects#1d", key = "#userId")
     public List<ProjectResponse> my(Long userId) {
         Account account = accountService.findById(userId);
-        return baseMapper.findMy(userId, account.getCurrentTeamId(), null);
+        return baseMapper.findAllByUserId(userId, account.getCurrentTeamId(), null);
     }
 
     @Override
     public List<ProjectResponse> my(Long userId, Long teamId) {
-        return baseMapper.findMy(userId, teamId, null);
+        return baseMapper.findAllByUserId(userId, teamId, null);
     }
 
     @Override
@@ -176,6 +182,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         projectMember.setAccountId(project.getOwnerId());
         projectMember.setType(ProjectMemberType.OWNER.code);
         projectMemberMapper.insert(projectMember);
+
+        // 发送事件
+        projectEventService.create(project.getOwnerId(), project.getId(), project.getTeamId());
     }
 
     @Override
@@ -199,10 +208,61 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         updateWrapper.eq("id", id);
         updateWrapper.set("deleted", true);
         update(updateWrapper);
+
+        // 取消收藏
+        projectCollectService.cancel(userId, id);
+
+        // 发送事件
+        projectEventService.delete(userId, id, project.getTeamId());
     }
 
     @Override
     public List<Project> findByTeamId(Long teamId) {
         return lambdaQuery().eq(Project::getTeamId, teamId).eq(Project::getDeleted, false).list();
+    }
+
+    @Override
+    @Transactional
+    public void leave(Long id, Long userId) {
+        projectMemberService.leave(id, userId);
+        Project project = getById(id);
+
+        // 取消收藏
+        projectCollectService.cancel(userId, id);
+
+        // 发送事件
+        projectEventService.leave(userId, id, project.getTeamId());
+    }
+
+    @Override
+    @Transactional
+    public void leaveByTeamId(Long teamId, Long userId) {
+        List<Project> projects = findByTeamId(teamId);
+        List<Long> projectIds = projects.stream().map(Project::getId).toList();
+        List<Long> joinedProjectIds = projectMemberService.findJoinedProjectIds(userId, projectIds);
+        projectMemberService.leave(joinedProjectIds, userId);
+
+        projectCollectService.cancel(userId, joinedProjectIds);
+        
+        // 批量发送事件
+        joinedProjectIds.forEach(id -> projectEventService.leave(userId, id, teamId));
+    }
+
+    @Override
+    public void deleteByTeamId(Long teamId, Long userId) {
+        List<Project> projects = findByTeamId(teamId);
+        List<Long> projectIds = projects.stream().map(Project::getId).toList();
+
+        // 删除所有项目
+        UpdateWrapper<Project> projectUpdateWrapper = new UpdateWrapper<>();
+        projectUpdateWrapper.eq("team_id", teamId);
+        projectUpdateWrapper.set("deleted", true);
+        update(projectUpdateWrapper);
+
+        // 取消收藏
+        projectCollectService.cancel(userId, projectIds);
+
+        // 删除所有项目事件
+        projectIds.forEach(projectId -> projectEventService.delete(userId, projectId, teamId));
     }
 }
