@@ -124,4 +124,19 @@ public class MemberServiceImpl extends ServiceImpl<MemberMapper, Member> impleme
             return PageResult.of(page.getTotal(), responses);
         }
     }
+
+    @Override
+    @Transactional
+    public void delete(Long userId, List<Long> moduleIds) {
+        if(moduleIds.isEmpty())
+            return;
+        List<Member> members = lambdaQuery().eq(Member::getAccountId, userId).in(Member::getModuleId, moduleIds).list();
+
+        // 删除所有成员
+        lambdaUpdate().in(Member::getId, members.stream().map(Member::getId).toList()).remove();
+
+        // 删除所有角色
+        List<Long> memberIds = members.stream().map(Member::getId).toList();
+        memberRoleService.delete(memberIds);
+    }
 }

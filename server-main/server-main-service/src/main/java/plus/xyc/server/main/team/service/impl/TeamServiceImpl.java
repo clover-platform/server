@@ -220,6 +220,10 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
     @Override
     @Transactional
     public void leave(Long id, Long userId) {
+        Account account = accountService.findById(userId);
+        if(account.getCurrentTeamId().equals(id)) {
+            throw new ResultException(MainCode.CURRENT_TEAM_LEAVE.code, MessageUtils.get(MainCode.CURRENT_TEAM_LEAVE.key));
+        }
         teamMemberService.leave(id, userId);
         projectService.leaveByTeamId(id, userId);
 

@@ -17,10 +17,12 @@ public enum MainCode {
     TEAM_REPEATED(20002000, "team.key.repeated"),
     CURRENT_TEAM_DELETE(20002001, "team.current.delete"),
     TEAM_DELETE_LAST(20002002, "team.last.delete"),
+    CURRENT_TEAM_LEAVE(20002003, "team.current.leave"),
 
     PROJECT_REPEATED(20003001, "project.key.repeated"),
     CURRENT_PROJECT(20003002, "project.current.delete"),
     PROJECT_LAST(20003003, "project.last.delete"),
+    CURRENT_PROJECT_LEAVE(20003004, "project.current.leave"),
 
     EMAIL_CODE(20004001, "account.email.code.fail");
 

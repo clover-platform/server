@@ -220,4 +220,14 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     public Module findByIdentifier(String identifier) {
         return baseMapper.findOneByIdentifier(identifier);
     }
+
+    @Override
+    @Transactional
+    public void leave(Long userId, Long projectId) {
+        // 删除我创建的 ?
+        // 从接入的模块中删除我
+        List<Module> modules = lambdaQuery().eq(Module::getProjectId, projectId).list();
+        List<Long> moduleIds = modules.stream().map(Module::getId).toList();
+        memberService.delete(userId, moduleIds);
+    }
 }

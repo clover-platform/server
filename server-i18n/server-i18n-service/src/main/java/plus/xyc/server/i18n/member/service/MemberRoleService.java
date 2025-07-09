@@ -16,5 +16,6 @@ import java.util.List;
 public interface MemberRoleService extends IService<MemberRole> {
 
     List<MemberRole> findByMemberIds(List<Long> memberId);
+    void delete(List<Long> memberIds);
 
 }

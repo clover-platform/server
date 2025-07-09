@@ -22,5 +22,6 @@ public interface MemberService extends IService<Member> {
     void addModuleOwner(Long moduleId, Long accountId);
     List<MemberResponse> findMembers(Long moduleId);
     PageResult<MemberResponse> query(PageRequest page, MemberListRequest request);
+    void delete(Long userId, List<Long> moduleIds);
 
 }

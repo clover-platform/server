@@ -224,6 +224,11 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Override
     @Transactional
     public void leave(Long id, Long userId) {
+        Account account = accountService.findById(userId);
+        if(account.getCurrentProjectId().equals(id)) {
+            throw new ResultException(MainCode.CURRENT_PROJECT_LEAVE.code, MessageUtils.get(MainCode.CURRENT_PROJECT_LEAVE.key));
+        }
+        
         projectMemberService.leave(id, userId);
         Project project = getById(id);
 
