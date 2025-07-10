@@ -97,5 +97,6 @@
         from module
         where
         identifier = #{identifier,jdbcType=VARCHAR}
+        AND deleted = false
     </select>
 </mapper>

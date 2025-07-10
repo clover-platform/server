@@ -29,7 +29,7 @@ public interface ModuleService extends IService<Module> {
     ModuleDashboardResponse dashboard(Long id);
     List<ModuleLanguageResponse>  languages(Long id);
     List<ModuleResponse> all(ModuleAllRequest request);
-    void delete(Long id, Long userId);
+    Module delete(Long id, Long userId);
     ModuleResponse detail(Long id);
     void update(ModuleUpdateRequest request);
     Module findByIdentifier(String identifier);

@@ -37,6 +37,7 @@ import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -47,6 +48,7 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.zkit.support.server.ai.api.service.VectorStoreApiService;
 import org.zkit.support.server.assets.api.service.AssetsOSSApiService;
 import org.zkit.support.starter.boot.okhttp.HTTPService;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
@@ -77,6 +79,8 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
     @Lazy
     @Resource
     private ModuleCountService moduleCountService;
+    @DubboReference
+    private VectorStoreApiService vectorStoreApiService;
 
     @Override
     public PageResult<FileResponse> list(PageRequest pr, FileListRequest request) {
@@ -265,6 +269,10 @@ public class FileServiceImpl extends ServiceImpl<FileMapper, File> implements Fi
         UpdateWrapper<File> wrapper = new UpdateWrapper<>();
         wrapper.lambda().set(File::getDeleted, true).eq(File::getId, fileId);
         update(wrapper);
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("source", "i18n");
+        metadata.put("fileId", fileId.toString());
+        vectorStoreApiService.delete(metadata);
     }
 
     @Override

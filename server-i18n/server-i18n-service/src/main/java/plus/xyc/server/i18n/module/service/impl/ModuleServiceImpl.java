@@ -5,7 +5,9 @@ import jakarta.annotation.Resource;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.annotation.DubboReference;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.zkit.support.server.ai.api.service.VectorStoreApiService;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
@@ -40,7 +42,9 @@ import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -70,6 +74,8 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     private ModuleCountService moduleCountService;
     @Resource
     private ModuleCollectService moduleCollectService;
+    @DubboReference
+    private VectorStoreApiService vectorStoreApiService;
 
     @Override
     public PageResult<ModuleResponse> query(PageRequest pageRequest, ModuleQueryRequest query) {
@@ -193,8 +199,17 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
     }
 
     @Override
-    public void delete(Long id, Long userId) {
+    @CacheEvict(value = "i18n:module", key = "#result.identifier")
+    public Module delete(Long id, Long userId) {
+        Module module = getById(id);
         lambdaUpdate().set(Module::getDeleted, true).eq(Module::getId, id).update();
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("source", "i18n");
+        metadata.put("moduleId", id.toString());
+        vectorStoreApiService.delete(metadata);
+
+        return module;
     }
 
     @Override

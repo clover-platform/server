@@ -138,10 +138,14 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
         List<EntryState> states = entryStateMapper.findByEntryIdInAndLanguage(List.of(entityId), language);
         List<Long> resultIds = states.stream().map(EntryState::getResultId).toList();
         List<EntryResult> results = this.getResults(resultIds, language);
+        log.info("remove {}", entityId + "-" + language);
+        Map<String, String> deleteMetadata = new HashMap<>();
+        deleteMetadata.put("source", "i18n");
+        deleteMetadata.put("language", language);
+        deleteMetadata.put("entryId", entityId.toString());
+        vectorStoreApiService.delete(deleteMetadata);
         log.info("results: {}", results);
         if(results.isEmpty()) { // 删除
-            log.info("remove {}", entityId + "-" + language);
-            // aiapiService.removeDocuments(List.of(entityId + "-" + language));
             return;
         }
         results.stream().findFirst().ifPresent(last -> {
@@ -152,6 +156,8 @@ public class EntryResultServiceImpl extends ServiceImpl<EntryResultMapper, Entry
             Map<String, String> metadata = new HashMap<>();
             metadata.put("source", "i18n");
             metadata.put("language", language);
+            metadata.put("moduleId", entry.getModuleId().toString());
+            metadata.put("fileId", entry.getFileId().toString());
             metadata.put("entryId", entry.getId().toString());
             metadata.put("resultId", last.getId().toString());
             document.setMetadata(metadata);
