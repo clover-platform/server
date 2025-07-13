@@ -33,7 +33,7 @@ public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper,
     }
 
     @Override
-    @CacheEvict(value = "team:project", key = "#request.userId")
+    @CacheEvict(value = "project:collect", key = "#request.userId")
     public void add(ProjectCollectRequest request) {
         ProjectCollect pc = new ProjectCollect();
         pc.setProjectId(request.getId());
@@ -42,7 +42,7 @@ public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper,
     }
 
     @Override
-    @CacheEvict(value = "team:project", key = "#request.userId")
+    @CacheEvict(value = "project:collect", key = "#request.userId")
     public void cancel(ProjectCollectRequest request) {
         UpdateWrapper<ProjectCollect> uw = new UpdateWrapper<>();
         uw.eq("project_id", request.getId());
@@ -51,19 +51,19 @@ public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper,
     }
 
     @Override
-    @Cacheable(value = "team:project", key = "#userId")
+    @Cacheable(value = "project:collect", key = "#userId")
     public List<Project> my(Long userId) {
         return baseMapper.my(userId);
     }
 
     @Override
-    @CacheEvict(value = "team:project", key = "#userId")
+    @CacheEvict(value = "project:collect", key = "#userId")
     public void cancel(Long userId, Long projectId) {
         lambdaUpdate().eq(ProjectCollect::getProjectId, projectId).eq(ProjectCollect::getUserId, userId).remove();
     }
 
     @Override
-    @CacheEvict(value = "team:project", key = "#userId")
+    @CacheEvict(value = "project:collect", key = "#userId")
     public void cancel(Long userId, List<Long> projectIds) {
         lambdaUpdate().in(ProjectCollect::getProjectId, projectIds).eq(ProjectCollect::getUserId, userId).remove();
     }

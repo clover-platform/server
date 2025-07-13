@@ -209,6 +209,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         metadata.put("moduleId", id.toString());
         vectorStoreApiService.delete(metadata);
 
+        moduleCollectService.cancel(id);
         return module;
     }
 

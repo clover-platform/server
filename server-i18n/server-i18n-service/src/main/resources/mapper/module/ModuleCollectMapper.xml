@@ -15,4 +15,12 @@
         id, module_id, user_id, created_time
     </sql>
 
+    <select id="my" resultType="plus.xyc.server.i18n.module.entity.dto.Module">
+        select t.*
+        from module t
+        left join module_collect tc on t.id = tc.module_id
+        where tc.user_id = #{userId}
+        and t.deleted = false
+    </select>
+
 </mapper>

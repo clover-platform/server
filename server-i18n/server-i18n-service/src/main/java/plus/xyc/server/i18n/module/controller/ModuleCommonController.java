@@ -14,11 +14,13 @@ import org.zkit.support.starter.mybatis.entity.PageResult;
 import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 
+import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.activity.entity.ActivityAction;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
+import plus.xyc.server.i18n.module.service.ModuleCollectService;
 import plus.xyc.server.i18n.module.service.ModuleService;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.api.service.MainAccountApiService;
@@ -43,6 +45,8 @@ public class ModuleCommonController {
     private ModuleService moduleService;
     @DubboReference
     private MainAccountApiService mainAccountApiService;
+    @Resource
+    private ModuleCollectService moduleCollectService;
 
     @GetMapping("/list")
     @Operation(summary = "列表")
@@ -53,6 +57,12 @@ public class ModuleCommonController {
     ) {
         query.setUserId(user.getId());
         return moduleService.query(page, query);
+    }
+
+    @GetMapping("/collect/my")
+    @Operation(summary = "我的收藏")
+    public List<Module> my(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
+        return moduleCollectService.my(user.getId());
     }
 
     @PostMapping("/new")

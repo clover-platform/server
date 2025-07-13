@@ -6,6 +6,7 @@ public enum I18nCode {
 
     MODULE_IDENTIFIER_EXIST(1001, "module.identifier.exists"),
     MODULE_NOT_FOUND(1002, "module.not.found"),
+    MODULE_COLLECT_EXIST(1003, "module.collect.exists"),
 
     ENTRY_CREATE_FILES(2001, "entry.create.files"),
     ENTRY_CREATE_KEY(2002, "entry.create.key"),
