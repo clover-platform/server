@@ -29,9 +29,9 @@ public class RecountAspect {
     private ModuleCountService moduleCountService;
 
     @Pointcut("@annotation(plus.xyc.server.i18n.common.annotation.Recount)")
-    public void pointcut() {}
+    public void recountPointcut() {}
 
-    @After(value = "pointcut()")
+    @After(value = "recountPointcut()")
     public void doAfter(JoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();

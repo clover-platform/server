@@ -15,6 +15,7 @@ import org.zkit.support.starter.security.entity.SessionUser;
 
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.activity.entity.ActivityAction;
+import plus.xyc.server.i18n.common.annotation.MetadataHolderLoader;
 import plus.xyc.server.i18n.module.entity.request.ModuleAllRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleCreateRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
@@ -66,6 +67,7 @@ public class ModuleCommonController {
     @PostMapping("/new")
     @Operation(summary = "创建")
     @Activity(action = ActivityAction.CREATE_MODULE, userId = "#user.id", title = "#request.name", url = "#request.identifier + '/dashboard'")
+    @MetadataHolderLoader
     @AccountHolderLoader
     public void newModule(
             @RequestBody ModuleCreateRequest request,

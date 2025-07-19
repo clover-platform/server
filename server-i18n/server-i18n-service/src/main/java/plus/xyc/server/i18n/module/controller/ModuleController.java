@@ -11,6 +11,7 @@ import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 
 import plus.xyc.server.i18n.activity.entity.ActivityAction;
+import plus.xyc.server.i18n.common.annotation.MetadataHolderLoader;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.module.entity.request.ModuleUpdateRequest;
@@ -60,6 +61,7 @@ public class ModuleController {
     @DeleteMapping("/{moduleName}")
     @Operation(summary = "删除模块")
     @Activity(action = ActivityAction.DELETE_MODULE, userId = "#user.id", title = "#pathRequest.module.name")
+    @MetadataHolderLoader
     @AccountHolderLoader
     public void delete(
             @CurrentUser @Parameter(hidden = true) SessionUser user,

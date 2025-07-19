@@ -150,12 +150,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
         // 添加项目成员
         memberService.addModuleOwner(module.getId(), module.getOwner());
-
-        ApiAccountResponse account = AccountHolder.get();
-        JSONObject metadata = new JSONObject();
-        metadata.put("projectId", account.getCurrentProjectId());
-        metadata.put("moduleId", module.getId());
-        MetadataHolder.set(metadata);
     }
 
     @Override
@@ -210,6 +204,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     @Override
     @CacheEvict(value = "i18n:module", key = "#result.identifier")
+    @Transactional
     public Module delete(Long id, Long userId) {
         Module module = getById(id);
         lambdaUpdate().set(Module::getDeleted, true).eq(Module::getId, id).update();
@@ -221,12 +216,6 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
         moduleCollectService.cancel(id);
 
-        ApiAccountResponse account = AccountHolder.get();
-        JSONObject activityMetadata = new JSONObject();
-        activityMetadata.put("projectId", account.getCurrentProjectId());
-        activityMetadata.put("moduleId", module.getId());
-        MetadataHolder.set(activityMetadata);
-        
         return module;
     }
 
