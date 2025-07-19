@@ -18,6 +18,7 @@ import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
+import plus.xyc.server.main.api.aspect.annotation.AccountHolderLoader;
 
 import java.util.List;
 
@@ -59,6 +60,7 @@ public class ModuleController {
     @DeleteMapping("/{moduleName}")
     @Operation(summary = "删除模块")
     @Activity(action = ActivityAction.DELETE_MODULE, userId = "#user.id", title = "#pathRequest.module.name")
+    @AccountHolderLoader
     public void delete(
             @CurrentUser @Parameter(hidden = true) SessionUser user,
             @Parameter(description = "模块标识") @PathVariable String moduleName,

@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
 import plus.xyc.server.i18n.common.resolver.PathInjectArgumentResolver;
 import plus.xyc.server.i18n.entry.service.EntryService;
 import plus.xyc.server.i18n.file.service.FileService;

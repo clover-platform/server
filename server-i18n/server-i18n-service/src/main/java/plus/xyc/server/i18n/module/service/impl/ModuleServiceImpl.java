@@ -8,6 +8,7 @@ import org.apache.dubbo.config.annotation.DubboReference;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.zkit.support.server.ai.api.service.VectorStoreApiService;
+import org.zkit.support.server.message.api.holder.MetadataHolder;
 import org.zkit.support.starter.boot.exception.ResultException;
 import org.zkit.support.starter.boot.utils.MessageUtils;
 import org.zkit.support.starter.mybatis.entity.PageRequest;
@@ -33,11 +34,14 @@ import plus.xyc.server.i18n.module.mapper.ModuleMapper;
 import plus.xyc.server.i18n.module.service.ModuleCollectService;
 import plus.xyc.server.i18n.module.service.ModuleCountService;
 import plus.xyc.server.i18n.module.service.ModuleService;
+
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.service.ModuleTargetLanguageService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
+import plus.xyc.server.main.api.holder.AccountHolder;
 import plus.xyc.server.main.api.service.MainAccountApiService;
 
 import java.util.Arrays;
@@ -146,6 +150,12 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
         // 添加项目成员
         memberService.addModuleOwner(module.getId(), module.getOwner());
+
+        ApiAccountResponse account = AccountHolder.get();
+        JSONObject metadata = new JSONObject();
+        metadata.put("projectId", account.getCurrentProjectId());
+        metadata.put("moduleId", module.getId());
+        MetadataHolder.set(metadata);
     }
 
     @Override
@@ -210,6 +220,13 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         vectorStoreApiService.delete(metadata);
 
         moduleCollectService.cancel(id);
+
+        ApiAccountResponse account = AccountHolder.get();
+        JSONObject activityMetadata = new JSONObject();
+        activityMetadata.put("projectId", account.getCurrentProjectId());
+        activityMetadata.put("moduleId", module.getId());
+        MetadataHolder.set(activityMetadata);
+        
         return module;
     }
 

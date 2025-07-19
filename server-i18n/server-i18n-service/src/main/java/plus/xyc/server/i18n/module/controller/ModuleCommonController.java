@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.dubbo.config.annotation.DubboReference;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.message.api.aspect.annotation.Activity;
@@ -22,8 +21,9 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleCollectService;
 import plus.xyc.server.i18n.module.service.ModuleService;
+import plus.xyc.server.main.api.aspect.annotation.AccountHolderLoader;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.service.MainAccountApiService;
+import plus.xyc.server.main.api.holder.AccountHolder;
 
 import java.util.List;
 
@@ -43,8 +43,6 @@ public class ModuleCommonController {
 
     @Resource
     private ModuleService moduleService;
-    @DubboReference
-    private MainAccountApiService mainAccountApiService;
     @Resource
     private ModuleCollectService moduleCollectService;
 
@@ -68,13 +66,14 @@ public class ModuleCommonController {
     @PostMapping("/new")
     @Operation(summary = "创建")
     @Activity(action = ActivityAction.CREATE_MODULE, userId = "#user.id", title = "#request.name", url = "#request.identifier + '/dashboard'")
+    @AccountHolderLoader
     public void newModule(
             @RequestBody ModuleCreateRequest request,
             @CurrentUser @Parameter(hidden = true) SessionUser user
     ) {
-        request.setOwner(user.getId());
-        ApiAccountResponse account = mainAccountApiService.getById(user.getId());
+        ApiAccountResponse account = AccountHolder.get();
         request.setProjectId(account.getCurrentProjectId());
+        request.setOwner(user.getId());
         moduleService.create(request);
     }
 
