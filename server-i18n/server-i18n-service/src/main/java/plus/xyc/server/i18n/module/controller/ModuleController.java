@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.zkit.support.server.message.api.aspect.annotation.Activity;
@@ -19,7 +20,8 @@ import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleLanguageResponse;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
-import plus.xyc.server.main.api.aspect.annotation.AccountHolderLoader;
+import plus.xyc.server.main.api.annotation.CurrentAccount;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 import java.util.List;
 
@@ -60,15 +62,14 @@ public class ModuleController {
 
     @DeleteMapping("/{moduleName}")
     @Operation(summary = "删除模块")
-    @Activity(action = ActivityAction.DELETE_MODULE, userId = "#user.id", title = "#pathRequest.module.name")
+    @Activity(action = ActivityAction.DELETE_MODULE, userId = "#account.id", title = "#pathRequest.module.name")
     @MetadataHolderLoader
-    @AccountHolderLoader
     public void delete(
-            @CurrentUser @Parameter(hidden = true) SessionUser user,
+            @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account,
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @PathInject PathRequest pathRequest
     ) {
-        moduleService.delete(pathRequest.getModule().getId(), user.getId());
+        moduleService.delete(pathRequest.getModule().getId(), account.getId());
     }
 
     @GetMapping("/{moduleName}")

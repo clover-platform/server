@@ -22,9 +22,8 @@ import plus.xyc.server.i18n.module.entity.request.ModuleQueryRequest;
 import plus.xyc.server.i18n.module.entity.response.ModuleResponse;
 import plus.xyc.server.i18n.module.service.ModuleCollectService;
 import plus.xyc.server.i18n.module.service.ModuleService;
-import plus.xyc.server.main.api.aspect.annotation.AccountHolderLoader;
+import plus.xyc.server.main.api.annotation.CurrentAccount;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.holder.AccountHolder;
 
 import java.util.List;
 
@@ -66,16 +65,15 @@ public class ModuleCommonController {
 
     @PostMapping("/new")
     @Operation(summary = "创建")
-    @Activity(action = ActivityAction.CREATE_MODULE, userId = "#user.id", title = "#request.name", url = "#request.identifier + '/dashboard'")
+    @Activity(action = ActivityAction.CREATE_MODULE, userId = "#account.id", title = "#request.name", url = "#request.identifier + '/dashboard'")
     @MetadataHolderLoader
-    @AccountHolderLoader
     public void newModule(
             @RequestBody ModuleCreateRequest request,
-            @CurrentUser @Parameter(hidden = true) SessionUser user
+            @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account
     ) {
-        ApiAccountResponse account = AccountHolder.get();
+        log.info("ModuleCommonController newModule account: {}", account);
         request.setProjectId(account.getCurrentProjectId());
-        request.setOwner(user.getId());
+        request.setOwner(account.getId());
         moduleService.create(request);
     }
 

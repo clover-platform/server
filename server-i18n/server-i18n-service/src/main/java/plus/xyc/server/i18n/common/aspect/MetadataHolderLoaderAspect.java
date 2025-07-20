@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
-import plus.xyc.server.main.api.holder.AccountHolder;
 
 @Aspect
 @Component
@@ -32,15 +31,12 @@ public class MetadataHolderLoaderAspect {
 
     @Around(value = "metadataHolderLoaderPointcut()")
     public Object doAround(ProceedingJoinPoint joinPoint) throws Throwable {
-        ApiAccountResponse account = AccountHolder.get();
         JSONObject metadata = new JSONObject();
-        log.info("MetadataHolderLoaderAspect account: {}", account);
-        if (account != null) {
-            metadata.put("projectId", account.getCurrentProjectId());
-            log.info("MetadataHolderLoaderAspect projectId: {}", account.getCurrentProjectId());
-        }
-
         Arrays.stream(joinPoint.getArgs()).forEach(arg -> {
+            if (arg instanceof ApiAccountResponse account) {
+                metadata.put("projectId", account.getCurrentProjectId());
+                log.info("MetadataHolderLoaderAspect projectId: {}", account.getCurrentProjectId());
+            }
             if (arg instanceof PathRequest pathRequest) {
                 Module module = pathRequest.getModule();
                 if (module != null) {

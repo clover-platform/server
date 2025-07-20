@@ -1,1 +1,1 @@
-plus.xyc.server.main.api.aspect.AccountHolderLoaderAspect
+plus.xyc.server.main.api.configurer.MainApiWebMvcConfigurer
