@@ -35,8 +35,8 @@ public class ModuleCollectServiceImpl extends ServiceImpl<ModuleCollectMapper, M
     }
 
     @Override
-    @CacheEvict(value = "module:collect", key = "#userId")
-    public void add(Long userId, Long moduleId) {
+    @CacheEvict(value = "module:collect", key = "#userId + ':' + #projectId")
+    public void add(Long userId, Long projectId, Long moduleId) {
         lambdaQuery().eq(ModuleCollect::getModuleId, moduleId).eq(ModuleCollect::getUserId, userId).oneOpt().ifPresent(collect -> {
             throw ResultException.of(I18nCode.MODULE_COLLECT_EXIST.code, MessageUtils.get(I18nCode.MODULE_COLLECT_EXIST.key));
         });
@@ -47,14 +47,14 @@ public class ModuleCollectServiceImpl extends ServiceImpl<ModuleCollectMapper, M
     }
 
     @Override
-    @Cacheable(value = "module:collect", key = "#userId")
-    public List<Module> my(Long userId) {
-        return baseMapper.my(userId);
+    @Cacheable(value = "module:collect", key = "#userId + ':' + #projectId")
+    public List<Module> my(Long userId, Long projectId) {
+        return baseMapper.my(userId, projectId);
     }
 
     @Override
-    @CacheEvict(value = "module:collect", key = "#userId")
-    public void cancel(Long userId, Long moduleId) {
+    @CacheEvict(value = "module:collect", key = "#userId + ':' + #projectId")
+    public void cancel(Long userId, Long projectId, Long moduleId) {
         lambdaUpdate().eq(ModuleCollect::getModuleId, moduleId).eq(ModuleCollect::getUserId, userId).remove();
     }
 

@@ -14,6 +14,8 @@ import jakarta.annotation.Resource;
 import plus.xyc.server.i18n.common.annotation.PathInject;
 import plus.xyc.server.i18n.common.entity.PathRequest;
 import plus.xyc.server.i18n.module.service.ModuleCollectService;
+import plus.xyc.server.main.api.annotation.CurrentAccount;
+import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 
 /**
  * <p>
@@ -36,9 +38,9 @@ public class ModuleCollectController {
     public void add(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @PathInject PathRequest pathRequest,
-            @CurrentUser() @Parameter(hidden = true) SessionUser user
+            @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account
     ) {
-       moduleCollectService.add(user.getId(), pathRequest.getModule().getId());
+       moduleCollectService.add(account.getId(), account.getCurrentProjectId(), pathRequest.getModule().getId());
     }
 
     @PostMapping("/cancel")
@@ -46,9 +48,9 @@ public class ModuleCollectController {
     public void cancel(
             @Parameter(description = "模块标识") @PathVariable String moduleName,
             @PathInject PathRequest pathRequest,
-            @CurrentUser() @Parameter(hidden = true) SessionUser user
+            @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account
     ) {
-        moduleCollectService.cancel(user.getId(), pathRequest.getModule().getId());
+        moduleCollectService.cancel(account.getId(), account.getCurrentProjectId(), pathRequest.getModule().getId());
     }
 
 }

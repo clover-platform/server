@@ -18,9 +18,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 public interface ModuleCollectService extends IService<ModuleCollect> {
 
     List<ModuleCollect> findByUserIdAndModuleIds(Long userId, List<Long> moduleIds);
-    void add(Long userId, Long moduleId);
-    List<Module> my(Long userId);
-    void cancel(Long userId, Long moduleId);
+    void add(Long userId, Long projectId, Long moduleId);
+    List<Module> my(Long userId, Long projectId);
+    void cancel(Long userId, Long projectId, Long moduleId);
     void cancel(Long moduleId);
 
 }

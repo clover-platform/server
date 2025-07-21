@@ -59,8 +59,8 @@ public class ModuleCommonController {
 
     @GetMapping("/collect/my")
     @Operation(summary = "我的收藏")
-    public List<Module> my(@CurrentUser() @Parameter(hidden = true) SessionUser user) {
-        return moduleCollectService.my(user.getId());
+    public List<Module> my(@CurrentAccount @Parameter(hidden = true) ApiAccountResponse account) {
+        return moduleCollectService.my(account.getId(), account.getCurrentProjectId());
     }
 
     @PostMapping("/new")

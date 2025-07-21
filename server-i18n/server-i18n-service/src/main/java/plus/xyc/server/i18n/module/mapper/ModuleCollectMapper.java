@@ -17,6 +17,6 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ModuleCollectMapper extends BaseMapper<ModuleCollect> {
 
-    List<Module> my(Long userId);
+    List<Module> my(Long userId, Long projectId);
 
 }

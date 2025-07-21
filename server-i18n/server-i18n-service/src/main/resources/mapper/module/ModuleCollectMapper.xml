@@ -19,7 +19,7 @@
         select t.*
         from module t
         left join module_collect tc on t.id = tc.module_id
-        where tc.user_id = #{userId}
+        where tc.user_id = #{userId} and t.project_id = #{projectId}
         and t.deleted = false
     </select>
 
