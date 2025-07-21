@@ -11,9 +11,11 @@ import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
+import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.entity.response.UpdateEntriesResponse;
+import plus.xyc.server.i18n.file.entity.request.FileEntrySearchRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
@@ -46,5 +48,6 @@ public interface EntryService extends IService<Entry> {
     void deleteByIds(List<Long> ids);
     UpdateEntriesResponse updateEntries(Long moduleId, Long fileId, Long userId, List<EntryRequest> requestEntries);
     List<Entry> getByIds(List<Long> ids);
+    PageResult<EntryResponse> list(PageRequest page, FileEntrySearchRequest request);
 
 }

@@ -7,6 +7,7 @@ import plus.xyc.server.i18n.entry.entity.dto.Entry;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import plus.xyc.server.i18n.entry.entity.request.EntryCountRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
+import plus.xyc.server.i18n.file.entity.request.FileEntrySearchRequest;
 
 /**
  * <p>
@@ -27,5 +28,6 @@ public interface EntryMapper extends BaseMapper<Entry> {
     int countByFileIdAndDeleted(@Param("fileId") Long fileId, @Param("deleted") Boolean deleted);
     List<Entry> findIdByFileIdAndDeleted(@Param("fileId") Long fileId, @Param("deleted") Boolean deleted);
     int countByModuleIdAndFileId(@Param("moduleId") Long moduleId, @Param("fileId") Long fileId);
+    List<Entry> list(@Param("request") FileEntrySearchRequest request);
 
 }

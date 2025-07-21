@@ -29,6 +29,7 @@ import plus.xyc.server.i18n.entry.entity.request.EntryEditRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryListRequest;
 import plus.xyc.server.i18n.entry.entity.request.EntryRequest;
 import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
+import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.entity.response.UpdateEntriesResponse;
@@ -42,6 +43,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.entity.request.FileEntrySearchRequest;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
 import plus.xyc.server.i18n.file.service.FileService;
@@ -52,6 +54,8 @@ import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * <p>
@@ -374,5 +378,23 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             return List.of();
         }
         return lambdaQuery().in(Entry::getId, ids).list();
+    }
+
+    @Override
+    public PageResult<EntryResponse> list(PageRequest pr, FileEntrySearchRequest request) {
+        try(Page<Entry> page = pr.start()) {
+            request.setKeyword(pr.getKeyword());
+            baseMapper.list(request);
+            List<Entry> entries = page.getResult();
+            List<Long> fileIds = entries.stream().distinct().map(Entry::getFileId).toList();
+            List<File> files = fileService.listByIds(fileIds);
+            Map<Long, File> fileMap = files.stream().collect(Collectors.toMap(File::getId, Function.identity()));
+            List<EntryResponse> responses = entries.stream().map(entry -> {
+                EntryResponse response = entryMapStruct.toEntryResponse(entry);
+                response.setFile(fileMap.get(entry.getFileId()));
+                return response;
+            }).toList();
+            return PageResult.of(page.getTotal(), responses);
+        }
     }
 }

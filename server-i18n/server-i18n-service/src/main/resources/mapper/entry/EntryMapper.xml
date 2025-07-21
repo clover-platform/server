@@ -116,4 +116,25 @@
           and deleted = false
     </select>
 
+    <select id="list" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from entry
+        <where>
+            deleted = false
+            <if test="request.moduleId != null">
+                and module_id = #{request.moduleId,jdbcType=NUMERIC}
+            </if>
+            <if test="request.fileId != null">
+                and file_id = #{request.fileId,jdbcType=NUMERIC}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                and (identifier like concat('%', #{request.keyword,jdbcType=VARCHAR}, '%') or value like concat('%', #{request.keyword,jdbcType=VARCHAR}, '%'))
+            </if>
+        </where>
+        order by update_time desc, id desc
+    </select>
+
+    </select>
+
 </mapper>
