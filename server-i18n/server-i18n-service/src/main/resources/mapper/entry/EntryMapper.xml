@@ -135,6 +135,4 @@
         order by update_time desc, id desc
     </select>
 
-    </select>
-
 </mapper>
