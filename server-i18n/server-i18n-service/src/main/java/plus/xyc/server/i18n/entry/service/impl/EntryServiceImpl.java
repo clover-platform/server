@@ -387,7 +387,10 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             baseMapper.list(request);
             List<Entry> entries = page.getResult();
             List<Long> fileIds = entries.stream().distinct().map(Entry::getFileId).toList();
-            List<File> files = fileService.listByIds(fileIds);
+            List<File> files = List.of();
+            if(!fileIds.isEmpty()) {
+                files = fileService.listByIds(fileIds);
+            }
             Map<Long, File> fileMap = files.stream().collect(Collectors.toMap(File::getId, Function.identity()));
             List<EntryResponse> responses = entries.stream().map(entry -> {
                 EntryResponse response = entryMapStruct.toEntryResponse(entry);
