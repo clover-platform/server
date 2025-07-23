@@ -125,8 +125,11 @@
             <if test="request.moduleId != null">
                 and module_id = #{request.moduleId,jdbcType=NUMERIC}
             </if>
-            <if test="request.fileId != null">
-                and file_id = #{request.fileId,jdbcType=NUMERIC}
+            <if test="request.fileIdList != null and request.fileIdList.size() > 0">
+                and file_id in
+                <foreach collection="request.fileIdList" item="fileId" open="(" separator="," close=")">
+                    #{fileId,jdbcType=NUMERIC}
+                </foreach>
             </if>
             <if test="request.keyword != null and request.keyword != ''">
                 and (identifier like concat('%', #{request.keyword,jdbcType=VARCHAR}, '%') or value like concat('%', #{request.keyword,jdbcType=VARCHAR}, '%'))
