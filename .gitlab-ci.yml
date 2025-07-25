@@ -12,9 +12,9 @@ package-gateway:
         - java -version
         - mvn -v
         - mvn install -Dmaven.test.skip=true
-        - cd server-gateway
-        - mvn clean package deploy -U -s ../settings.xml -Dmaven.test.skip=true
-        - echo "$DOCKER_TOKEN" | docker login -u $DOCKER_USER --password-stdin $CI_REGISTRY
+        - cd $CI_PROJECT_DIR/server-gateway
+        - mvn clean package deploy -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/gateway:latest
         - docker push $CI_REGISTRY/clover/server/gateway:$CI_PIPELINE_ID
@@ -32,11 +32,11 @@ package-main:
         - java -version
         - mvn -v
         - mvn install -Dmaven.test.skip=true
-        - cd server-main/server-main-api
-        - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
-        - cd ../../server-main/server-main-service
-        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
-        - echo "$DOCKER_TOKEN" | docker login -u $DOCKER_USER --password-stdin $CI_REGISTRY
+        - cd $CI_PROJECT_DIR/server-main/server-main-api
+        - mvn clean deploy -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - cd $CI_PROJECT_DIR/server-main/server-main-service
+        - mvn clean package -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/main:latest
         - docker push $CI_REGISTRY/clover/server/main:$CI_PIPELINE_ID
@@ -54,11 +54,11 @@ package-i18n:
         - java -version
         - mvn -v
         - mvn install -Dmaven.test.skip=true
-        - cd server-i18n/server-i18n-api
-        - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
-        - cd ../../server-i18n/server-i18n-service
-        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
-        - echo "$DOCKER_TOKEN" | docker login -u $DOCKER_USER --password-stdin $CI_REGISTRY
+        - cd $CI_PROJECT_DIR/server-i18n/server-i18n-api
+        - mvn clean deploy -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - cd $CI_PROJECT_DIR/server-i18n/server-i18n-service
+        - mvn clean package -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/i18n:latest
         - docker push $CI_REGISTRY/clover/server/i18n:$CI_PIPELINE_ID
@@ -76,11 +76,11 @@ package-wiki:
         - java -version
         - mvn -v
         - mvn install -Dmaven.test.skip=true
-        - cd server-wiki/server-wiki-service
-        - mvn clean deploy -U -s ../../settings.xml -Dmaven.test.skip=true
-        - cd ../../server-wiki/server-wiki-service
-        - mvn clean package -U -s ../../settings.xml -Dmaven.test.skip=true
-        - echo "$DOCKER_TOKEN" | docker login -u $DOCKER_USER --password-stdin $CI_REGISTRY
+        - cd $CI_PROJECT_DIR/server-wiki/server-wiki-service
+        - mvn clean deploy -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - cd $CI_PROJECT_DIR/server-wiki/server-wiki-service
+        - mvn clean package -U -s $CI_PROJECT_DIR/settings.xml -Dmaven.test.skip=true
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker build -t $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID -f ./Dockerfile .
         - docker tag $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID $CI_REGISTRY/clover/server/wiki:latest
         - docker push $CI_REGISTRY/clover/server/wiki:$CI_PIPELINE_ID
@@ -96,6 +96,7 @@ deploy-gateway:
         - dev
     script:
         - cd ~/server/clover/server-gateway
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker compose down
         - docker compose up -d
 
@@ -107,6 +108,7 @@ deploy-main:
         - dev
     script:
         - cd ~/server/clover/server-main
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker compose down
         - docker compose up -d
 
@@ -118,6 +120,7 @@ deploy-i18n:
         - dev
     script:
         - cd ~/server/clover/server-i18n
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker compose down
         - docker compose up -d
 
@@ -129,6 +132,7 @@ deploy-wiki:
         - dev
     script:
         - cd ~/server/clover/server-wiki
+        - echo $CI_REGISTRY_PASSWORD | docker login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY
         - docker compose down
         - docker compose up -d
 
@@ -142,4 +146,4 @@ deploy-i18n-maven-plugin:
         - cd i18n-maven-plugin
         - java -version
         - mvn -v
-        - mvn clean deploy -U -s ../settings.xml
+        - mvn clean deploy -U -s $CI_PROJECT_DIR/settings.xml
