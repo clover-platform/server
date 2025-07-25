@@ -384,7 +384,7 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
     public PageResult<EntryResponse> list(PageRequest pr, FileEntrySearchRequest request) {
         try(Page<Entry> page = pr.start()) {
             request.setKeyword(pr.getKeyword());
-            if(request.getFileId() != null) {
+            if(request.getFileId() != null && !request.getFileId().isEmpty()) {
                 request.setFileIdList(Arrays.stream(request.getFileId().split(",")).map(Long::parseLong).toList());
             }
             baseMapper.list(request);
