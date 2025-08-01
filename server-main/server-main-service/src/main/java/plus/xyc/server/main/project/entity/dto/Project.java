@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-06-30
+ * @since 2025-08-01
  */
 @Data
 @Accessors(chain = true)
@@ -45,4 +45,7 @@ public class Project implements Serializable {
 
     @Schema(description = "封面")
     private String cover;
+
+    @Schema(description = "上次更新时间")
+    private Date lastUpdatedTime;
 }

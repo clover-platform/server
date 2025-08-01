@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-04-22
+ * @since 2025-08-01
  */
 @Data
 @Accessors(chain = true)
@@ -31,8 +31,8 @@ public class Book implements Serializable {
     @Schema(description = "描述")
     private String description;
 
-    @Schema(description = "所属项目")
-    private Long projectId;
+    @Schema(description = "所属团队")
+    private Long teamId;
 
     @Schema(description = "封面")
     private String cover;

@@ -67,7 +67,7 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
 
         ApiAccountResponse account = mainAccountApiService.getById(request.getOwnerId());
         Book book = struct.toBook(request);
-        book.setProjectId(account.getCurrentProjectId());
+        book.setTeamId(account.getCurrentTeamId());
         log.info("book: {}", book);
         Date now = new Date();
         book.setCreateTime(now);

@@ -11,7 +11,7 @@ public class ModuleQueryRequest {
     private String type;
     @Schema(description = "用户名", hidden = true)
     private Long userId;
-    @Schema(description = "项目ID", hidden = true)
-    private Long projectId;
+    @Schema(description = "团队ID", hidden = true)
+    private Long teamId;
 
 }

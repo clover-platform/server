@@ -7,7 +7,7 @@
         <id column="id" property="id" />
         <result column="name" property="name" />
         <result column="description" property="description" />
-        <result column="project_id" property="projectId" />
+        <result column="team_id" property="teamId" />
         <result column="cover" property="cover" />
         <result column="logo" property="logo" />
         <result column="owner_id" property="ownerId" />
@@ -20,7 +20,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, `name`, description, project_id, cover, logo, owner_id, create_time, update_time, deleted, privacy, `path`
+        id, `name`, description, team_id, cover, logo, owner_id, create_time, update_time, deleted, privacy, `path`
     </sql>
 
     <select id="countByPathAndDeleted" resultType="int">

@@ -9,7 +9,5 @@ public class InitTeamResponse {
 
     @Schema(description = "团队ID")
     private Long teamId;
-    @Schema(description = "项目ID")
-    private Long projectId;
 
 }

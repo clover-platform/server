@@ -83,7 +83,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         ApiAccountResponse account = mainAccountApiService.getById(query.getUserId());
         if(account == null)
             throw new ResultException(I18nCode.USER_NOT_FOUND.code, MessageUtils.get(I18nCode.USER_NOT_FOUND.key));
-        query.setProjectId(account.getCurrentProjectId());
+        query.setTeamId(account.getCurrentTeamId());
         try(Page<Module> page = pageRequest.start()) {
             baseMapper.query(pageRequest.getKeyword(), query);
             return PageResult.of(page.getTotal(), wrapResponse(query.getUserId(), page.getResult()));
@@ -133,7 +133,7 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
         module.setOwner(request.getOwner());
         module.setDescription(request.getDescription());
         module.setSource(request.getSource());
-        module.setProjectId(request.getProjectId());
+        module.setTeamId(request.getTeamId());
         save(module);
 
         // 保存目标语言
@@ -242,10 +242,10 @@ public class ModuleServiceImpl extends ServiceImpl<ModuleMapper, Module> impleme
 
     @Override
     @Transactional
-    public void leave(Long userId, Long projectId) {
+    public void leave(Long userId, Long teamId) {
         // 删除我创建的 ?
         // 从接入的模块中删除我
-        List<Module> modules = lambdaQuery().eq(Module::getProjectId, projectId).list();
+        List<Module> modules = lambdaQuery().eq(Module::getTeamId, teamId).list();
         List<Long> moduleIds = modules.stream().map(Module::getId).toList();
         memberService.delete(userId, moduleIds);
     }

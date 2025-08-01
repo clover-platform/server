@@ -9,16 +9,16 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 
+ * 个人介绍
  * </p>
  *
  * @author generator
- * @since 2025-06-30
+ * @since 2025-08-01
  */
 @Data
 @Accessors(chain = true)
 @TableName("account_readme")
-@Schema(name = "AccountReadme", description = "")
+@Schema(name = "AccountReadme", description = "个人介绍")
 public class AccountReadme implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

@@ -150,7 +150,6 @@ public class AccountServiceImpl extends ServiceImpl<AccountMapper, Account> impl
         UpdateWrapper<Account> update = new UpdateWrapper<>();
         update.eq("id", request.getAccountId());
         update.set("current_team_id", request.getTeamId());
-        update.set("current_project_id", request.getProjectId());
         this.update(update);
     }
 

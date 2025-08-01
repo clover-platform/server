@@ -33,6 +33,6 @@ public interface ModuleService extends IService<Module> {
     ModuleResponse detail(Long id);
     void update(ModuleUpdateRequest request);
     Module findByIdentifier(String identifier);
-    void leave(Long userId, Long projectId);
+    void leave(Long userId, Long teamId);
 
 }

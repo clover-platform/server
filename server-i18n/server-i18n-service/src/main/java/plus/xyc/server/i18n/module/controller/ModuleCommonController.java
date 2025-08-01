@@ -60,7 +60,7 @@ public class ModuleCommonController {
     @GetMapping("/collect/my")
     @Operation(summary = "我的收藏")
     public List<Module> my(@CurrentAccount @Parameter(hidden = true) ApiAccountResponse account) {
-        return moduleCollectService.my(account.getId(), account.getCurrentProjectId());
+        return moduleCollectService.my(account.getId(), account.getCurrentTeamId());
     }
 
     @PostMapping("/new")
@@ -72,7 +72,7 @@ public class ModuleCommonController {
             @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account
     ) {
         log.info("ModuleCommonController newModule account: {}", account);
-        request.setProjectId(account.getCurrentProjectId());
+        request.setTeamId(account.getCurrentTeamId());
         request.setOwner(account.getId());
         moduleService.create(request);
     }

@@ -16,7 +16,7 @@ import plus.xyc.server.main.account.entity.dto.Account;
 import plus.xyc.server.main.account.entity.request.SetCurrentRequest;
 import plus.xyc.server.main.account.service.AccountService;
 import plus.xyc.server.main.api.entity.request.ApiAccountListRequest;
-import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
+import plus.xyc.server.main.api.entity.request.JoinTeamRequest;
 import plus.xyc.server.main.api.entity.response.ApiAccountResponse;
 import plus.xyc.server.main.enums.MainCode;
 import plus.xyc.server.main.project.entity.dto.Project;
@@ -86,10 +86,9 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Override
     @Transactional
     @DistributedLock("'project:member:' + #request.projectId")
-    public boolean join(JoinProjectRequest request) {
+    public boolean join(JoinTeamRequest request) {
         log.info("join project: {}", request);
-        Project project = getById(request.getProjectId());
-        Team team = teamMapper.selectById(project.getTeamId());
+        Team team = teamMapper.selectById(request.getTeamId());
         // 先查询是否存在
         int tmSize = teamMemberMapper.countByAccountIdAndTeamId(request.getUserId(), team.getId());
         if(tmSize == 0) {
@@ -99,19 +98,7 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             teamMember.setType(0);
             teamMemberMapper.insert(teamMember);
         }
-
-        // 保存项目成员
-        // 先查询是否存在
-        int pmSize = projectMemberMapper.countByAccountIdAndProjectId(request.getUserId(), project.getId());
-        if(pmSize == 0) {
-            ProjectMember projectMember = new ProjectMember();
-            projectMember.setAccountId(request.getUserId());
-            projectMember.setProjectId(project.getId());
-            projectMember.setType(0);
-            projectMemberMapper.insert(projectMember);
-        }
         SetCurrentRequest setCurrentRequest = new SetCurrentRequest();
-        setCurrentRequest.setProjectId(project.getId());
         setCurrentRequest.setTeamId(team.getId());
         setCurrentRequest.setAccountId(request.getUserId());
         accountService.setCurrent(setCurrentRequest);
@@ -190,10 +177,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Override
     @CacheEvict(value = {"account:projects#1d"}, key = "#userId")
     public void delete(Long id, Long userId) {
-        Account account = accountService.findById(userId);
-        if(account.getCurrentProjectId().equals(id)) {
-            throw new ResultException(MainCode.CURRENT_PROJECT.code, MessageUtils.get(MainCode.CURRENT_PROJECT.key));
-        }
         int size = baseMapper.countByIdAndOwnerId(id, userId);
         if (size == 0) {
             throw new ResultException(MainCode.ACCESS_DENIED.code, MessageUtils.get(MainCode.ACCESS_DENIED.key));
@@ -224,11 +207,6 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
     @Override
     @Transactional
     public void leave(Long id, Long userId) {
-        Account account = accountService.findById(userId);
-        if(account.getCurrentProjectId().equals(id)) {
-            throw new ResultException(MainCode.CURRENT_PROJECT_LEAVE.code, MessageUtils.get(MainCode.CURRENT_PROJECT_LEAVE.key));
-        }
-        
         projectMemberService.leave(id, userId);
         Project project = getById(id);
 

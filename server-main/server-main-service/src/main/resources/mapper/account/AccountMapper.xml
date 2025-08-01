@@ -11,12 +11,11 @@
         <result column="deleted" property="deleted" />
         <result column="enable" property="enable" />
         <result column="current_team_id" property="currentTeamId" />
-        <result column="current_project_id" property="currentProjectId" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, email, username, avatar, deleted, enable, current_team_id, current_project_id
+        id, email, username, avatar, deleted, enable, current_team_id
     </sql>
     <select id="findOneByUsername" resultMap="BaseResultMap">
         select

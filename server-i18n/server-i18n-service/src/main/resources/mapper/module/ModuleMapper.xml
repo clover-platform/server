@@ -8,7 +8,7 @@
         <result column="identifier" property="identifier" />
         <result column="name" property="name" />
         <result column="description" property="description" />
-        <result column="project_id" property="projectId" />
+        <result column="team_id" property="teamId" />
         <result column="owner" property="owner" />
         <result column="create_time" property="createTime" />
         <result column="source" property="source" />
@@ -19,7 +19,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, identifier, name, description, project_id, owner, create_time, source, update_time, deleted, update_user
+        id, identifier, name, description, team_id, owner, create_time, source, update_time, deleted, update_user
     </sql>
 
     <select id="query" resultMap="BaseResultMap">
@@ -46,8 +46,8 @@
             <if test="keyword != null">
                 AND m.name like concat('%', #{keyword}, '%')
             </if>
-            <if test="query.projectId != null">
-                AND m.project_id = #{query.projectId}
+            <if test="query.teamId != null">
+                AND m.team_id = #{query.teamId}
             </if>
         </where>
     </select>

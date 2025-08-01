@@ -25,7 +25,7 @@ public class ModuleCreateRequest {
     @Schema(description = "拥有者", hidden = true)
     private Long owner;
 
-    @Schema(description = "当前项目ID", hidden = true)
-    private Long projectId;
+    @Schema(description = "当前团队ID", hidden = true)
+    private Long teamId;
 
 }

@@ -32,7 +32,7 @@ public class ActivityService {
         org.zkit.support.server.message.api.entity.request.ActivityListRequest alr = activityMapStruct.toActivityListRequest(request);
         ApiAccountResponse account = mainAccountApiService.getById(alr.getUserId());
         JSONObject metadata = new JSONObject();
-        metadata.put("projectId", account.getCurrentProjectId());
+        metadata.put("teamId", account.getCurrentTeamId());
         alr.setMetadata(metadata);
         PageResult<org.zkit.support.server.message.api.entity.response.ActivityResponse> pr = activityApiService.list(alr);
         List<org.zkit.support.server.message.api.entity.response.ActivityResponse> origActivityResponses = pr.getData();

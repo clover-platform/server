@@ -31,9 +31,6 @@ public class ApiAccountResponse implements Serializable {
     @Schema(description = "当前团队id")
     private Long currentTeamId;
 
-    @Schema(description = "当前项目id")
-    private Long currentProjectId;
-
     @Schema(description = "是否已激活")
     private Boolean active;
 

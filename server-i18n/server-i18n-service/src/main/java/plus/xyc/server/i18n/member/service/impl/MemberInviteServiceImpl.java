@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.module.entity.dto.Module;
 import plus.xyc.server.i18n.module.entity.response.ModuleDashboardResponse;
 import plus.xyc.server.i18n.module.service.ModuleService;
-import plus.xyc.server.main.api.entity.request.JoinProjectRequest;
+import plus.xyc.server.main.api.entity.request.JoinTeamRequest;
 import plus.xyc.server.main.api.service.MainApiService;
 
 import java.util.*;
@@ -137,8 +137,8 @@ public class MemberInviteServiceImpl extends ServiceImpl<MemberInviteMapper, Mem
         if(size > 0) {
             throw new ResultException(I18nCode.MEMBER_JOINED.code, MessageUtils.get(I18nCode.MEMBER_JOINED.key));
         }
-        JoinProjectRequest joinProjectRequest = new JoinProjectRequest();
-        joinProjectRequest.setProjectId(module.getProjectId());
+        JoinTeamRequest joinProjectRequest = new JoinTeamRequest();
+        joinProjectRequest.setTeamId(module.getTeamId());
         joinProjectRequest.setUserId(request.getId());
         mainApiService.joinProject(joinProjectRequest);
         Member member = new Member();

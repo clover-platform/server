@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
  * </p>
  *
  * @author generator
- * @since 2025-04-22
+ * @since 2025-08-01
  */
 @Data
 @Accessors(chain = true)

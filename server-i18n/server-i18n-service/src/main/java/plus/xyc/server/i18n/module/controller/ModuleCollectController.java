@@ -38,7 +38,7 @@ public class ModuleCollectController {
             @PathInject PathRequest pathRequest,
             @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account
     ) {
-       moduleCollectService.add(account.getId(), account.getCurrentProjectId(), pathRequest.getModule().getId());
+       moduleCollectService.add(account.getId(), account.getCurrentTeamId(), pathRequest.getModule().getId());
     }
 
     @PostMapping("/cancel")
@@ -48,7 +48,7 @@ public class ModuleCollectController {
             @PathInject PathRequest pathRequest,
             @CurrentAccount @Parameter(hidden = true) ApiAccountResponse account
     ) {
-        moduleCollectService.cancel(account.getId(), account.getCurrentProjectId(), pathRequest.getModule().getId());
+        moduleCollectService.cancel(account.getId(), account.getCurrentTeamId(), pathRequest.getModule().getId());
     }
 
 }

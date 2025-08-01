@@ -7,11 +7,11 @@ import java.io.Serializable;
 
 @Data
 @Schema(description = "加入项目请求")
-public class JoinProjectRequest implements Serializable {
+public class JoinTeamRequest implements Serializable {
 
     @Schema(description = "用户ID")
     private Long userId;
-    @Schema(description = "项目ID")
-    private Long projectId;
+    @Schema(description = "团队ID")
+    private Long teamId;
 
 }

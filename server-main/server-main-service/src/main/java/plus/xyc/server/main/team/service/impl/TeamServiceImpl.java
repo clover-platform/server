@@ -100,29 +100,18 @@ public class TeamServiceImpl extends ServiceImpl<TeamMapper, Team> implements Te
         teamMember.setType(TeamMemberType.OWNER.code);
         teamMemberMapper.insert(teamMember);
 
-        // 保存项目信息
-        Project project = new Project();
-        project.setTeamId(team.getId());
-        project.setName(MessageUtils.get("default.project.name"));
-        project.setOwnerId(request.getOwnerId());
-        project.setProjectKey("default"+ team.getId());
-        projectService.checkAndSave(project);
-
         // 设置为当前
         SetCurrentRequest setCurrentRequest = new SetCurrentRequest(
                 request.getOwnerId(),
-                team.getId(),
-                project.getId()
+                team.getId()
         );
         accountService.setCurrent(setCurrentRequest);
 
         // 发送事件
         teamEventService.create(request.getOwnerId(), team.getId());
-        projectEventService.create(request.getOwnerId(), project.getId(), team.getId());
 
         InitTeamResponse response = new InitTeamResponse();
         response.setTeamId(team.getId());
-        response.setProjectId(project.getId());
         return response;
     }
 

@@ -34,14 +34,12 @@ public class MetadataHolderLoaderAspect {
         JSONObject metadata = new JSONObject();
         Arrays.stream(joinPoint.getArgs()).forEach(arg -> {
             if (arg instanceof ApiAccountResponse account) {
-                metadata.put("projectId", account.getCurrentProjectId());
-                log.info("MetadataHolderLoaderAspect projectId: {}", account.getCurrentProjectId());
+                metadata.put("teamId", account.getCurrentTeamId());
             }
             if (arg instanceof PathRequest pathRequest) {
                 Module module = pathRequest.getModule();
                 if (module != null) {
                     metadata.put("moduleId", module.getId());
-                    log.info("MetadataHolderLoaderAspect moduleId: {}", module.getId());
                 }
             }
         });
