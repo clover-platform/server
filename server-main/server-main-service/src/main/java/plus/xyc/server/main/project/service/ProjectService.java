@@ -32,5 +32,6 @@ public interface ProjectService extends IService<Project> {
     void leave(Long id, Long userId);
     void leaveByTeamId(Long teamId, Long userId);
     void deleteByTeamId(Long teamId, Long userId);
+    PageResult<ProjectResponse> recent(PageRequest page, Long userId);
 
 }

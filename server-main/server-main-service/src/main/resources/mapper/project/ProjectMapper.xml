@@ -90,4 +90,29 @@
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
+    <select id="recent" resultMap="BaseResultMap">
+        select p.* from project as p
+        inner join activity_log as al on p.id = al.item_id
+        <where>
+            al.action = 1
+            and p.deleted = false
+            <if test="keyword != null and keyword != ''">
+                and ( p.name like concat('%', #{keyword}, '%') or p.project_key like concat('%', #{keyword}, '%') )
+            </if>
+            <if test="userId != null">
+                and al.user_id = #{userId}
+            </if>
+            and al.time = (
+                 select max(time) 
+                 from activity_log 
+                 where item_id = al.item_id 
+                 and action = 1
+                 <if test="userId != null">
+                     and user_id = #{userId}
+                 </if>
+             )
+        </where>
+        order by al.time desc
+    </select>
+
 </mapper>

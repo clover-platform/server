@@ -248,4 +248,12 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
         // 删除所有项目事件
         projectIds.forEach(projectId -> projectEventService.delete(userId, projectId, teamId));
     }
+
+    @Override
+    public PageResult<ProjectResponse> recent(PageRequest pr, Long userId) {
+        try(Page<ProjectResponse> page = pr.start()) {
+            baseMapper.recent(userId, pr.getKeyword());
+            return PageResult.of(page.getTotal(), page.getResult());
+        }
+    }
 }

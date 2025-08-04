@@ -79,4 +79,13 @@ public class ProjectController {
         projectService.leave(id, user.getId());
     }
 
+    @GetMapping("/recent")
+    @Operation(summary = "最近项目")
+    public PageResult<ProjectResponse> recent(
+            @CurrentUser() @Parameter(hidden = true) SessionUser user,
+            @ParameterObject @ModelAttribute PageRequest page
+    ) {
+        return projectService.recent(page, user.getId());
+    }
+
 }
