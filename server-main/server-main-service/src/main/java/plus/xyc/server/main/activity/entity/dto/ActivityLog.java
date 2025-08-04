@@ -1,4 +1,4 @@
-package plus.xyc.server.main.project.entity.dto;
+package plus.xyc.server.main.activity.entity.dto;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 
 /**
  * <p>
- * 收藏的项目
+ * 最近活动日志
  * </p>
  *
  * @author generator
@@ -18,21 +18,24 @@ import lombok.experimental.Accessors;
  */
 @Data
 @Accessors(chain = true)
-@TableName("project_collect")
-@Schema(name = "ProjectCollect", description = "收藏的项目")
-public class ProjectCollect implements Serializable {
+@TableName("activity_log")
+@Schema(name = "ActivityLog", description = "最近活动日志")
+public class ActivityLog implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
     private Long id;
 
-    @Schema(description = "用户ID")
+    @Schema(description = "用户 ID")
     private Long userId;
 
-    @Schema(description = "项目ID")
-    private Long projectId;
+    @Schema(description = "记录类型 1-项目 2-任务")
+    private Integer action;
 
-    @Schema(description = "收藏时间")
-    private Date createTime;
+    @Schema(description = "关联业务ID")
+    private Long itemId;
+
+    @Schema(description = "活动时间")
+    private Date time;
 }
