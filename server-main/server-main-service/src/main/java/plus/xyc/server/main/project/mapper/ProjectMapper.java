@@ -23,6 +23,6 @@ public interface ProjectMapper extends BaseMapper<Project> {
     int countByProjectKeyAndDeleted(@Param("projectKey") String projectKey, @Param("deleted") Boolean deleted);
     int countByIdAndOwnerId(@Param("id") Long id, @Param("ownerId") Long ownerId);
     int countByTeamIdAndDeleted(@Param("teamId") Long teamId, @Param("deleted") Boolean deleted);
-    List<Project> recent(@Param("userId") Long userId, @Param("keyword") String keyword);
+    List<ProjectResponse> recent(@Param("userId") Long userId, @Param("keyword") String keyword);
 
 }

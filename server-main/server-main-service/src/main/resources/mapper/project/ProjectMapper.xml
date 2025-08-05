@@ -13,6 +13,16 @@
         <result column="deleted" property="deleted" />
     </resultMap>
 
+    <resultMap id="ProjectResponseResultMap" type="plus.xyc.server.main.project.entity.response.ProjectResponse">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="owner_id" property="ownerId" />
+        <result column="create_time" property="createTime" />
+        <result column="team_id" property="teamId" />
+        <result column="project_key" property="projectKey" />
+        <result column="last_activity_time" property="lastActivityTime" />
+    </resultMap>
+
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
         id, name, owner_id, create_time, team_id, project_key, deleted
@@ -90,8 +100,8 @@
           AND deleted = #{deleted,jdbcType=BOOLEAN}
     </select>
 
-    <select id="recent" resultMap="BaseResultMap">
-        select p.* from project as p
+    <select id="recent" resultMap="ProjectResponseResultMap">
+        select p.*, al.time as last_activity_time from project as p
         inner join activity_log as al on p.id = al.item_id
         <where>
             al.action = 1
