@@ -26,6 +26,7 @@ import plus.xyc.server.main.project.entity.enums.ProjectMemberType;
 import plus.xyc.server.main.project.entity.mapstruct.ProjectMapStruct;
 import plus.xyc.server.main.project.entity.request.CreateProjectRequest;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
+import plus.xyc.server.main.project.entity.response.ProjectPanelResponse;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.mapper.ProjectMapper;
 import plus.xyc.server.main.project.mapper.ProjectMemberMapper;
@@ -255,5 +256,23 @@ public class ProjectServiceImpl extends ServiceImpl<ProjectMapper, Project> impl
             baseMapper.recent(userId, pr.getKeyword());
             return PageResult.of(page.getTotal(), page.getResult());
         }
+    }
+
+    @Override
+    @Cacheable(value = "account:projects:panel#1d", key = "#userId")
+    public ProjectPanelResponse panel(Long userId) {
+        List<Project> projects = projectCollectService.my(userId, 5);
+        ProjectPanelResponse panel = new ProjectPanelResponse();
+        panel.setCollects(projects.stream().map(project -> projectMapStruct.toProjectResponse(project)).toList());
+        PageResult<ProjectResponse> recent = this.recent(PageRequest.of(1, 5), userId);
+        panel.setRecents(recent.getData());
+        Account account = accountService.findById(userId);
+        ProjectListRequest plr = new ProjectListRequest();
+        plr.setUserId(userId);
+        plr.setTeamId(account.getCurrentTeamId());
+        plr.setType("all");
+        PageResult<ProjectResponse> list = this.list(PageRequest.of(1, 5), plr);
+        panel.setProjects(list.getData());
+        return panel;
     }
 }

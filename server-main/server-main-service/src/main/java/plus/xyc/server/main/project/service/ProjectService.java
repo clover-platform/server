@@ -7,6 +7,7 @@ import plus.xyc.server.main.project.entity.dto.Project;
 import com.baomidou.mybatisplus.extension.service.IService;
 import plus.xyc.server.main.project.entity.request.CreateProjectRequest;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
+import plus.xyc.server.main.project.entity.response.ProjectPanelResponse;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 
 import java.util.List;
@@ -33,5 +34,6 @@ public interface ProjectService extends IService<Project> {
     void leaveByTeamId(Long teamId, Long userId);
     void deleteByTeamId(Long teamId, Long userId);
     PageResult<ProjectResponse> recent(PageRequest page, Long userId);
+    ProjectPanelResponse panel(Long userId);
 
 }

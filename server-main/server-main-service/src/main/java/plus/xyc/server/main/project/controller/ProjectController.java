@@ -12,6 +12,7 @@ import org.zkit.support.starter.security.annotation.CurrentUser;
 import org.zkit.support.starter.security.entity.SessionUser;
 import plus.xyc.server.main.project.entity.request.CreateProjectRequest;
 import plus.xyc.server.main.project.entity.request.ProjectListRequest;
+import plus.xyc.server.main.project.entity.response.ProjectPanelResponse;
 import plus.xyc.server.main.project.entity.response.ProjectResponse;
 import plus.xyc.server.main.project.service.ProjectService;
 
@@ -86,6 +87,14 @@ public class ProjectController {
             @ParameterObject @ModelAttribute PageRequest page
     ) {
         return projectService.recent(page, user.getId());
+    }
+
+    @GetMapping("/panel")
+    @Operation(summary = "项目面板")
+    public ProjectPanelResponse panel(
+            @CurrentUser() @Parameter(hidden = true) SessionUser user
+    ) {
+        return projectService.panel(user.getId());
     }
 
 }

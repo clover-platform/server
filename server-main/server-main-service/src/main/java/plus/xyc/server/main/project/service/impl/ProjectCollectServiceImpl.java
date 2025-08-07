@@ -53,7 +53,7 @@ public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper,
     @Override
     @Cacheable(value = "project:collect", key = "#userId")
     public List<Project> my(Long userId) {
-        return baseMapper.my(userId);
+        return this.my(userId, null);
     }
 
     @Override
@@ -66,5 +66,10 @@ public class ProjectCollectServiceImpl extends ServiceImpl<ProjectCollectMapper,
     @CacheEvict(value = "project:collect", key = "#userId")
     public void cancel(Long userId, List<Long> projectIds) {
         lambdaUpdate().in(ProjectCollect::getProjectId, projectIds).eq(ProjectCollect::getUserId, userId).remove();
+    }
+
+    @Override
+    public List<Project> my(Long userId, Integer limit) {
+        return baseMapper.my(userId, limit);
     }
 }

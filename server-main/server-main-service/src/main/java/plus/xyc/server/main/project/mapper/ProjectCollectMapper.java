@@ -17,7 +17,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  */
 public interface ProjectCollectMapper extends BaseMapper<ProjectCollect> {
 
-    List<Project> my(@Param("userId") Long userId);
+    List<Project> my(@Param("userId") Long userId, @Param("limit") Integer limit);
     List<ProjectCollect> findByProjectIdInAndUserId(@Param("projectIdList") Collection<Long> projectIdList, @Param("userId") Long userId);
 
 }

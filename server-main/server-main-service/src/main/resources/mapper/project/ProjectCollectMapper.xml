@@ -33,6 +33,9 @@
         left join project_collect tc on t.id = tc.project_id
         where tc.user_id = #{userId}
         and t.deleted = false
+        <if test="limit != null">
+            limit #{limit}
+        </if>
     </select>
 
 </mapper>
