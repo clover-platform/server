@@ -16,11 +16,11 @@
     </sql>
 
     <select id="my" resultType="plus.xyc.server.i18n.module.entity.dto.Module">
-        select t.*
-        from module t
-        left join module_collect tc on t.id = tc.module_id
-        where tc.user_id = #{userId} and t.project_id = #{projectId}
-        and t.deleted = false
+        select m.*
+        from module m
+        left join module_collect mc on m.id = mc.module_id
+        where mc.user_id = #{userId} and m.team_id = #{teamId}
+        and m.deleted = false
     </select>
 
 </mapper>
