@@ -43,6 +43,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import plus.xyc.server.i18n.entry.service.EntryStateService;
 import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.entity.request.FileEntryBatchRequest;
 import plus.xyc.server.i18n.file.entity.request.FileEntrySearchRequest;
 import plus.xyc.server.i18n.file.mapper.FileMapper;
 import plus.xyc.server.i18n.file.service.FileRevisionService;
@@ -402,5 +403,11 @@ public class EntryServiceImpl extends ServiceImpl<EntryMapper, Entry> implements
             }).toList();
             return PageResult.of(page.getTotal(), responses);
         }
+    }
+
+    @Override
+    @Transactional
+    public void batchAddEntry(FileEntryBatchRequest request) {
+        log.info("batchAddEntry: {}", request);
     }
 }

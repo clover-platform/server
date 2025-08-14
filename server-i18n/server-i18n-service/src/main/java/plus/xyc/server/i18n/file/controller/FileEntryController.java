@@ -28,6 +28,7 @@ import plus.xyc.server.i18n.entry.entity.response.EntryCountResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.service.EntryService;
+import plus.xyc.server.i18n.file.entity.request.FileEntryBatchRequest;
 import plus.xyc.server.i18n.file.entity.request.FileEntrySearchRequest;
 
 @RestController
@@ -81,6 +82,19 @@ public class FileEntryController {
         request.setModuleId(pathRequest.getModule().getId());
         request.setUserId(user.getId());
         entryService.create(request);
+    }
+
+    @Recount
+    @PostMapping("/batch/add")
+    @Operation(summary = "批量添加词条")
+    public void batchAddEntry(
+            @Parameter(description = "模块标识") @PathVariable String moduleName,
+            @Parameter(hidden = true) @PathInject PathRequest pathRequest,
+            @Parameter(hidden = true) @CurrentUser SessionUser user,
+            @RequestBody FileEntryBatchRequest request) {
+        request.setModuleId(pathRequest.getModule().getId());
+        request.setUserId(user.getId());
+        entryService.batchAddEntry(request);
     }
     
 }

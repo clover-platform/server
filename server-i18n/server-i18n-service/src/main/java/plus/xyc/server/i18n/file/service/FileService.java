@@ -1,6 +1,7 @@
 package plus.xyc.server.i18n.file.service;
 
 import plus.xyc.server.i18n.file.entity.dto.File;
+import plus.xyc.server.i18n.file.entity.request.FileEntryBatchRequest;
 import plus.xyc.server.i18n.file.entity.request.FileImportRequest;
 import plus.xyc.server.i18n.file.entity.request.FileListRequest;
 import plus.xyc.server.i18n.file.entity.request.FileRenameRequest;

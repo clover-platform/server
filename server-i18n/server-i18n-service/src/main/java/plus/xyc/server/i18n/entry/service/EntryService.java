@@ -15,6 +15,7 @@ import plus.xyc.server.i18n.entry.entity.response.EntryResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithResultResponse;
 import plus.xyc.server.i18n.entry.entity.response.EntryWithStateResponse;
 import plus.xyc.server.i18n.entry.entity.response.UpdateEntriesResponse;
+import plus.xyc.server.i18n.file.entity.request.FileEntryBatchRequest;
 import plus.xyc.server.i18n.file.entity.request.FileEntrySearchRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPullRequest;
 import plus.xyc.server.i18n.open.entity.request.OpenEntryPushRequest;
@@ -49,5 +50,6 @@ public interface EntryService extends IService<Entry> {
     UpdateEntriesResponse updateEntries(Long moduleId, Long fileId, Long userId, List<EntryRequest> requestEntries);
     List<Entry> getByIds(List<Long> ids);
     PageResult<EntryResponse> list(PageRequest page, FileEntrySearchRequest request);
+    void batchAddEntry(FileEntryBatchRequest request);
 
 }
